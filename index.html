@@ -7,7 +7,6 @@
 			window.RufflePlayer.config = {
 				"autoplay": "on",
 				"unmuteOverlay": "hidden",
-				"splashScreen": false,
 				"contextMenu": false,
 			}
 		</script>
@@ -15,6 +14,10 @@
 		<link rel="icon" type="image/png" href="favicon.png">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<style type="text/css" media="screen">
+		:root {
+			--splash-screen-background: #ffffff;
+			--logo-display: none;
+		}
 		html, body { height:100%; background-color: #ffffff;}
 		body { margin:0; padding:0; overflow:hidden; }
 		#flashContent { width:100%; height:100%; }
