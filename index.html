@@ -17,7 +17,7 @@
 	<body>
 		<div id="flashContent">
 			<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="100%" height="100%" id="site" align="middle">
-				<param name="movie" value="site.swf" />
+				<param name="movie" value="/site.swf" />
 				<param name="quality" value="high" />
 				<param name="bgcolor" value="#ffffff" />
 				<param name="play" value="true" />
@@ -34,7 +34,7 @@
 			var noCache = '?nocache=' + new Date().getTime();
 			var object = document.getElementById('site');
 			var param = object.querySelector('param[name="movie"]');
-			param.setAttribute('value', 'site.swf' + noCache);
+			param.setAttribute('value', '/site.swf' + noCache);
 		</script>
 		<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 		<script>
