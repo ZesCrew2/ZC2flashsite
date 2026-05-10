@@ -166,3 +166,11 @@ body {
     color: #fff;
     font-size: 18px;
 }
+
+#footer .link {
+    color:orange;
+}
+
+#footer .link:visited {
+    color:yellowgreen;
+}
