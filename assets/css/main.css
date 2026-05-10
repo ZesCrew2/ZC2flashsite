@@ -24,39 +24,57 @@
 }
 
 .btn.red {
-    background-position: -8px -8px;
+	background-position: -8px -8px;
+	color: #FFE7BB;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .btn.orange {
-    background-position: -8px -46px;
+	background-position: -8px -46px;
+	color: #FFFFAA;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .btn.yellow {
-    background-position: -8px -84px;
+	background-position: -8px -84px;
+	color: #FFFFA5;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .btn.lime {
-    background-position: -8px -122px;
+	background-position: -8px -122px;
+	color: #F0F990;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .btn.green {
-    background-position: -8px -160px;
+	background-position: -8px -160px;
+	color: #F3FF8F;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .btn.cyan {
-    background-position: -8px -198px;
+	background-position: -8px -198px;
+	color: #F8FFFF;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .btn.blue {
-    background-position: -8px -236px;
+	background-position: -8px -236px;
+	color: #F8FFFF;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .btn.purple {
-    background-position: -8px -274px;
+	background-position: -8px -274px;
+	color: #FCC9FF;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .btn.pink {
-    background-position: -8px -312px;
+	background-position: -8px -312px;
+	color: #FFF;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 
