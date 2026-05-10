@@ -94,6 +94,7 @@ body {
     left: 15px;
     width: 100px;
     height: auto;
+    z-index: 10;
 }
 
 #banner {
@@ -103,6 +104,7 @@ body {
     transform: translateX(-50%);
     width: 760px;
     height: 100px;
+    z-index: 5;
 }
 
 #buttons {
