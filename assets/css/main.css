@@ -1,34 +1,139 @@
 @font-face {
-  font-family: 'Kronika';
-  src: url('../fonts/KRONIKA.ttf') format('truetype');
+    font-family: 'Kronika';
+    src: url('../fonts/KRONIKA.ttf') format('truetype');
 }
 
 .btn {
-  display: inline-block;
-  width: 200px;
-  height: 30px;
-  border: none;
-  background-image: url('../img/buttons.png');
-  background-repeat: no-repeat;
-  font-family: 'Kronika', sans-serif;
-  filter: drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
-  transition: filter 0.2s ease;
+    display: inline-block;
+    width: 200px;
+    height: 30px;
+    border: none;
+    background-image: url('../img/buttons.png');
+    background-repeat: no-repeat;
+    font-family: 'Kronika', sans-serif;
+    filter: drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
+    transition: filter 0.2s ease;
 }
 
 .btn:hover {
-  filter: brightness(1.2) drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
+    filter: brightness(1.2) drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
 }
 
 .btn:active {
-  filter: brightness(0.7) drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
+    filter: brightness(0.7) drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
 }
 
-.btn.red { background-position: -8px -8px; }
-.btn.orange { background-position: -8px -46px; }
-.btn.yellow { background-position: -8px -84px; }
-.btn.lime { background-position: -8px -122px; }
-.btn.green { background-position: -8px -160px; }
-.btn.cyan { background-position: -8px -198px; }
-.btn.blue { background-position: -8px -236px; }
-.btn.purple { background-position: -8px -274px; }
-.btn.pink { background-position: -8px -312px; }
+.btn.red {
+    background-position: -8px -8px;
+}
+
+.btn.orange {
+    background-position: -8px -46px;
+}
+
+.btn.yellow {
+    background-position: -8px -84px;
+}
+
+.btn.lime {
+    background-position: -8px -122px;
+}
+
+.btn.green {
+    background-position: -8px -160px;
+}
+
+.btn.cyan {
+    background-position: -8px -198px;
+}
+
+.btn.blue {
+    background-position: -8px -236px;
+}
+
+.btn.purple {
+    background-position: -8px -274px;
+}
+
+.btn.pink {
+    background-position: -8px -312px;
+}
+
+
+/* Additional styles */
+
+:root {
+    --splash-screen-background: transparent;
+    --logo-display: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #000 url("../img/bg.png") no-repeat center center fixed;
+    background-size: max(1920px, 100%, calc(100vh * 16 / 9)) auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Kronika', sans-serif;
+}
+
+#site {
+    position: relative;
+    width: 760px;
+    height: 615px;
+    background-image: url("../img/bkgd.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+#logo {
+    position: absolute;
+    left: 50px;
+    width: 100px;
+    height: auto;
+    z-index: 10;
+}
+
+#banner {
+    position: absolute;
+    left: calc(50% - 1px);
+    transform: translateX(-50%);
+    z-index: 5;
+    top: 3px;
+}
+
+#buttons {
+    position: absolute;
+    top: 130px;
+    left: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#content-area {
+    position: absolute;
+    top: 130px;
+    left: 255px;
+    width: 460px;
+    height: 352px;
+    overflow: hidden;
+}
+
+#flashContent {
+    width: 100%;
+    height: 100%;
+}
+
+#footer {
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #fff;
+    font-size: 18px;
+}
