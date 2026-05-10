@@ -100,12 +100,22 @@ body {
 
 #site {
     position: relative;
-    width: 760px;
-    height: 615px;
+    width: min(760px, 100vw, calc(100vh * 760 / 615));
+    aspect-ratio: 760 / 615;
     background-image: url("../img/bkgd.svg");
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+    overflow: hidden;
+}
+
+#site-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 760px;
+    height: 615px;
+    transform-origin: top left;
 }
 
 #logo {

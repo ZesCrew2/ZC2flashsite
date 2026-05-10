@@ -1,16 +1,16 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-	<head>
-		<title>Welcome to ZC2!!</title>
-		<link rel="icon" type="image/png" href="favicon.png">
-		<link rel="stylesheet" type="text/css" href="assets/css/main.css" />
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<style type="text/css" media="screen">
-		
-		</style>
-	</head>
-	<body>
-		<div id="site">
+
+<head>
+	<title>Welcome to ZC2!!</title>
+	<link rel="icon" type="image/png" href="favicon.png">
+	<link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<body>
+	<div id="site">
+		<div id="site-inner">
 			<img src="assets/img/zc2aeroorb.png" alt="ZC2 Logo" id="logo">
 			<div id="banner">
 				<object type="application/x-shockwave-flash" data="assets/swf/banner.swf" width="732" height="100">
@@ -31,26 +31,39 @@
 			</div>
 			<div id="content-area">
 				<div id="flashContent">
-					<object data="/assets/swf/pages/red.swf" type="application/x-shockwave-flash" width="100%" height="100%"></object>
+					<object data="/assets/swf/pages/red.swf" type="application/x-shockwave-flash" width="100%"
+						height="100%"></object>
 				</div>
 			</div>
 			<div id="footer">
-			  <p>Site CSS by Saptarshi - <a href="https://sploder-saptarshi.github.io/" rel="noreferrer noopener" target="_blank" title="https://sploder-saptarshi.github.io/" role="link" tabindex="0">https://sploder-saptarshi.github.io</a>			</p>
+				<p>Site CSS by Saptarshi - <a href="https://sploder-saptarshi.github.io/" rel="noreferrer noopener"
+						target="_blank" title="https://sploder-saptarshi.github.io/" role="link"
+						tabindex="0">https://sploder-saptarshi.github.io</a></p>
 			</div>
 		</div>
-		<script>
-			function loadSwf(color) {
-				flashContent.innerHTML = '<object data="/assets/swf/pages/' + color + '.swf" type="application/x-shockwave-flash" width="100%" height="100%"></object>';
-			}
-			loadSwf('red');
-		</script>
-		<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
-		<script>
-			window.RufflePlayer.config = {
-				"autoplay": "on",
-				"unmuteOverlay": "hidden",
-				"contextMenu": "off",
-			}
-		</script>
-	</body>
+	</div>
+	<script>
+		function loadSwf(color) {
+			flashContent.innerHTML = '<object data="/assets/swf/pages/' + color + '.swf" type="application/x-shockwave-flash" width="100%" height="100%"></object>';
+		}
+		loadSwf('red');
+		function scaleSite() {
+			var site = document.getElementById('site');
+			var inner = document.getElementById('site-inner');
+			var scale = site.clientWidth / 760;
+			inner.style.transform = 'scale(' + scale + ')';
+		}
+		window.addEventListener('resize', scaleSite);
+		scaleSite();
+	</script>
+	<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+	<script>
+		window.RufflePlayer.config = {
+			"autoplay": "on",
+			"unmuteOverlay": "hidden",
+			"contextMenu": "off",
+		}
+	</script>
+</body>
+
 </html>
