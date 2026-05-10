@@ -5,6 +5,7 @@
     const clickSound = new Audio('assets/sounds/clicky.wav');
 
     function init() {
+        // button sounds
         document.addEventListener('mouseover', function(e) {
             if (window.siteAudio && !window.siteAudio.isMuted && e.target.classList.contains('btn')) {
                 hoverSound.currentTime = 0;
@@ -19,7 +20,7 @@
             }
         });
 
-        // special case for speaker button itself
+        // speaker hover
         const speaker = document.getElementById('speaker');
         if (speaker) {
             speaker.addEventListener('mouseover', function() {
@@ -30,10 +31,9 @@
             });
         }
 
-        // saptarshi sound effects
+        // saptarshi sound
         const saptarshi = document.querySelector('.saptarshi-text');
         const notifSound = new Audio('assets/sounds/notification.ogg');
-
         if (saptarshi) {
             saptarshi.addEventListener('click', function() {
                 if (window.siteAudio && !window.siteAudio.isMuted) {
@@ -43,7 +43,7 @@
             });
         }
 
-        // thorns sound effects
+        // thorns sound
         const thorns = document.querySelector('.thorns-text');
         const luigiSounds = [
             new Audio('assets/sounds/mk64_luigi01.wav'),
@@ -51,9 +51,8 @@
             new Audio('assets/sounds/mk64_luigi03.wav'),
             new Audio('assets/sounds/mk64_luigi06.wav')
         ];
-
         if (thorns) {
-            thorns.addEventListener('click', function(e) {
+            thorns.addEventListener('click', function() {
                 if (window.siteAudio && !window.siteAudio.isMuted) {
                     const randomSound = luigiSounds[Math.floor(Math.random() * luigiSounds.length)];
                     randomSound.currentTime = 0;
@@ -61,10 +60,7 @@
                 }
             });
         }
-        }
-
-
-
+    }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
