@@ -284,3 +284,39 @@ body {
     animation: sine-wave 2s ease-in-out infinite;
     color: inherit;
 }
+
+#music-player {
+    position: fixed;
+    bottom: 20px;
+    right: -350px; /* Hidden initially */
+    width: 250px;
+    z-index: 1000;
+    transition: right 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-family: 'Segoe UI', Tahoma, Helvetica, Sans-Serif;
+}
+
+#music-player.show {
+    right: 20px;
+}
+
+#music-player .window-body p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+#music-player {
+    background-color: #FFA500 !important;
+}
+
+#music-restore {
+    display: none;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 2001;
+    background-color: #FFA500 !important;
+    color: #000;
+    font-family: 'Segoe UI', Tahoma, Helvetica, Sans-Serif;
+    padding: 4px 12px;
+}

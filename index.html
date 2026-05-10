@@ -4,6 +4,7 @@
 <head>
 	<title>The ZesCrew2 Microsite!!</title>
 	<link rel="icon" type="image/png" href="favicon.png">
+	<link rel="stylesheet" href="https://unpkg.com/7.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/main.css" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
@@ -49,9 +50,33 @@
 			</div>
 		</div>
 	</div>
+
+	<div id="music-player" class="window active">
+		<div class="title-bar">
+			<div class="title-bar-text">Windows Media Player</div>
+			<div class="title-bar-controls">
+				<button aria-label="Minimize"></button>
+				<button aria-label="Maximize"></button>
+				<button aria-label="Close"></button>
+			</div>
+		</div>
+		<div class="window-body">
+			<p>Current Music Playing: <br /><strong>Virgill - Interference Ending</strong></p>
+		</div>
+		<div class="status-bar">
+			<p class="status-bar-field">Status: Playing</p>
+			<p class="status-bar-field">Volume: 50%</p>
+		</div>
+	</div>
+
+	<button id="music-restore">
+		Windows Media Player
+	</button>
+
 	<script>
 		function loadSwf(color) {
-			flashContent.innerHTML = '<object data="/assets/swf/pages/' + color + '.swf" type="application/x-shockwave-flash" width="100%" height="100%"></object>';
+			const flashContent = document.getElementById('flashContent');
+			flashContent.innerHTML = '<object data="assets/swf/pages/' + color + '.swf" type="application/x-shockwave-flash" width="100%" height="100%"></object>';
 		}
 		loadSwf('orange');
 		function scaleSite() {
