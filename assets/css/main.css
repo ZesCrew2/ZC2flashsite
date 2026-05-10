@@ -63,7 +63,7 @@
 /* Additional styles */
 
 :root {
-    --splash-screen-background: url("../img/loading.png") no-repeat center 30% / 40vmin, transparent;
+    --splash-screen-background: transparent;
     --logo-display: none;
 }
 
