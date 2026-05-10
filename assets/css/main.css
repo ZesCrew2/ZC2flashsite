@@ -99,12 +99,10 @@ body {
 
 #banner {
     position: absolute;
-    top: 20px;
-    left: 50%;
+    left: calc(50% - 1px);
     transform: translateX(-50%);
-    width: 760px;
-    height: 100px;
     z-index: 5;
+    top: 3px;
 }
 
 #buttons {
