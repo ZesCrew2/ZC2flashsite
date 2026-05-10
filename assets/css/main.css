@@ -63,7 +63,7 @@
 /* Additional styles */
 
 :root {
-    --splash-screen-background: url("../img/loading.png") no-repeat center 30% / 40vmin, #ffffff;
+    --splash-screen-background: url("../img/loading.png") no-repeat center 30% / 40vmin, transparent;
     --logo-display: none;
 }
 
@@ -118,8 +118,8 @@ body {
     position: absolute;
     top: 130px;
     left: 235px;
-    width: 520px;
-    height: 415px;
+    width: 500px;
+    height: 275px;
     overflow: hidden;
 }
 
