@@ -106,7 +106,18 @@ body {
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    overflow: hidden;
+    overflow: visible;
+}
+
+#logo-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 760px;
+    height: 615px;
+    transform-origin: top left;
+    z-index: 20;
+    pointer-events: none;
 }
 
 #site-inner {
@@ -116,15 +127,51 @@ body {
     width: 760px;
     height: 615px;
     transform-origin: top left;
+    mask-image: url("../img/bannermask.svg"), linear-gradient(#fff, #fff);
+    mask-size: 100% 93px, 100% 100%;
+    mask-position: top center, center;
+    mask-repeat: no-repeat;
+    mask-composite: source-over; /* this is complex, might just use two layers. we'll leave to this for now -- thorns */
+}
+
+#logo-idle-wrap {
+    position: absolute;
+    left: 50px;
+    top: 0;
+    width: 100px;
+    height: auto;
+    animation: logo-idle 5s ease-in-out infinite;
+    z-index: 10;
 }
 
 #logo {
-    position: absolute;
-    left: 50px;
-    width: 100px;
+    display: block;
+    width: 100%;
     height: auto;
-    z-index: 10;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    pointer-events: auto;
 }
+
+@keyframes logo-idle {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+@keyframes logo-click-anim {
+    0% { transform: scale(1) rotate(0deg) translateY(0); }
+    15% { transform: scale(1.25) rotate(20deg) translateY(-15px); }
+    30% { transform: scale(1.1) rotate(-15deg) translateY(5px); }
+    45% { transform: scale(1.15) rotate(10deg) translateY(-5px); }
+    60% { transform: scale(1.05) rotate(-5deg) translateY(2px); }
+    75% { transform: scale(1.08) rotate(3deg) translateY(-2px); }
+    100% { transform: scale(1) rotate(0deg) translateY(0); }
+}
+
+#logo.logo-clicked {
+    animation: logo-click-anim 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 
 #banner {
     position: absolute;
@@ -173,4 +220,40 @@ body {
 
 #footer .link:visited {
     color:yellowgreen;
+}
+
+#speaker {
+    display: block;
+    position: relative;
+    left: -30px;
+    margin: 10px auto 0;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    z-index: 100;
+    filter: grayscale(100%);
+    transition: filter 0.3s ease, transform 0.1s ease;
+}
+
+#speaker:hover {
+    transform: scale(1.1);
+}
+
+#speaker:active {
+    transform: scale(0.9);
+}
+
+#speaker.unmuted {
+    filter: grayscale(0%);
+}
+
+@keyframes sine-wave {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.thorns-text span {
+    display: inline-block;
+    animation: sine-wave 2s ease-in-out infinite;
+    color: inherit;
 }

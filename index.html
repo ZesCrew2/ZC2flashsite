@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
@@ -10,8 +10,12 @@
 
 <body>
 	<div id="site">
+		<div id="logo-layer">
+			<div id="logo-idle-wrap">
+				<img src="assets/img/zc2aeroorb.png" alt="ZC2 Logo" id="logo">
+			</div>
+		</div>
 		<div id="site-inner">
-			<img src="assets/img/zc2aeroorb.png" alt="ZC2 Logo" id="logo">
 			<div id="banner">
 				<object type="application/x-shockwave-flash" data="assets/swf/banner.swf" width="732" height="100">
 					<param name="movie" value="banner.swf">
@@ -28,6 +32,7 @@
 				<button class="btn blue" onclick="loadSwf('blue')">2006 (Album)</button>
 				<button class="btn purple" onclick="loadSwf('purple')">Socials</button>
 				<button class="btn pink" onclick="loadSwf('pink')">Site Credits</button>
+				<img src="assets/img/speaker.png" alt="Mute Toggle" id="speaker">
 			</div>
 			<div id="content-area">
 				<div id="flashContent">
@@ -37,7 +42,9 @@
 			<div id="footer">
 				<p>Site CSS by <a href="https://sploder-saptarshi.github.io/" class="link"
 						target="_blank" title="https://sploder-saptarshi.github.io/"
-						tabindex="0">Saptarshi</a></p>
+						tabindex="0">Saptarshi</a> and <a href="https://www.youtube.com/@thornsmusicvevo" class="link"
+						target="_blank" title="https://www.youtube.com/@thornsmusicvevo"
+						tabindex="0"><span class="thorns-text"><span style="animation-delay: 0.0s;">T</span><span style="animation-delay: 0.2s;">h</span><span style="animation-delay: 0.4s;">o</span><span style="animation-delay: 0.6s;">r</span><span style="animation-delay: 0.8s;">n</span><span style="animation-delay: 1.0s;">s</span></span></a></p>
 			</div>
 		</div>
 	</div>
@@ -49,8 +56,10 @@
 		function scaleSite() {
 			var site = document.getElementById('site');
 			var inner = document.getElementById('site-inner');
+			var logoLayer = document.getElementById('logo-layer');
 			var scale = site.clientWidth / 760;
 			inner.style.transform = 'scale(' + scale + ')';
+			if (logoLayer) logoLayer.style.transform = 'scale(' + scale + ')';
 		}
 		window.addEventListener('resize', scaleSite);
 		scaleSite();
@@ -63,6 +72,9 @@
 			"contextMenu": "off",
 		}
 	</script>
+	<script src="assets/js/speaker.js"></script>
+	<script src="assets/js/sounds.js"></script>
+	<script src="assets/js/logo.js"></script>
 </body>
 
 </html>
