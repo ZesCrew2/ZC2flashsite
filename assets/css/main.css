@@ -92,22 +92,24 @@
 
 #swirl {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 50%;
+    left: 50%;
+    width: 150vmax;
+    height: 150vmax;
+    transform: translate(-50%, -50%);
     background: url("../img/gradientswirl.png") no-repeat center center;
-    background-size: 100vmin auto;
+    background-size: contain;
     z-index: 1;
     pointer-events: none;
     animation: swirl-spin 20s linear infinite;
+    opacity: 0.5;
     -webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%);
     mask-image: radial-gradient(circle, black 30%, transparent 70%);
 }
 
 @keyframes swirl-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 body {

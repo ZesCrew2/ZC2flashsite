@@ -30,6 +30,19 @@
             });
         }
 
+        // saptarshi sound effects
+        const saptarshi = document.querySelector('.saptarshi-text');
+        const notifSound = new Audio('assets/sounds/notification.ogg');
+
+        if (saptarshi) {
+            saptarshi.addEventListener('click', function() {
+                if (window.siteAudio && !window.siteAudio.isMuted) {
+                    notifSound.currentTime = 0;
+                    notifSound.play().catch(e => {});
+                }
+            });
+        }
+
         // thorns sound effects
         const thorns = document.querySelector('.thorns-text');
         const luigiSounds = [
