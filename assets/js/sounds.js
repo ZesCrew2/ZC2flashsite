@@ -29,7 +29,27 @@
                 }
             });
         }
-    }
+
+        // thorns sound effects
+        const thorns = document.querySelector('.thorns-text');
+        const luigiSounds = [
+            new Audio('assets/sounds/mk64_luigi01.wav'),
+            new Audio('assets/sounds/mk64_luigi02.wav'),
+            new Audio('assets/sounds/mk64_luigi03.wav'),
+            new Audio('assets/sounds/mk64_luigi06.wav')
+        ];
+
+        if (thorns) {
+            thorns.addEventListener('click', function(e) {
+                if (window.siteAudio && !window.siteAudio.isMuted) {
+                    const randomSound = luigiSounds[Math.floor(Math.random() * luigiSounds.length)];
+                    randomSound.currentTime = 0;
+                    randomSound.play().catch(e => {});
+                }
+            });
+        }
+        }
+
 
 
 
