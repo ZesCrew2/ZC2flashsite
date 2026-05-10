@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>Welcome to ZC2!!</title>
+		<link rel="icon" type="image/png" href="favicon.png">
+		<link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<style type="text/css" media="screen">
+		:root {
+			--splash-screen-background: url("assets/img/loading.png") no-repeat center 30% / 40vmin, #ffffff;
+			--logo-display: none;
+		}
+		html, body { height:100%; background-color: #ffffff;}
+		body { margin:0; padding:0; overflow:hidden; }
+		#flashContent { width:100%; height:100%; }
+		</style>
+	</head>
+	<body>
+		<!-- center vertically and horizontally -->
+		<style>
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			/* dist between btn = 10px */
+			gap: 10px;
+		}
+		</style>
+		
+		<button class="btn red">test</button>
+		<button class="btn orange">test</button>
+		<button class="btn yellow">test</button>
+		<button class="btn lime">test</button>
+		<button class="btn green">test</button>
+		<button class="btn cyan">test</button>
+		<button class="btn blue">test</button>
+		<button class="btn purple">test</button>
+		<button class="btn pink">test</button>
+		
+		<!-- <div id="flashContent">
+			<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="100%" height="100%" id="site" align="middle">
+				<param name="movie" value="/site.swf" />
+				<param name="quality" value="high" />
+				<param name="bgcolor" value="#ffffff" />
+				<param name="play" value="true" />
+				<param name="loop" value="true" />
+				<param name="wmode" value="window" />
+				<param name="scale" value="showall" />
+				<param name="menu" value="true" />
+				<param name="devicefont" value="false" />
+				<param name="salign" value="" />
+				<param name="allowScriptAccess" value="sameDomain" />
+			</object>
+		</div> -->
+		<script>
+			var noCache = '?nocache=' + new Date().getTime();
+			var object = document.getElementById('site');
+			var param = object.querySelector('param[name="movie"]');
+			param.setAttribute('value', '/site.swf' + noCache);
+		</script>
+		<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+		<script>
+			window.RufflePlayer.config = {
+				"autoplay": "on",
+				"unmuteOverlay": "hidden",
+				"contextMenu": "off",
+			}
+		</script>
+	</body>
+</html>

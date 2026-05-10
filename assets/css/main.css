@@ -1,0 +1,34 @@
+@font-face {
+  font-family: 'Kronika';
+  src: url('../fonts/KRONIKA.ttf') format('truetype');
+}
+
+.btn {
+  display: inline-block;
+  width: 200px;
+  height: 30px;
+  border: none;
+  background-image: url('../img/buttons.png');
+  background-repeat: no-repeat;
+  font-family: 'Kronika', sans-serif;
+  filter: drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
+  transition: filter 0.2s ease;
+}
+
+.btn:hover {
+  filter: brightness(1.2) drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
+}
+
+.btn:active {
+  filter: brightness(0.7) drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
+}
+
+.btn.red { background-position: -8px -8px; }
+.btn.orange { background-position: -8px -46px; }
+.btn.yellow { background-position: -8px -84px; }
+.btn.lime { background-position: -8px -122px; }
+.btn.green { background-position: -8px -160px; }
+.btn.cyan { background-position: -8px -198px; }
+.btn.blue { background-position: -8px -236px; }
+.btn.purple { background-position: -8px -274px; }
+.btn.pink { background-position: -8px -312px; }
