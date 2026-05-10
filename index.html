@@ -11,7 +11,7 @@
 	</head>
 	<body>
 		<div id="site">
-			<img src="favicon.png" alt="ZC2 Logo" id="logo">
+			<img src="assets/img/zc2aeroorb.png" alt="ZC2 Logo" id="logo">
 			<div id="banner">
 				<object type="application/x-shockwave-flash" data="assets/swf/banner.swf" width="732" height="100">
 					<param name="movie" value="banner.swf">
@@ -32,7 +32,7 @@
 			<div id="content-area">
 				<div id="flashContent">
 					<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="100%" height="100%" id="siteobj" align="middle">
-						<param name="movie" value="/site.swf" />
+						<param name="movie" value="/assets/swf/pages/red.swf" />
 						<param name="quality" value="high" />
 						<param name="bgcolor" value="#ffffff" />
 						<param name="play" value="true" />
@@ -52,7 +52,7 @@
 			var noCache = '?nocache=' + new Date().getTime();
 			var object = document.getElementById('siteobj');
 			var param = object.querySelector('param[name="movie"]');
-			param.setAttribute('value', '/site.swf' + noCache);
+			param.setAttribute('value', '/assets/swf/pages/red.swf' + noCache);
 		</script>
 		<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 		<script>
