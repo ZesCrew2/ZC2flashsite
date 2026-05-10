@@ -70,7 +70,8 @@
 body {
     margin: 0;
     padding: 0;
-    background: url("../img/bg.png") no-repeat center center fixed;
+    background: #000 url("../img/bg.png") no-repeat center center fixed;
+    background-size: max(1920px, 100%, calc(100vh * 16 / 9)) auto;
     display: flex;
     justify-content: center;
     align-items: center;
