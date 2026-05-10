@@ -12,6 +12,7 @@
     background-repeat: no-repeat;
     font-family: 'Kronika', sans-serif;
     filter: drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.5));
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
     transition: filter 0.2s ease;
 }
 
@@ -24,57 +25,57 @@
 }
 
 .btn.red {
-	background-position: -8px -8px;
-	color: #FFE7BB;
-	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background-position: -8px -8px;
+    color: #FFE7BB;
+
 }
 
 .btn.orange {
-	background-position: -8px -46px;
-	color: #FFFFAA;
-	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background-position: -8px -46px;
+    color: #FFFFAA;
+
 }
 
 .btn.yellow {
-	background-position: -8px -84px;
-	color: #FFFFA5;
-	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background-position: -8px -84px;
+    color: #FFFFA5;
+
 }
 
 .btn.lime {
-	background-position: -8px -122px;
-	color: #F0F990;
-	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background-position: -8px -122px;
+    color: #F0F990;
+
 }
 
 .btn.green {
-	background-position: -8px -160px;
-	color: #F3FF8F;
-	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background-position: -8px -160px;
+    color: #F3FF8F;
+
 }
 
 .btn.cyan {
-	background-position: -8px -198px;
-	color: #F8FFFF;
-	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background-position: -8px -198px;
+    color: #F8FFFF;
+
 }
 
 .btn.blue {
-	background-position: -8px -236px;
-	color: #F8FFFF;
-	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background-position: -8px -236px;
+    color: #F8FFFF;
+
 }
 
 .btn.purple {
-	background-position: -8px -274px;
-	color: #FCC9FF;
-	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background-position: -8px -274px;
+    color: #FCC9FF;
+
 }
 
 .btn.pink {
-	background-position: -8px -312px;
-	color: #FFF;
-	text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background-position: -8px -312px;
+    color: #FFF;
+
 }
 
 
