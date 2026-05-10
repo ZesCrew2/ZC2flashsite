@@ -96,9 +96,18 @@ body {
     height: auto;
 }
 
+#banner {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 760px;
+    height: 100px;
+}
+
 #buttons {
     position: absolute;
-    top: 110px;
+    top: 130px;
     left: 25px;
     display: flex;
     flex-direction: column;
@@ -107,7 +116,7 @@ body {
 
 #content-area {
     position: absolute;
-    top: 110px;
+    top: 130px;
     left: 235px;
     width: 520px;
     height: 415px;
@@ -121,7 +130,7 @@ body {
 
 #footer {
     position: absolute;
-    bottom: 20px;
+    bottom: 50px;
     left: 0;
     right: 0;
     text-align: center;
