@@ -86,10 +86,6 @@
     --logo-display: none;
 }
 
-#bg-canvas {
-    display: none;
-}
-
 #swirl {
     position: fixed;
     top: 50%;
@@ -288,25 +284,65 @@ body {
 #music-player {
     position: fixed;
     bottom: 20px;
-    right: -350px; /* Hidden initially */
+    right: 20px;
     width: 250px;
     z-index: 1000;
-    transition: right 1s cubic-bezier(0.34, 1.56, 0.64, 1);
     font-family: 'Segoe UI', Tahoma, Helvetica, Sans-Serif;
+    opacity: 0;
+    transform: scale(0.5);
+    transform-origin: bottom right;
+    pointer-events: none;
+    transition: opacity 0.22s ease-out, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    user-select: none;
+    background-color: #FFA500 !important;
 }
 
 #music-player.show {
-    right: 20px;
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+#music-player.dragging {
+    transition: none !important;
+}
+
+#music-player.minimizing {
+    animation: wmp-minimize 0.35s ease-in forwards;
+    pointer-events: none;
+}
+
+@keyframes wmp-minimize {
+    0% {
+        transform: scale(1) translate(0, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.2) translate(var(--fly-x, 0), var(--fly-y, 0));
+        opacity: 0;
+    }
+}
+
+#music-player.restoring {
+    animation: wmp-restore 0.3s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes wmp-restore {
+    0% {
+        transform: scale(0.2) translate(var(--fly-x, 0), var(--fly-y, 0));
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) translate(0, 0);
+        opacity: 1;
+    }
 }
 
 #music-player .window-body p {
     margin: 0;
     font-size: 13px;
     line-height: 1.4;
-}
-
-#music-player {
-    background-color: #FFA500 !important;
 }
 
 #music-restore {
