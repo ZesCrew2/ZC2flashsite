@@ -8,9 +8,105 @@
         const musicPlayer = document.getElementById('music-player');
         const restoreBtn = document.getElementById('music-restore');
         const clickSound = new Audio('assets/sounds/clicky.wav');
-        const bgMusic = new Audio('assets/music/Virgill - Interference Ending.mp3');
-        bgMusic.loop = true;
-        bgMusic.volume = 0.50;
+        
+        const playlist = window.musicPlaylist || [];
+        let currentIndex = -1;
+        let bgMusic = null;
+        let hasStarted = false;
+        let isPaused = false;
+
+        function updatePlayPauseButton() {
+            const btn = document.getElementById('btn-play-pause');
+            if (btn) btn.textContent = isPaused ? 'Play' : 'Pause';
+        }
+
+        function updateProgress() {
+            if (!bgMusic) return;
+            const progressBar = document.getElementById('progress-bar');
+            if (progressBar && bgMusic.duration) {
+                const percent = (bgMusic.currentTime / bgMusic.duration) * 100;
+                progressBar.style.width = percent + '%';
+            }
+        }
+
+        function playTrack(index) {
+            if (bgMusic) {
+                bgMusic.pause();
+                bgMusic.removeEventListener('ended', playNext);
+            }
+            currentIndex = index;
+            isPaused = false;
+            updatePlayPauseButton();
+            const track = playlist[currentIndex];
+            bgMusic = new Audio(track.path);
+            bgMusic.volume = 0.50;
+            bgMusic.addEventListener('ended', playNext);
+            bgMusic.addEventListener('timeupdate', updateProgress);
+            
+            const trackNameDisplay = document.getElementById('track-name');
+            if (trackNameDisplay) trackNameDisplay.textContent = track.name;
+            
+            if (!window.siteAudio.isMuted) {
+                bgMusic.play().catch(e => console.log("Music play blocked:", e));
+            }
+        }
+
+        function playNext() {
+            let nextIndex = (currentIndex + 1) % playlist.length;
+            playTrack(nextIndex);
+        }
+
+        function playPrev() {
+            let prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+            playTrack(prevIndex);
+        }
+
+        const nextBtn = document.getElementById('btn-next');
+        const prevBtn = document.getElementById('btn-prev');
+        const playPauseBtn = document.getElementById('btn-play-pause');
+        if (nextBtn) nextBtn.addEventListener('click', () => {
+            clickSound.play().catch(e => {});
+            playNext();
+        });
+        if (prevBtn) prevBtn.addEventListener('click', () => {
+            clickSound.play().catch(e => {});
+            playPrev();
+        });
+        if (playPauseBtn) playPauseBtn.addEventListener('click', () => {
+            clickSound.play().catch(e => {});
+            if (bgMusic) {
+                if (isPaused) {
+                    bgMusic.play();
+                    isPaused = false;
+                } else {
+                    bgMusic.pause();
+                    isPaused = true;
+                }
+                updatePlayPauseButton();
+            }
+        });
+
+        const progressContainer = document.querySelector('.progress-container');
+        if (progressContainer) {
+            progressContainer.addEventListener('click', (e) => {
+                const rect = progressContainer.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                if (bgMusic && bgMusic.duration) {
+                    bgMusic.currentTime = percent * bgMusic.duration;
+                    updateProgress();
+                }
+            });
+        }
+
+        const volumeSlider = document.getElementById('volume-slider');
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', (e) => {
+                const vol = e.target.value / 100;
+                if (bgMusic) bgMusic.volume = vol;
+                const statusVolume = document.querySelector('.status-bar-field:last-child');
+                if (statusVolume) statusVolume.textContent = 'Volume: ' + e.target.value + '%';
+            });
+        }
 
         speaker.addEventListener('click', () => {
             window.siteAudio.isMuted = !window.siteAudio.isMuted;
@@ -18,13 +114,27 @@
             if (window.siteAudio.isMuted) {
                 speaker.classList.remove('unmuted');
                 musicPlayer.classList.remove('show');
-                bgMusic.pause();
+                if (bgMusic) bgMusic.pause();
             } else {
-                speaker.classList.add('unmuted');
-                musicPlayer.classList.add('show');
-                bgMusic.play().catch(e => console.log("Music play blocked:", e));
-                clickSound.play().catch(e => console.log("Audio play blocked:", e));
-            }
+                    speaker.classList.add('unmuted');
+                    musicPlayer.classList.add('show');
+                    
+                    if (!hasStarted) {
+                        hasStarted = true;
+                        isPaused = false;
+                        playTrack(Math.floor(Math.random() * playlist.length));
+                    } else {
+                        if (bgMusic) {
+                            if (isPaused) {
+                                bgMusic.play();
+                                isPaused = false;
+                                updatePlayPauseButton();
+                            }
+                            bgMusic.play().catch(e => console.log("Music play blocked:", e));
+                        }
+                    }
+                    clickSound.play().catch(e => console.log("Audio play blocked:", e));
+                }
         });
 
         let isDragging = false, dragOffsetX, dragOffsetY;
