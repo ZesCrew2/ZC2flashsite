@@ -156,8 +156,12 @@
 
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            musicPlayer.style.left = (e.clientX - dragOffsetX) + 'px';
-            musicPlayer.style.top = (e.clientY - dragOffsetY) + 'px';
+            let x = e.clientX - dragOffsetX;
+            let y = e.clientY - dragOffsetY;
+            x = Math.max(0, Math.min(x, window.innerWidth - musicPlayer.offsetWidth));
+            y = Math.max(0, Math.min(y, window.innerHeight - musicPlayer.offsetHeight));
+            musicPlayer.style.left = x + 'px';
+            musicPlayer.style.top = y + 'px';
         });
 
         document.addEventListener('mouseup', () => {
