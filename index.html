@@ -5,7 +5,9 @@
 	<title>The ZesCrew2 Microsite!!</title>
 	<link rel="icon" type="image/png" href="favicon.png">
 	<link rel="stylesheet" href="https://unpkg.com/7.css/dist/7.scoped.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+	<link rel="preload" href="assets/css/main.css" as="style">
+	<link rel="preload" href="assets/img/loading_indicator.gif" as="image">
+	<link rel="stylesheet" href="assets/css/main.css">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 
@@ -19,10 +21,13 @@
 		</div>
 		<div id="site-inner">
 			<div id="banner">
-				<object type="application/x-shockwave-flash" data="assets/swf/banner.swf" width="732" height="100">
-					<param name="movie" value="banner.swf">
-					<param name="wmode" value="transparent">
-				</object>
+				<img class="background" src="assets/img/banner/banner.png">
+				<div class="object-wrap">
+					<object type="application/x-shockwave-flash" data="assets/swf/banner.swf" width="732" height="100">
+						<param name="movie" value="banner.swf">
+						<param name="wmode" value="transparent">
+					</object>
+				</div>
 			</div>
 			<div id="buttons">
 				<button class="btn red" onclick="loadSwf('red')">Introduction</button>

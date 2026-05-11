@@ -202,7 +202,21 @@ body {
     left: calc(50% - 1px);
     transform: translateX(-50%);
     z-index: 5;
-    top: 3px;
+    top: 8px;
+}
+
+#banner .background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 732px;
+    height: 90px;
+    z-index: -1;
+}
+
+#banner .object-wrap {
+    position: relative;
+    top: -5px;
 }
 
 #buttons {
