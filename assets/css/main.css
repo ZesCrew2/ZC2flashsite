@@ -315,7 +315,7 @@ body {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 250px;
+    width: 380px;
     z-index: 1000;
     font-family: 'Segoe UI', Tahoma, Helvetica, Sans-Serif;
     opacity: 0;
@@ -324,6 +324,10 @@ body {
     pointer-events: none;
     transition: opacity 0.22s ease-out, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     user-select: none;
+}
+
+#music-player .window-body {
+    padding: 4px;
 }
 
 #music-player.show {
@@ -366,12 +370,6 @@ body {
         transform: scale(1) translate(0, 0);
         opacity: 1;
     }
-}
-
-#music-player .window-body p {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.4;
 }
 
 #music-restore {

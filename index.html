@@ -7,6 +7,9 @@
 	<link rel="stylesheet" href="https://unpkg.com/7.css/dist/7.scoped.css">
 	<link rel="preload" href="assets/css/main.css" as="style">
 	<link rel="preload" href="assets/img/loading_indicator.gif" as="image">
+	<link rel="preload" href="assets/wmp/wmplayer.css" as="style">
+	<link rel="preload" href="assets/wmp/wmplayer.buttons.css" as="style">
+	<link rel="preload" href="assets/wmp/wmplayer.slider.css" as="style">
 	<link rel="stylesheet" href="assets/css/main.css">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
@@ -56,7 +59,7 @@
 		</div>
 	</div>
 	<div class="win7">
-		<div id="music-player" class="window glass active" style="--w7-w-bg: #FFA500;">
+		<div id="music-player" class="window glass active" style="--w7-w-bg: #FFA500; width: 380px;">
 			<div class="title-bar">
 				<div class="title-bar-text">Windows Media Player</div>
 				<div class="title-bar-controls">
@@ -66,23 +69,7 @@
 				</div>
 			</div>
 			<div class="window-body">
-				<p>Current Music Playing: <br /><strong id="track-name">Virgill - Interference Ending</strong></p>
-				<div class="player-controls" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
-					<button id="btn-prev" style="min-width: 32px;">|&lt;</button>
-					<button id="btn-play-pause" style="min-width: 32px;">Pause</button>
-					<button id="btn-next" style="min-width: 32px;">&gt;|</button>
-				</div>
-				<div class="progress-container" style="margin-top: 10px; height: 12px; background: #eee; border: 1px solid #999; cursor: pointer; position: relative;">
-					<div id="progress-bar" style="height: 100%; width: 0%; background: #0078d7; transition: width 0.1s linear;"></div>
-				</div>
-				<div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
-					<span>Volume:</span>
-					<input type="range" id="volume-slider" min="0" max="100" value="50" style="width: 100px;">
-				</div>
-			</div>
-			<div class="status-bar">
-				<p class="status-bar-field">Status: Playing</p>
-				<p class="status-bar-field">Volume: 50%</p>
+				<wm-player id="wmp" data-controls-in-tray-left="shuffle loop separator stop prev" data-controls-in-tray-right="next mute volume" data-controls-in-gutter-right="" style="--max-video-height: 0; --min-video-height: 0; --scale: 0.75;"></wm-player>
 			</div>
 		</div>
 
@@ -119,6 +106,9 @@
 			...(isMobile && { "quality": "low" }),
 		}
 	</script>
+	<script src="assets/wmp/wmplayer.playlist.js"></script>
+	<script src="assets/wmp/wmplayer.slider.js"></script>
+	<script src="assets/wmp/wmplayer.js"></script>
 	<script src="assets/js/playlist.js"></script>
 	<script src="assets/js/speaker.js"></script>
 	<script src="assets/js/sounds.js"></script>
