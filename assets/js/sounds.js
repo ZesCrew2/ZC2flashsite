@@ -33,7 +33,7 @@
 
         // saptarshi sound
         const saptarshi = document.querySelector('.saptarshi-text');
-        const notifSound = new Audio('assets/sounds/notification.ogg');
+        const notifSound = new Audio('assets/sounds/click.webm');
         if (saptarshi) {
             saptarshi.addEventListener('click', function() {
                 if (window.siteAudio && !window.siteAudio.isMuted) {
