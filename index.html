@@ -105,12 +105,13 @@
 	</script>
 	<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 	<script>
+		var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 		window.RufflePlayer.config = {
 			"autoplay": "on",
 			"unmuteOverlay": "hidden",
 			"contextMenu": "off",
 			"splashScreen": false,
-			"quality": "low",
+			...(isMobile && { "quality": "low" }),
 		}
 	</script>
 	<script src="assets/js/playlist.js"></script>
