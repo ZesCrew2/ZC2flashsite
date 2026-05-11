@@ -5,8 +5,8 @@
 
 .btn {
     display: inline-block;
-    width: 200px;
-    height: 30px;
+    width: 199px;
+    height: 28px;
     border: none;
     background-image: url('../img/buttons.png');
     background-repeat: no-repeat;
@@ -25,55 +25,55 @@
 }
 
 .btn.red {
-    background-position: -8px -8px;
+    background-position: -9px -9px;
     color: #FFE7BB;
 
 }
 
 .btn.orange {
-    background-position: -8px -46px;
+    background-position: -9px -47px;
     color: #FFFFAA;
 
 }
 
 .btn.yellow {
-    background-position: -8px -84px;
+    background-position: -9px -85px;
     color: #FFFFA5;
 
 }
 
 .btn.lime {
-    background-position: -8px -122px;
+    background-position: -9px -123px;
     color: #F0F990;
 
 }
 
 .btn.green {
-    background-position: -8px -160px;
+    background-position: -9px -161px;
     color: #F3FF8F;
 
 }
 
 .btn.cyan {
-    background-position: -8px -198px;
+    background-position: -9px -199px;
     color: #F8FFFF;
 
 }
 
 .btn.blue {
-    background-position: -8px -236px;
+    background-position: -9px -237px;
     color: #F8FFFF;
 
 }
 
 .btn.purple {
-    background-position: -8px -274px;
+    background-position: -9px -275px;
     color: #FCC9FF;
 
 }
 
 .btn.pink {
-    background-position: -8px -312px;
+    background-position: -9px -313px;
     color: #FFF;
 
 }
@@ -211,7 +211,7 @@ body {
     left: 40px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12.5px;
 }
 
 #content-area {
