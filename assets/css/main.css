@@ -249,10 +249,9 @@ body {
 
 #banner-animation_container {
     position: relative;
-    width: 761px;
-    height: 93px;
-    transform-origin: left top;
-    transform: scale(0.962, 0.967);
+    width: 100%;
+    max-width: 761px;
+    aspect-ratio: 761 / 93;
 }
 
 #banner-canvas {
