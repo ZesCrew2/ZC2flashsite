@@ -26,10 +26,10 @@
 			<div id="banner">
 				<img class="background" src="assets/img/banner/banner.png">
 				<div class="object-wrap">
-					<object type="application/x-shockwave-flash" data="assets/swf/banner.swf" width="732" height="100">
-						<param name="movie" value="banner.swf">
-						<param name="wmode" value="transparent">
-					</object>
+					<div id="banner-animation_container">
+						<canvas id="banner-canvas" width="761" height="93" style="position:absolute;display:block;background:transparent;"></canvas>
+						<div id="banner-dom_overlay_container" style="pointer-events:none;overflow:hidden;width:761px;height:93px;position:absolute;left:0;top:0;display:block;"></div>
+					</div>
 				</div>
 			</div>
 			<div id="buttons">
@@ -106,9 +106,12 @@
 			...(isMobile && { "quality": "low" }),
 		}
 	</script>
+	<script src="assets/js/createjs.min.js"></script>
+	<script src="assets/swf/banner/zc2banner.js"></script>
 	<script src="assets/wmp/wmplayer.playlist.js"></script>
 	<script src="assets/wmp/wmplayer.slider.js"></script>
 	<script src="assets/wmp/wmplayer.js"></script>
+	<script src="assets/js/banner.js"></script>
 	<script src="assets/js/playlist.js"></script>
 	<script src="assets/js/speaker.js"></script>
 	<script src="assets/js/sounds.js"></script>

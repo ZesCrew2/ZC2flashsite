@@ -150,7 +150,6 @@ body {
     width: 760px;
     height: 615px;
     transform-origin: top left;
-    mask-image: url("../img/bannermask.svg"), linear-gradient(#fff, #fff);
     mask-size: 100% 93px, 100% 100%;
     mask-position: top center, center;
     mask-repeat: no-repeat;
@@ -202,7 +201,7 @@ body {
     left: calc(50% - 1px);
     transform: translateX(-50%);
     z-index: 5;
-    top: 8px;
+    top: 7px;
 }
 
 #banner .background {
@@ -216,7 +215,57 @@ body {
 
 #banner .object-wrap {
     position: relative;
-    top: -5px;
+    overflow: hidden;
+    width: 732px;
+    height: 90px;
+}
+
+#banner .object-wrap::before {
+    display: none;
+}
+
+#banner-animation_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 732px;
+    height: 90px;
+    overflow: hidden;
+}
+
+#banner-canvas {
+    z-index: 1;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#banner-dom_overlay_container {
+    z-index: 2;
+}
+
+#banner .object-wrap::before {
+    display: none;
+}
+
+#banner-animation_container {
+    position: relative;
+    width: 100%;
+    max-width: 761px;
+    aspect-ratio: 761 / 93;
+}
+
+#banner-canvas {
+    z-index: 1;
+    width: 761px;
+    height: 93px;
+}
+
+#banner-canvas {
+    z-index: 1;
+}
+
+#banner-dom_overlay_container {
+    z-index: 2;
 }
 
 #buttons {
