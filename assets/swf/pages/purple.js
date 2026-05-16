@@ -3,7 +3,7 @@
 var p; // shortcut to reference prototypes
 var lib={};var ss={};var img={};
 lib.ssMetadata = [
-		{name:"purple_atlas_1", frames: [[0,425,163,72],[0,568,505,55],[507,568,505,55],[541,0,200,282],[0,0,539,139],[1955,0,70,70],[1955,72,32,32],[1989,72,32,32],[1955,106,32,32],[1989,106,32,32],[1955,140,32,32],[743,0,200,282],[945,0,200,282],[1147,0,200,282],[1349,0,200,282],[1551,0,200,282],[1753,0,200,282],[0,141,200,282],[202,141,200,282],[404,284,200,282],[606,284,200,282],[808,284,200,282],[1010,284,200,282],[1212,284,200,282],[1414,284,200,282],[1616,284,200,282],[1818,284,200,282],[1989,140,32,32],[404,141,32,32],[438,141,32,32]]}
+		{name:"purple_atlas_1", frames: [[0,425,163,72],[0,568,477,52],[479,568,477,52],[541,0,200,282],[0,0,539,139],[1955,0,70,70],[1955,72,32,32],[1989,72,32,32],[1955,106,32,32],[1989,106,32,32],[1955,140,32,32],[743,0,200,282],[945,0,200,282],[1147,0,200,282],[1349,0,200,282],[1551,0,200,282],[1753,0,200,282],[0,141,200,282],[202,141,200,282],[404,284,200,282],[606,284,200,282],[808,284,200,282],[1010,284,200,282],[1212,284,200,282],[1414,284,200,282],[1616,284,200,282],[1818,284,200,282],[1989,140,32,32],[404,141,32,32],[438,141,32,32]]}
 ];
 
 
@@ -27,21 +27,21 @@ lib.ssMetadata = [
 
 
 
-(lib.CachedBmp_14 = function() {
+(lib.CachedBmp_3 = function() {
 	this.initialize(ss["purple_atlas_1"]);
 	this.gotoAndStop(0);
 }).prototype = p = new cjs.Sprite();
 
 
 
-(lib.CachedBmp_13 = function() {
+(lib.CachedBmp_2 = function() {
 	this.initialize(ss["purple_atlas_1"]);
 	this.gotoAndStop(1);
 }).prototype = p = new cjs.Sprite();
 
 
 
-(lib.CachedBmp_12 = function() {
+(lib.CachedBmp_1 = function() {
 	this.initialize(ss["purple_atlas_1"]);
 	this.gotoAndStop(2);
 }).prototype = p = new cjs.Sprite();
@@ -265,7 +265,7 @@ if (reversed == null) { reversed = false; }
 	cjs.MovieClip.apply(this,[props]);
 
 	// Layer_1
-	this.instance = new lib.CachedBmp_14();
+	this.instance = new lib.CachedBmp_3();
 	this.instance.setTransform(-67.85,-17.95,0.5,0.5);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance).wait(1));
@@ -470,14 +470,21 @@ if (reversed == null) { reversed = false; }
 	this.instance_1 = new lib.socialicons();
 	this.instance_1.setTransform(0,0,1,1,0,0,0,16,16);
 	this.instance_1.shadow = new cjs.Shadow("rgba(0,0,0,1)",0,2,7);
+	var instance_1Filter_2 = new cjs.ColorFilter(0,0,0,1,0,0,0,0);
+	this.instance_1.filters = [instance_1Filter_2];
+	this.instance_1.cache(-2,-2,36,36);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(1).to({y:-0.9},0).wait(1).to({y:1},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(instance_1Filter_2).wait(3));
 
 	this.filterCacheList = [];
 	this.filterCacheList.push({instance: this.instance, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:0, endFrame:0, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
 	this._renderFirstFrame();
 
 }).prototype = p = new cjs.MovieClip();
@@ -543,14 +550,21 @@ if (reversed == null) { reversed = false; }
 	this.instance_1 = new lib.socialicons();
 	this.instance_1.setTransform(0,0,1,1,0,0,0,16,16);
 	this.instance_1.shadow = new cjs.Shadow("rgba(0,0,0,1)",0,2,7);
+	var instance_1Filter_2 = new cjs.ColorFilter(0,0,0,1,0,0,0,0);
+	this.instance_1.filters = [instance_1Filter_2];
+	this.instance_1.cache(-2,-2,36,36);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(1).to({y:-0.9},0).wait(1).to({y:1},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(instance_1Filter_2).wait(3));
 
 	this.filterCacheList = [];
 	this.filterCacheList.push({instance: this.instance, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:0, endFrame:0, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
 	this._renderFirstFrame();
 
 }).prototype = p = new cjs.MovieClip();
@@ -593,14 +607,21 @@ if (reversed == null) { reversed = false; }
 	this.instance_1 = new lib.socialicons();
 	this.instance_1.setTransform(0,0,1,1,0,0,0,16,16);
 	this.instance_1.shadow = new cjs.Shadow("rgba(0,0,0,1)",0,2,7);
+	var instance_1Filter_2 = new cjs.ColorFilter(0,0,0,1,0,0,0,0);
+	this.instance_1.filters = [instance_1Filter_2];
+	this.instance_1.cache(-2,-2,36,36);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(1).to({y:-0.9},0).wait(1).to({y:1},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(instance_1Filter_2).wait(3));
 
 	this.filterCacheList = [];
 	this.filterCacheList.push({instance: this.instance, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:0, endFrame:0, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
 	this._renderFirstFrame();
 
 }).prototype = p = new cjs.MovieClip();
@@ -669,14 +690,21 @@ if (reversed == null) { reversed = false; }
 	this.instance_1 = new lib.socialicons();
 	this.instance_1.setTransform(0,0,1,1,0,0,0,16,16);
 	this.instance_1.shadow = new cjs.Shadow("rgba(0,0,0,1)",0,2,7);
+	var instance_1Filter_2 = new cjs.ColorFilter(0,0,0,1,0,0,0,0);
+	this.instance_1.filters = [instance_1Filter_2];
+	this.instance_1.cache(-2,-2,36,36);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(1).to({y:-0.9},0).wait(1).to({y:1},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(instance_1Filter_2).wait(3));
 
 	this.filterCacheList = [];
 	this.filterCacheList.push({instance: this.instance, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:0, endFrame:0, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
 	this._renderFirstFrame();
 
 }).prototype = p = new cjs.MovieClip();
@@ -719,14 +747,21 @@ if (reversed == null) { reversed = false; }
 	this.instance_1 = new lib.socialicons();
 	this.instance_1.setTransform(0,0,1,1,0,0,0,16,16);
 	this.instance_1.shadow = new cjs.Shadow("rgba(0,0,0,1)",0,2,7);
+	var instance_1Filter_2 = new cjs.ColorFilter(0,0,0,1,0,0,0,0);
+	this.instance_1.filters = [instance_1Filter_2];
+	this.instance_1.cache(-2,-2,36,36);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(1).to({y:-0.9},0).wait(1).to({y:1},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(instance_1Filter_2).wait(3));
 
 	this.filterCacheList = [];
 	this.filterCacheList.push({instance: this.instance, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:0, endFrame:0, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
 	this._renderFirstFrame();
 
 }).prototype = p = new cjs.MovieClip();
@@ -769,14 +804,21 @@ if (reversed == null) { reversed = false; }
 	this.instance_1 = new lib.socialicons();
 	this.instance_1.setTransform(0,0,1,1,0,0,0,16,16);
 	this.instance_1.shadow = new cjs.Shadow("rgba(0,0,0,1)",0,2,7);
+	var instance_1Filter_2 = new cjs.ColorFilter(0,0,0,1,0,0,0,0);
+	this.instance_1.filters = [instance_1Filter_2];
+	this.instance_1.cache(-2,-2,36,36);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(1).to({y:-0.9},0).wait(1).to({y:1},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(instance_1Filter_2).wait(3));
 
 	this.filterCacheList = [];
 	this.filterCacheList.push({instance: this.instance, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:0, endFrame:0, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
 	this._renderFirstFrame();
 
 }).prototype = p = new cjs.MovieClip();
@@ -862,14 +904,21 @@ if (reversed == null) { reversed = false; }
 	this.instance_1 = new lib.socialicons();
 	this.instance_1.setTransform(0,0,1,1,0,0,0,16,16);
 	this.instance_1.shadow = new cjs.Shadow("rgba(0,0,0,1)",0,2,7);
+	var instance_1Filter_2 = new cjs.ColorFilter(0,0,0,1,0,0,0,0);
+	this.instance_1.filters = [instance_1Filter_2];
+	this.instance_1.cache(-2,-2,36,36);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(1).to({y:-0.9},0).wait(1).to({y:1},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(instance_1Filter_2).wait(3));
 
 	this.filterCacheList = [];
 	this.filterCacheList.push({instance: this.instance, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:0, endFrame:0, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
 	this._renderFirstFrame();
 
 }).prototype = p = new cjs.MovieClip();
@@ -912,14 +961,21 @@ if (reversed == null) { reversed = false; }
 	this.instance_1 = new lib.socialicons();
 	this.instance_1.setTransform(0,0,1,1,0,0,0,16,16);
 	this.instance_1.shadow = new cjs.Shadow("rgba(0,0,0,1)",0,2,7);
+	var instance_1Filter_2 = new cjs.ColorFilter(0,0,0,1,0,0,0,0);
+	this.instance_1.filters = [instance_1Filter_2];
+	this.instance_1.cache(-2,-2,36,36);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(1).to({y:-0.9},0).wait(1).to({y:1},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(instance_1Filter_2).wait(3));
 
 	this.filterCacheList = [];
 	this.filterCacheList.push({instance: this.instance, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:0, endFrame:0, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
 	this.filterCacheList.push({instance: this.instance, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:1, endFrame:1, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:2, x:-2, y:-2, w:36, h:36});
+	this.filterCacheList.push({instance: this.instance_1, startFrame:2, endFrame:3, x:-2, y:-2, w:36, h:36});
 	this._renderFirstFrame();
 
 }).prototype = p = new cjs.MovieClip();
@@ -1058,7 +1114,7 @@ if (reversed == null) { reversed = false; }
 
 	// Layer_2
 	this.instance = new lib.icon();
-	this.instance.setTransform(40.25,32.25);
+	this.instance.setTransform(38,30.45,0.9448,0.9448);
 	this.instance.shadow = new cjs.Shadow("rgba(0,0,0,0.686)",0,0,8);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance).wait(15));
@@ -1066,7 +1122,7 @@ if (reversed == null) { reversed = false; }
 
 	// Layer_3
 	this.instance_1 = new lib.titletext();
-	this.instance_1.setTransform(180.25,31.8);
+	this.instance_1.setTransform(170.25,30,0.9448,0.9448);
 	this.instance_1.shadow = new cjs.Shadow("#000000",0,0,6);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(15));
@@ -1074,39 +1130,39 @@ if (reversed == null) { reversed = false; }
 	// Layer_5_copy_2
 	this.gplus = new lib.googleplus();
 	this.gplus.name = "gplus";
-	this.gplus.setTransform(386.5,213.85);
+	this.gplus.setTransform(365.2,202.1,0.9448,0.9448,0,0,0,0.1,0.1);
 	new cjs.ButtonHelper(this.gplus, 0, 1, 2);
 
 	this.instance_2 = new lib.fuckingdead();
-	this.instance_2.setTransform(386.5,213.85);
+	this.instance_2.setTransform(365.2,202.1,0.9448,0.9448,0,0,0,0.1,0.1);
 
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.gplus}]}).to({state:[{t:this.instance_2}]},1).wait(14));
 	this.gplus.addEventListener("tick", AdobeAn.handleFilterCache);
 
 	// Layer_13
-	this.instance_3 = new lib.CachedBmp_12();
-	this.instance_3.setTransform(114.4,167.1,0.5,0.5);
+	this.instance_3 = new lib.CachedBmp_1();
+	this.instance_3.setTransform(108.05,157.8,0.5,0.5);
 
-	this.instance_4 = new lib.CachedBmp_13();
-	this.instance_4.setTransform(114.4,167.1,0.5,0.5);
+	this.instance_4 = new lib.CachedBmp_2();
+	this.instance_4.setTransform(108.05,157.8,0.5,0.5);
 
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_3}]}).to({state:[{t:this.instance_4}]},1).wait(14));
 
 	// Layer_9
 	this.instance_5 = new lib.buttonsrow();
-	this.instance_5.setTransform(222.6,213.85);
+	this.instance_5.setTransform(210.25,202,0.9448,0.9448);
 
-	this.timeline.addTween(cjs.Tween.get(this.instance_5).wait(6).to({regY:1,x:223.05,y:214.85},0).wait(1).to({x:224.3},0).wait(1).to({x:226.55},0).wait(1).to({x:229.65},0).wait(1).to({x:233.05},0).wait(1).to({x:235.95},0).wait(1).to({x:237.95},0).wait(1).to({x:239.15},0).wait(1).to({regY:0,x:239.65,y:213.85},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(this.instance_5).wait(6).to({regY:1,x:210.65,y:202.95},0).wait(1).to({x:211.85},0).wait(1).to({x:214},0).wait(1).to({x:216.9},0).wait(1).to({x:220.15},0).wait(1).to({x:222.9},0).wait(1).to({x:224.8},0).wait(1).to({x:225.9},0).wait(1).to({regX:0.1,regY:0.1,x:226.45,y:202.1},0).wait(1));
 
 	// Layer_5_copy_2
 	this.instance_6 = new lib.Bitmap1();
-	this.instance_6.setTransform(-27,-33);
+	this.instance_6.setTransform(-26,-31,0.9448,0.9448);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_6).wait(15));
 
 	// Layer_5_copy_2
 	this.instance_7 = new lib.pp();
-	this.instance_7.setTransform(243.5,186.05);
+	this.instance_7.setTransform(230.1,175.8,0.9448,0.9448,0,0,0,0.1,0.1);
 	this.instance_7.alpha = 0.25;
 	this.instance_7.compositeOperation = "multiply";
 
@@ -1114,7 +1170,7 @@ if (reversed == null) { reversed = false; }
 
 	// Layer_14
 	this.instance_8 = new lib.roate();
-	this.instance_8.setTransform(114.35,322.1,1.3383,1.3383,0,0,0,-173,122.5);
+	this.instance_8.setTransform(108,304.25,1.2644,1.2644,0,0,0,-173,122.5);
 	this.instance_8.alpha = 0.6289;
 	this.instance_8.compositeOperation = "overlay";
 	var instance_8Filter_1 = new cjs.ColorFilter(0,0,0,1,101,50,254,0);
@@ -1126,7 +1182,7 @@ if (reversed == null) { reversed = false; }
 
 	// Layer_15
 	this.instance_9 = new lib.pp();
-	this.instance_9.setTransform(243.5,186.05);
+	this.instance_9.setTransform(230.1,175.8,0.9448,0.9448,0,0,0,0.1,0.1);
 	this.instance_9.alpha = 0.3594;
 	this.instance_9.compositeOperation = "overlay";
 	var instance_9Filter_2 = new cjs.ColorFilter(0,0,0,1,110,59,254,0);
@@ -1138,12 +1194,12 @@ if (reversed == null) { reversed = false; }
 
 	// stageBackground
 	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("rgba(0,0,0,0)").ss(1,1,1,3,true).p("EgnmgenMBPNAAAMAAAA9PMhPNAAAg");
-	this.shape.setTransform(243.5,186);
+	this.shape.graphics.f().s("rgba(0,0,0,0)").ss(1,1,1,3,true).p("EglfgdDMBK/AAAMAAAA6HMhK/AAAg");
+	this.shape.setTransform(230,176);
 
 	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#FFCCFF").s().p("EgnmAeoMAAAg9PMBPNAAAMAAAA9Pg");
-	this.shape_1.setTransform(243.5,186);
+	this.shape_1.graphics.f("#FFCCFF").s().p("EglfAdEMAAAg6HMBK/AAAMAAAA6Hg");
+	this.shape_1.setTransform(230,176);
 
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_1},{t:this.shape}]}).wait(15));
 
@@ -1153,20 +1209,20 @@ if (reversed == null) { reversed = false; }
 	this._renderFirstFrame();
 
 }).prototype = p = new lib.AnMovieClip();
-p.nominalBounds = new cjs.Rectangle(53.4,153,458.6,471.9);
+p.nominalBounds = new cjs.Rectangle(50.3,145,433,445.29999999999995);
 // library properties:
 lib.properties = {
 	id: 'B325F180281AD548AF0E7778EAE237A2',
-	width: 487,
-	height: 372,
+	width: 460,
+	height: 352,
 	fps: 24,
 	color: "#FFCCFF",
 	opacity: 1.00,
 	manifest: [
-		{src:"images/purple_atlas_1.png?1778586155666", id:"purple_atlas_1"},
-		{src:"sounds/clickywav.mp3?1778586155743", id:"clickywav"},
-		{src:"sounds/hoverwav.mp3?1778586155743", id:"hoverwav"},
-		{src:"sounds/snd_badexplosionwav.mp3?1778586155743", id:"snd_badexplosionwav"}
+		{src:"images/purple_atlas_1.png?1778855027532", id:"purple_atlas_1"},
+		{src:"sounds/clickywav.mp3?1778855027611", id:"clickywav"},
+		{src:"sounds/hoverwav.mp3?1778855027611", id:"hoverwav"},
+		{src:"sounds/snd_badexplosionwav.mp3?1778855027611", id:"snd_badexplosionwav"}
 	],
 	preloads: []
 };
