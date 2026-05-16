@@ -267,6 +267,271 @@ if (reversed == null) { reversed = false; }
 	props.reversed = reversed;
 	cjs.MovieClip.apply(this,[props]);
 
+	this.actionFrames = [0];
+	// timeline functions:
+	this.frame_0 = function() {
+		this.stop();
+		if (this._artGalleryReady) {
+			return;
+		}
+		this._artGalleryReady = true;
+
+		var root = this;
+		var galleryY = 104;
+		var galleryHeight = 190;
+		var centerX = 230;
+		var centerY = 183;
+		var navY = 314;
+		var navScale = 0.28;
+		var cardsLayer = new cjs.Container();
+		var uiLayer = new cjs.Container();
+
+		var maskShape = new cjs.Shape();
+		maskShape.graphics.f("#000000").drawRect(0, galleryY, lib.properties.width, galleryHeight);
+		cardsLayer.mask = maskShape;
+
+		root.addChild(uiLayer);
+		root.addChild(cardsLayer);
+
+		var fallbackItems = [
+			{filename:"2026 lily ref new.png", displayName:"2026 Lily Ref", link:""},
+			{filename:"AMY SPINDRIFT LOLOL.png", displayName:"Amy Spindrift", link:""},
+			{filename:"INTERNAL_SCREAMING.png", displayName:"Internal Screaming", link:""},
+			{filename:"modern aero flash 2.png", displayName:"Modern Aero Flash 2", link:""},
+			{filename:"new 2006 cover v4 flatter.png", displayName:"New 2006 Cover v4", link:""},
+			{filename:"sonicv6 idle.gif", displayName:"Sonic V6 Idle", link:""},
+			{filename:"vanilla wip 9.png", displayName:"Vanilla WIP 9", link:""}
+		];
+
+		function normalizeItems(items) {
+			if (!items || !items.length) {
+				return fallbackItems;
+			}
+			var normalized = [];
+			for (var i = 0; i < items.length; i++) {
+				if (!items[i] || !items[i].filename) {
+					continue;
+				}
+				normalized.push({
+					filename: items[i].filename,
+					displayName: items[i].displayName || items[i].filename,
+					link: items[i].link || ""
+				});
+			}
+			return normalized.length ? normalized : fallbackItems;
+		}
+
+		function makeNavButton(src, xPos, direction, clickHandler) {
+			var btn = new cjs.Bitmap(src);
+			btn.scaleX = navScale;
+			btn.scaleY = navScale;
+			btn.regX = 128;
+			btn.regY = 128;
+			btn.x = xPos;
+			btn.y = navY;
+			btn.shadow = new cjs.Shadow("rgba(106,68,0,0.55)", 0, 2, 6);
+			btn.cursor = "pointer";
+			btn.filters = [new cjs.ColorFilter(1, 1, 1, 1, 0, 0, 0, 0)];
+			btn.cache(0, 0, 256, 256);
+
+			btn.addEventListener("mouseover", function() {
+				if (typeof playSound === "function") {
+					playSound("hoverwav");
+				}
+				cjs.Tween.removeTweens(btn);
+				btn.filters = [new cjs.ColorFilter(1, 1, 1, 1, 46, 40, 12, 0)];
+				btn.updateCache();
+			});
+
+			btn.addEventListener("mouseout", function() {
+				cjs.Tween.removeTweens(btn);
+				btn.filters = [new cjs.ColorFilter(1, 1, 1, 1, 0, 0, 0, 0)];
+				btn.updateCache();
+			});
+
+			btn.addEventListener("click", function() {
+				if (typeof playSound === "function") {
+					playSound("clickywav");
+				}
+				clickHandler(direction);
+			});
+
+			uiLayer.addChild(btn);
+		}
+
+		function buildGallery(items) {
+			var artItems = normalizeItems(items);
+			var imgQueue = new cjs.LoadQueue(false);
+			for (var i = 0; i < artItems.length; i++) {
+				imgQueue.loadFile({id:"art_" + i, src:encodeURI("/assets/img/yellow/art/" + artItems[i].filename)});
+			}
+
+			imgQueue.addEventListener("complete", function() {
+				var cards = [];
+				var currentIndex = 0;
+				var isAnimating = false;
+				var spacing = 120;
+
+				for (var j = 0; j < artItems.length; j++) {
+					var imageObj = imgQueue.getResult("art_" + j);
+					if (!imageObj) {
+						continue;
+					}
+
+					var card = new cjs.Container();
+					card.entry = artItems[j];
+
+					var cardBg = new cjs.Shape();
+					cardBg.graphics.f("#E7E7E7").s("rgba(255,255,255,0.85)").ss(2).rr(-86, -86, 172, 172, 12);
+					cardBg.shadow = new cjs.Shadow("rgba(60,40,0,0.35)", 0, 3, 8);
+					card.addChild(cardBg);
+
+					var artBmp = new cjs.Bitmap(imageObj);
+					artBmp.regX = imageObj.width / 2;
+					artBmp.regY = imageObj.height / 2;
+					var fitScale = Math.min(156 / imageObj.width, 156 / imageObj.height, 1);
+					artBmp.scaleX = fitScale;
+					artBmp.scaleY = fitScale;
+					artBmp.y = -12;
+					card.addChild(artBmp);
+
+					var nameLabel = new cjs.Text(card.entry.displayName, "18px Trebuchet MS", "#774900");
+					nameLabel.textAlign = "center";
+					nameLabel.y = 92;
+					nameLabel.shadow = new cjs.Shadow("rgba(255,255,255,0.8)", 0, 0, 2);
+					card.addChild(nameLabel);
+
+					card.hitArea = new cjs.Shape();
+					card.hitArea.graphics.f("#000000").rr(-88, -88, 176, 198, 12);
+
+					if (card.entry.link) {
+						card.cursor = "pointer";
+						card.addEventListener("mouseover", function() {
+							if (typeof playSound === "function") {
+								playSound("hoverwav");
+							}
+						});
+						card.addEventListener("click", function(evt) {
+							if (typeof playSound === "function") {
+								playSound("clickywav");
+							}
+							if (evt.currentTarget.entry && evt.currentTarget.entry.link) {
+								window.open(evt.currentTarget.entry.link, "_blank");
+							}
+						});
+					}
+
+					cardsLayer.addChild(card);
+					cards.push(card);
+				}
+
+				if (!cards.length) {
+					var noArtText = new cjs.Text("No art items found", "20px Trebuchet MS", "#774900");
+					noArtText.textAlign = "center";
+					noArtText.x = centerX;
+					noArtText.y = centerY - 10;
+					uiLayer.addChild(noArtText);
+					return;
+				}
+
+				function wrapIndex(value) {
+					var count = cards.length;
+					return ((value % count) + count) % count;
+				}
+
+				function distanceFromCenter(index) {
+					var raw = index - currentIndex;
+					var half = cards.length / 2;
+					if (raw > half) {
+						raw -= cards.length;
+					} else if (raw < -half) {
+						raw += cards.length;
+					}
+					return raw;
+				}
+
+				function drawOrder() {
+					var sorted = cards.slice(0).sort(function(a, b) {
+						return Math.abs(b._depthOffset || 0) - Math.abs(a._depthOffset || 0);
+					});
+					for (var idx = 0; idx < sorted.length; idx++) {
+						cardsLayer.setChildIndex(sorted[idx], cardsLayer.numChildren - 1);
+					}
+				}
+
+				function updateCards(animated) {
+					for (var k = 0; k < cards.length; k++) {
+						var card = cards[k];
+						var offset = distanceFromCenter(k);
+						card._depthOffset = offset;
+
+						var absOffset = Math.abs(offset);
+						var targetX = centerX + (offset * spacing);
+						var targetY = centerY + (absOffset * 10);
+						var targetScale = absOffset === 0 ? 0.92 : (absOffset === 1 ? 0.66 : 0.48);
+						var targetAlpha = absOffset === 0 ? 1 : (absOffset === 1 ? 0.58 : 0);
+
+						card.visible = absOffset <= 2;
+						card.mouseEnabled = absOffset <= 1;
+
+						if (animated) {
+							cjs.Tween.removeTweens(card);
+							cjs.Tween.get(card).to({x:targetX, y:targetY, scaleX:targetScale, scaleY:targetScale, alpha:targetAlpha}, 240, cjs.Ease.quadOut);
+						} else {
+							card.x = targetX;
+							card.y = targetY;
+							card.scaleX = targetScale;
+							card.scaleY = targetScale;
+							card.alpha = targetAlpha;
+						}
+					}
+					drawOrder();
+				}
+
+				function move(direction) {
+					if (isAnimating || cards.length < 2) {
+						return;
+					}
+					isAnimating = true;
+					currentIndex = wrapIndex(currentIndex + direction);
+					updateCards(true);
+					setTimeout(function() {
+						isAnimating = false;
+					}, 260);
+				}
+
+				makeNavButton("/assets/img/yellow/left.png", 48, -1, move);
+				makeNavButton("/assets/img/yellow/right.png", 412, 1, move);
+
+				updateCards(false);
+			});
+
+			imgQueue.addEventListener("error", function() {
+				console.warn("yellow.js: one or more art images failed to load");
+			});
+		}
+
+		var configQueue = new cjs.LoadQueue(false);
+		configQueue.addEventListener("complete", function() {
+			var config = configQueue.getResult("artConfig");
+			if (config && config.items && config.items.length) {
+				buildGallery(config.items);
+			} else {
+				buildGallery(fallbackItems);
+			}
+		});
+
+		configQueue.addEventListener("error", function() {
+			console.warn("yellow.js: art-config.json failed to load; using fallback data");
+			buildGallery(fallbackItems);
+		});
+
+		configQueue.loadFile({id:"artConfig", src:"/assets/img/yellow/art-config.json", type:"json"});
+	}
+
+	// actions tween:
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(2));
+
 	// Layer_2
 	this.instance = new lib.icon();
 	this.instance.setTransform(38,30.45,0.9448,0.9448);
@@ -338,7 +603,9 @@ lib.properties = {
 	color: "#FFFF99",
 	opacity: 1.00,
 	manifest: [
-		{src:"images/yellow_atlas_1.png?1778909900410", id:"yellow_atlas_1"}
+		{src:"images/yellow_atlas_1.png?1778909900410", id:"yellow_atlas_1"},
+		{src:"../../sounds/clicky.wav", id:"clickywav"},
+		{src:"../../sounds/hover.wav", id:"hoverwav"}
 	],
 	preloads: []
 };
