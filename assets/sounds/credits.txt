@@ -1,2 +1,19 @@
+SOUNDS:
 hover - https://freesound.org/people/bubaproducer/sounds/107156/
 clicky - https://freesound.org/people/Mellau/sounds/506054/
+click.webm - https://arwes.dev/
+mk64_luigi01, mk64_luigi02, mk64_luigi03, mk64_luigi04 - Mario Kart 64 (Nintendo)
+mm_medal_click - Team Fortress 2 (Valve)
+
+MUSIC:
+Interference Ending - Virgill
+Monkey Song - Mario Paint
+Town Hall (Pelly) - Animal Crossing
+Your Name, Please (Noiseless) - EarthBound
+Main Song - QT
+Bejuel (Instrumental) - Lily (ZesCrew2)
+All The Things She Said (Sped Up, Instrumental) - t.A.T.u.
+Kalimba - Mr. Scruff (Ninja Tuna)
+Mario Paint "Intense Color" OC ReMix - sephfire, SGX (OverClocked ReMix)
+Drown in the Now - The Crystal Method (Feat. Matisyahu)
+Your Game is Over (Instrumental) - MiatriSs
