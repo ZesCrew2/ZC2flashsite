@@ -1,4 +1,7 @@
 function playSound(id, loop, offset) {
+    if (!window.siteAudio || window.siteAudio.isMuted) {
+        return null;
+    }
     return createjs.Sound.play(id, {'interrupt':createjs.Sound.INTERRUPT_EARLY, 'loop': loop, 'offset': offset});
 }
 (function() {

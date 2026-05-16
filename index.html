@@ -18,7 +18,7 @@
 	<div id="swirl"></div>
 	<div id="site">
 		<div id="logo-layer">
-			<div id="logo-idle-wrap" onclick="loadSwf('orange')">
+			<div id="logo-idle-wrap" onclick="loadPage('orange')">
 				<img src="assets/img/zc2aeroorb.png" alt="ZC2 Logo" id="logo">
 			</div>
 		</div>
@@ -33,21 +33,19 @@
 				</div>
 			</div>
 			<div id="buttons">
-				<button class="btn red" onclick="loadSwf('red')">Introduction</button>
-				<button class="btn orange" onclick="loadSwf('orange')">Home</button>
-				<button class="btn yellow" onclick="loadSwf('yellow')">Art</button>
-				<button class="btn lime" onclick="loadSwf('lime')">Videos</button>
-				<button class="btn green" onclick="loadSwf('green')">Downloads</button>
-				<button class="btn cyan" onclick="loadSwf('cyan')">Oldies</button>
-				<button class="btn blue" onclick="loadSwf('blue')">2006 (Album)</button>
-				<button class="btn purple" onclick="loadSwf('purple')">Socials</button>
-				<button class="btn pink" onclick="loadSwf('pink')">Site Credits</button>
+				<button class="btn red" onclick="loadPage('red')">Introduction</button>
+				<button class="btn orange" onclick="loadPage('orange')">Home</button>
+				<button class="btn yellow" onclick="loadPage('yellow')">Art</button>
+				<button class="btn lime" onclick="loadPage('lime')">Videos</button>
+				<button class="btn green" onclick="loadPage('green')">Downloads</button>
+				<button class="btn cyan" onclick="loadPage('cyan')">Oldies</button>
+				<button class="btn blue" onclick="loadPage('blue')">2006 (Album)</button>
+				<button class="btn purple" onclick="loadPage('purple')">Socials</button>
+				<button class="btn pink" onclick="loadPage('pink')">Site Credits</button>
 				<img src="assets/img/speaker.png" alt="Mute Toggle" id="speaker">
 			</div>
 			<div id="content-area">
-				<div id="flashContent">
-					<object data="/assets/swf/pages/orange.swf" type="application/x-shockwave-flash" width="100%" height="100%"></object>
-				</div>
+				<div id="flashContent"></div>
 			</div>
 			<div id="footer">
 				<p>Site CSS by <a href="https://sploder-saptarshi.github.io/" class="link"
@@ -77,35 +75,6 @@
 			Windows Media Player
 		</button>
 	</div>
-
-	<script>
-		function loadSwf(color) {
-			const flashContent = document.getElementById('flashContent');
-			flashContent.innerHTML = '<object data="assets/swf/pages/' + color + '.swf" type="application/x-shockwave-flash" width="100%" height="100%"></object>';
-		}
-		loadSwf('orange');
-		function scaleSite() {
-			var site = document.getElementById('site');
-			var inner = document.getElementById('site-inner');
-			var logoLayer = document.getElementById('logo-layer');
-			var scale = site.clientWidth / 760;
-			inner.style.transform = 'scale(' + scale + ')';
-			if (logoLayer) logoLayer.style.transform = 'scale(' + scale + ')';
-		}
-		window.addEventListener('resize', scaleSite);
-		scaleSite();
-	</script>
-	<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
-	<script>
-		var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-		window.RufflePlayer.config = {
-			"autoplay": "on",
-			"unmuteOverlay": "hidden",
-			"contextMenu": "off",
-			"splashScreen": false,
-			...(isMobile && { "quality": "low" }),
-		}
-	</script>
 	<script src="assets/js/createjs.min.js"></script>
 	<script src="assets/swf/banner/zc2banner.js"></script>
 	<script src="assets/wmp/wmplayer.playlist.js"></script>
@@ -117,6 +86,7 @@
 	<script src="assets/js/sounds.js"></script>
 	<script src="assets/js/logo.js"></script>
 	<script src="assets/js/title.js"></script>
+	<script src="assets/js/pageloader.js"></script>
 </body>
 
 </html>
