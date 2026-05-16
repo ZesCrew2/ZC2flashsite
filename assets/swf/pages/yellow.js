@@ -507,6 +507,16 @@ if (reversed == null) { reversed = false; }
 					cjs.Tween.get(overlay).to({alpha:1}, 300);
 					cjs.Tween.get(previewBmp).to({x:lib.properties.width/2, y:lib.properties.height/2, scaleX:targetScale, scaleY:targetScale}, 400, cjs.Ease.backOut);
 
+					// handle link logic --thorns
+					var finalLink = (entry.link && entry.link.trim() !== "") ? entry.link : "/assets/img/yellow/art/" + entry.filename;
+					
+					previewBmp.cursor = "pointer";
+					previewBmp.addEventListener("click", function(evt) {
+						evt.stopImmediatePropagation();
+						if (typeof playSound === "function") playSound("clickywav");
+						window.open(finalLink, "_blank");
+					});
+
 					uiLayer.visible = false;
 					cardsLayer.visible = false;
 					if (gifOverlay) gifOverlay.style.display = "none";
@@ -523,6 +533,12 @@ if (reversed == null) { reversed = false; }
 							document.getElementById("animation_container").appendChild(previewGif);
 						}
 						previewGif.src = encodeURI("/assets/img/yellow/art/" + entry.filename);
+						previewGif.style.cursor = "pointer";
+						previewGif.onclick = function(evt) {
+							evt.stopPropagation();
+							if (typeof playSound === "function") playSound("clickywav");
+							window.open(finalLink, "_blank");
+						};
 						
 						setTimeout(function() {
 							if (!isPreviewOpen) return;
@@ -535,7 +551,7 @@ if (reversed == null) { reversed = false; }
 						}, 400);
 					}
 
-					var closeHint = new cjs.Text("Click anywhere to close", "14px Trebuchet MS", "#FFFFFF");
+					var closeHint = new cjs.Text("Click background to close | Click image for link", "14px Trebuchet MS", "#FFFFFF");
 					closeHint.textAlign = "center";
 					closeHint.x = lib.properties.width / 2;
 					closeHint.y = lib.properties.height - 20;
