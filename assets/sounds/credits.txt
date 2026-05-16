@@ -4,6 +4,8 @@ clicky - https://freesound.org/people/Mellau/sounds/506054/
 click.webm - https://arwes.dev/
 mk64_luigi01, mk64_luigi02, mk64_luigi03, mk64_luigi04 - Mario Kart 64 (Nintendo)
 mm_medal_click - Team Fortress 2 (Valve)
+ducc - Sonic Mania (SEGA, Headcannon)
+snf_badexplosion - Deltarune (Originally from Hanna-Barbara)
 
 MUSIC:
 Interference Ending - Virgill
