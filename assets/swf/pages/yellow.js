@@ -321,6 +321,22 @@ if (reversed == null) { reversed = false; }
 			return normalized.length ? normalized : fallbackItems;
 		}
 
+		function getArtLayout(imgW, imgH, filename) {
+			var fitScale = Math.min(156 / imgW, 156 / imgH, 1);
+			var aspectRatio = imgW / imgH;
+			var yOffset = -8; // baseline
+			
+			if (aspectRatio > 1.2) {
+				yOffset = -4;
+			} else if (aspectRatio < 0.8) {
+				yOffset = 4;
+			} else {
+				yOffset = 0;
+			}
+
+			return { scale: fitScale, y: yOffset };
+		}
+
 		function makeNavButton(imageObj, xPos, direction, clickHandler) {
 			var btn = new cjs.Bitmap(imageObj);
 			btn.scaleX = navScale;
@@ -374,6 +390,7 @@ if (reversed == null) { reversed = false; }
 			imgQueue.setMaxConnections(8);
 			imgQueue.loadFile({id:"btn_left", src:"/assets/img/yellow/left.png"});
 			imgQueue.loadFile({id:"btn_right", src:"/assets/img/yellow/right.png"});
+			imgQueue.loadFile({id:"shine_overlay", src:"/assets/img/yellow/shine.png"});
 			for (var i = 0; i < artItems.length; i++) {
 				imgQueue.loadFile({id:"art_" + i, src:encodeURI("/assets/img/yellow/art/" + artItems[i].filename)});
 			}
@@ -385,56 +402,163 @@ if (reversed == null) { reversed = false; }
 				var spacing = 120;
 
 				for (var j = 0; j < artItems.length; j++) {
-					var imageObj = imgQueue.getResult("art_" + j);
-					if (!imageObj) {
-						continue;
-					}
+					(function(index) {
+						var itemEntry = artItems[index];
+						var imageObj = imgQueue.getResult("art_" + index);
+						if (!imageObj) {
+							return;
+						}
 
-					var card = new cjs.Container();
-					card.entry = artItems[j];
+						var card = new cjs.Container();
+						card.entry = itemEntry;
 
-					var cardBg = new cjs.Shape();
-					cardBg.graphics.f("#E7E7E7").s("rgba(255,255,255,0.85)").ss(2).rr(-86, -86, 172, 172, 12);
-					cardBg.shadow = new cjs.Shadow("rgba(60,40,0,0.35)", 0, 3, 8);
-					card.addChild(cardBg);
+						var cardBg = new cjs.Shape();
+						cardBg.graphics.f("#E7E7E7").s("rgba(255,255,255,0.85)").ss(2).rr(-86, -86, 172, 172, 12);
+						cardBg.shadow = new cjs.Shadow("rgba(60,40,0,0.35)", 0, 3, 8);
+						card.addChild(cardBg);
 
-					var artBmp = new cjs.Bitmap(imageObj);
-					artBmp.regX = imageObj.width / 2;
-					artBmp.regY = imageObj.height / 2;
-					var fitScale = Math.min(156 / imageObj.width, 156 / imageObj.height, 1);
-					artBmp.scaleX = fitScale;
-					artBmp.scaleY = fitScale;
-					artBmp.y = -12;
-					card.addChild(artBmp);
+						var artBmp = new cjs.Bitmap(imageObj);
+						artBmp.regX = imageObj.width / 2;
+						artBmp.regY = imageObj.height / 2;
+						
+						var layout = getArtLayout(imageObj.width, imageObj.height);
+						artBmp.scaleX = layout.scale;
+						artBmp.scaleY = layout.scale;
+						artBmp.y = layout.y;
+						
+						card.addChild(artBmp);
 
-					var nameLabel = new cjs.Text(card.entry.displayName, "18px Trebuchet MS", "#774900");
-					nameLabel.textAlign = "center";
-					nameLabel.y = 92;
-					nameLabel.shadow = new cjs.Shadow("rgba(255,255,255,0.8)", 0, 0, 2);
-					card.addChild(nameLabel);
+						// add shine overlay to every card --thorns
+						var shineImage = imgQueue.getResult("shine_overlay");
+						if (shineImage) {
+							var shineBmp = new cjs.Bitmap(shineImage);
+							shineBmp.regX = shineImage.width / 2;
+							shineBmp.regY = shineImage.height / 2;
+							shineBmp.scaleX = 172 / shineImage.width;
+							shineBmp.scaleY = 172 / shineImage.height;
+							shineBmp.y = 0; 
+							card.addChild(shineBmp);
+						}
 
-					card.hitArea = new cjs.Shape();
-					card.hitArea.graphics.f("#000000").rr(-88, -88, 176, 198, 12);
+						var nameLabel = new cjs.Text(card.entry.displayName, "14px Kronika", "#774900");
+						nameLabel.textAlign = "center";
+						nameLabel.y = 92;
+						nameLabel.shadow = new cjs.Shadow("rgba(255,255,255,0.8)", 0, 0, 2);
+						card.addChild(nameLabel);
 
-					if (card.entry.link) {
-						card.cursor = "pointer";
-						card.addEventListener("mouseover", function() {
-							if (typeof playSound === "function") {
-								playSound("hoverwav");
-							}
-						});
-						card.addEventListener("click", function(evt) {
-							if (typeof playSound === "function") {
-								playSound("clickywav");
-							}
-							if (evt.currentTarget.entry && evt.currentTarget.entry.link) {
+						card.hitArea = new cjs.Shape();
+						card.hitArea.graphics.f("#000000").rr(-88, -88, 176, 198, 12);
+
+						if (card.entry.link && card.entry.link.trim() !== "") {
+							card.cursor = "pointer";
+							card.addEventListener("mouseover", function() {
+								if (typeof playSound === "function") {
+									playSound("hoverwav");
+								}
+							});
+							card.addEventListener("click", function(evt) {
+								if (typeof playSound === "function") {
+									playSound("clickywav");
+								}
 								window.open(evt.currentTarget.entry.link, "_blank");
-							}
-						});
+							});
+						} else {
+							card.cursor = "zoom-in";
+							card.addEventListener("click", function(evt) {
+								if (Math.abs(distanceFromCenter(cards.indexOf(card))) > 0.1) return;
+								showFullPreview(card.entry, imageObj);
+							});
+						}
+
+						cardsLayer.addChild(card);
+						cards.push(card);
+					})(j);
+				}
+
+				// preview overlay system --thorns
+				var previewLayer = new cjs.Container();
+				root.addChild(previewLayer);
+				var isPreviewOpen = false;
+
+				function showFullPreview(entry, imageObj) {
+					if (isPreviewOpen) return;
+					isPreviewOpen = true;
+					if (typeof playSound === "function") playSound("clickywav");
+
+					var overlay = new cjs.Shape();
+					overlay.graphics.f("rgba(0,0,0,0.85)").drawRect(0, 0, lib.properties.width, lib.properties.height);
+					overlay.alpha = 0;
+					previewLayer.addChild(overlay);
+
+					var previewBmp = new cjs.Bitmap(imageObj);
+					previewBmp.regX = imageObj.width / 2;
+					previewBmp.regY = imageObj.height / 2;
+
+					var layout = getArtLayout(imageObj.width, imageObj.height);
+					previewBmp.x = centerX;
+					previewBmp.y = centerY + layout.y;
+					previewBmp.scaleX = layout.scale * 0.92;
+					previewBmp.scaleY = layout.scale * 0.92;
+					previewLayer.addChild(previewBmp);
+
+					var margin = 40;
+					var targetScale = Math.min((lib.properties.width - margin) / imageObj.width, (lib.properties.height - margin) / imageObj.height, 1.2);
+
+					cjs.Tween.get(overlay).to({alpha:1}, 300);
+					cjs.Tween.get(previewBmp).to({x:lib.properties.width/2, y:lib.properties.height/2, scaleX:targetScale, scaleY:targetScale}, 400, cjs.Ease.backOut);
+
+					uiLayer.visible = false;
+					cardsLayer.visible = false;
+					if (gifOverlay) gifOverlay.style.display = "none";
+					if (shineOverlay) shineOverlay.style.display = "none";
+
+					var previewGif = document.getElementById("preview-gif-overlay");
+					if (entry.filename.toLowerCase().endsWith(".gif")) {
+						if (!previewGif) {
+							previewGif = document.createElement("img");
+							previewGif.id = "preview-gif-overlay";
+							previewGif.style.position = "absolute";
+							previewGif.style.zIndex = "20";
+							previewGif.style.display = "none";
+							document.getElementById("animation_container").appendChild(previewGif);
+						}
+						previewGif.src = encodeURI("/assets/img/yellow/art/" + entry.filename);
+						
+						setTimeout(function() {
+							if (!isPreviewOpen) return;
+							previewBmp.visible = false;
+							previewGif.style.width = (imageObj.width * targetScale) + "px";
+							previewGif.style.height = (imageObj.height * targetScale) + "px";
+							previewGif.style.left = (lib.properties.width/2 - (imageObj.width * targetScale / 2)) + "px";
+							previewGif.style.top = (lib.properties.height/2 - (imageObj.height * targetScale / 2)) + "px";
+							previewGif.style.display = "block";
+						}, 400);
 					}
 
-					cardsLayer.addChild(card);
-					cards.push(card);
+					var closeHint = new cjs.Text("Click anywhere to close", "14px Trebuchet MS", "#FFFFFF");
+					closeHint.textAlign = "center";
+					closeHint.x = lib.properties.width / 2;
+					closeHint.y = lib.properties.height - 20;
+					closeHint.alpha = 0;
+					previewLayer.addChild(closeHint);
+					cjs.Tween.get(closeHint).wait(500).to({alpha:0.6}, 300);
+
+					overlay.cursor = "zoom-out";
+					overlay.addEventListener("click", function() {
+						isPreviewOpen = false;
+						if (typeof playSound === "function") playSound("clickywav");
+						if (previewGif) previewGif.style.display = "none";
+						previewBmp.visible = true;
+
+						cjs.Tween.get(overlay).to({alpha:0}, 300);
+						cjs.Tween.get(closeHint).to({alpha:0}, 200);
+						cjs.Tween.get(previewBmp).to({x:centerX, y:centerY + layout.y, scaleX:layout.scale * 0.92, scaleY:layout.scale * 0.92}, 300, cjs.Ease.quadIn).call(function() {
+							previewLayer.removeAllChildren();
+							uiLayer.visible = true;
+							cardsLayer.visible = true;
+							updateGifOverlay();
+						});
+					});
 				}
 
 				if (!cards.length) {
@@ -486,9 +610,25 @@ if (reversed == null) { reversed = false; }
 						card.visible = absOffset <= 2;
 						card.mouseEnabled = absOffset <= 1;
 
+						// cjs bitmap was rendering just the first frame of the gif (fixed) --thorns
+						if (card.children[1] instanceof cjs.Bitmap) {
+							if (absOffset === 0 && card.entry.filename.toLowerCase().endsWith(".gif")) {
+								card.children[1].visible = false;
+							} else {
+								card.children[1].visible = true;
+							}
+						}
+
 						if (animated) {
 							cjs.Tween.removeTweens(card);
-							cjs.Tween.get(card).to({x:targetX, y:targetY, scaleX:targetScale, scaleY:targetScale, alpha:targetAlpha}, 240, cjs.Ease.quadOut);
+							var tween = cjs.Tween.get(card).to({x:targetX, y:targetY, scaleX:targetScale, scaleY:targetScale, alpha:targetAlpha}, 240, cjs.Ease.quadOut);
+							
+							// sync gif overlay during animation
+							if (absOffset === 0 && card.entry.filename.toLowerCase().endsWith(".gif")) {
+								tween.addEventListener("change", function() {
+									updateGifOverlay();
+								});
+							}
 						} else {
 							card.x = targetX;
 							card.y = targetY;
@@ -498,6 +638,103 @@ if (reversed == null) { reversed = false; }
 						}
 					}
 					drawOrder();
+					updateGifOverlay();
+				}
+
+				// gif animation fix: overlay html img element because cjs.Bitmap doesn't animate GIFs --thorns
+				var gifOverlay = document.getElementById("gallery-gif-overlay");
+				var shineOverlay = document.getElementById("gallery-shine-overlay");
+				if (!gifOverlay) {
+					var container = document.getElementById("animation_container");
+					if (container) {
+						gifOverlay = document.createElement("img");
+						gifOverlay.id = "gallery-gif-overlay";
+						gifOverlay.style.position = "absolute";
+						gifOverlay.style.pointerEvents = "none";
+						gifOverlay.style.zIndex = "10";
+						gifOverlay.style.display = "none";
+						gifOverlay.style.transition = "none";
+						container.appendChild(gifOverlay);
+						
+						shineOverlay = document.createElement("img");
+						shineOverlay.id = "gallery-shine-overlay";
+						shineOverlay.src = encodeURI("/assets/img/yellow/shine.png");
+						shineOverlay.style.position = "absolute";
+						shineOverlay.style.pointerEvents = "none";
+						shineOverlay.style.zIndex = "11"; // Above GIF
+						shineOverlay.style.display = "none";
+						shineOverlay.style.transition = "none";
+						container.appendChild(shineOverlay);
+					}
+				}
+
+				function updateGifOverlay() {
+					if (isPreviewOpen) return;
+					var activeCard = cards[currentIndex];
+					if (activeCard && activeCard.entry.filename.toLowerCase().endsWith(".gif")) {
+						var imageObj = imgQueue.getResult("art_" + currentIndex);
+						if (imageObj) {
+							var currentScale = activeCard.scaleX;
+							var layout = getArtLayout(imageObj.width, imageObj.height, activeCard.entry.filename);
+							var finalScale = layout.scale * currentScale;
+							
+							if (gifOverlay.getAttribute("data-filename") !== activeCard.entry.filename) {
+								gifOverlay.src = encodeURI("/assets/img/yellow/art/" + activeCard.entry.filename);
+								gifOverlay.setAttribute("data-filename", activeCard.entry.filename);
+							}
+							
+							// Calculate ratio between stage size and CSS size
+							var canvas = activeCard.stage.canvas;
+							var ratio = canvas.width / canvas.clientWidth;
+							
+							// Get global position of the art bitmap center
+							var pt = activeCard.localToGlobal(0, layout.y);
+							
+							gifOverlay.style.width = (imageObj.width * finalScale) + "px";
+							gifOverlay.style.height = (imageObj.height * finalScale) + "px";
+							
+							// Position using stage coordinates / ratio and round to nearest pixel
+							var x = Math.round((pt.x / ratio) - (imageObj.width * finalScale / 2));
+							var y = Math.round((pt.y / ratio) - (imageObj.height * finalScale / 2));
+							
+							gifOverlay.style.left = x + "px";
+							gifOverlay.style.top = y + "px";
+							gifOverlay.style.display = "block";
+							gifOverlay.style.opacity = activeCard.alpha;
+
+							// Sync shine overlay
+							if (shineOverlay) {
+								var cardPt = activeCard.localToGlobal(0, 0);
+								var cardWidth = 172 * currentScale;
+								var cardHeight = 172 * currentScale;
+								shineOverlay.style.width = cardWidth + "px";
+								shineOverlay.style.height = cardHeight + "px";
+								shineOverlay.style.left = Math.round(cardPt.x / ratio - (cardWidth / 2)) + "px";
+								shineOverlay.style.top = Math.round(cardPt.y / ratio - (cardHeight / 2)) + "px";
+								shineOverlay.style.display = "block";
+								shineOverlay.style.opacity = activeCard.alpha;
+							}
+
+							gifOverlay.style.pointerEvents = activeCard.entry.link ? "auto" : "none";
+							gifOverlay.style.cursor = activeCard.entry.link ? "pointer" : "default";
+							gifOverlay.onclick = function() {
+								if (typeof playSound === "function") playSound("clickywav");
+								window.open(activeCard.entry.link, "_blank");
+							};
+							gifOverlay.onmouseover = function() {
+								if (typeof playSound === "function") playSound("hoverwav");
+							};
+						}
+					} else {
+						if (gifOverlay) {
+							gifOverlay.style.display = "none";
+							gifOverlay.style.opacity = "0";
+						}
+						if (shineOverlay) {
+							shineOverlay.style.display = "none";
+							shineOverlay.style.opacity = "0";
+						}
+					}
 				}
 
 				function move(direction) {
