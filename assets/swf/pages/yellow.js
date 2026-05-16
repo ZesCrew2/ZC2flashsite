@@ -321,8 +321,8 @@ if (reversed == null) { reversed = false; }
 			return normalized.length ? normalized : fallbackItems;
 		}
 
-		function makeNavButton(src, xPos, direction, clickHandler) {
-			var btn = new cjs.Bitmap(src);
+		function makeNavButton(imageObj, xPos, direction, clickHandler) {
+			var btn = new cjs.Bitmap(imageObj);
 			btn.scaleX = navScale;
 			btn.scaleY = navScale;
 			btn.regX = 128;
@@ -331,22 +331,31 @@ if (reversed == null) { reversed = false; }
 			btn.y = navY;
 			btn.shadow = new cjs.Shadow("rgba(106,68,0,0.55)", 0, 2, 6);
 			btn.cursor = "pointer";
-			btn.filters = [new cjs.ColorFilter(1, 1, 1, 1, 0, 0, 0, 0)];
-			btn.cache(0, 0, 256, 256);
+
+			function setButtonBrightness(isBright) {
+				if (!btn.image || !btn.image.width || !btn.image.height) {
+					return;
+				}
+				var add = isBright ? 46 : 0;
+				btn.filters = [new cjs.ColorFilter(1, 1, 1, 1, add, add, 12, 0)];
+				if (!btn.cacheCanvas) {
+					btn.cache(0, 0, btn.image.width, btn.image.height);
+				} else {
+					btn.updateCache();
+				}
+			}
+
+			setButtonBrightness(false);
 
 			btn.addEventListener("mouseover", function() {
 				if (typeof playSound === "function") {
 					playSound("hoverwav");
 				}
-				cjs.Tween.removeTweens(btn);
-				btn.filters = [new cjs.ColorFilter(1, 1, 1, 1, 46, 40, 12, 0)];
-				btn.updateCache();
+				setButtonBrightness(true);
 			});
 
 			btn.addEventListener("mouseout", function() {
-				cjs.Tween.removeTweens(btn);
-				btn.filters = [new cjs.ColorFilter(1, 1, 1, 1, 0, 0, 0, 0)];
-				btn.updateCache();
+				setButtonBrightness(false);
 			});
 
 			btn.addEventListener("click", function() {
@@ -362,11 +371,14 @@ if (reversed == null) { reversed = false; }
 		function buildGallery(items) {
 			var artItems = normalizeItems(items);
 			var imgQueue = new cjs.LoadQueue(false);
+			imgQueue.setMaxConnections(8);
+			imgQueue.loadFile({id:"btn_left", src:"/assets/img/yellow/left.png"});
+			imgQueue.loadFile({id:"btn_right", src:"/assets/img/yellow/right.png"});
 			for (var i = 0; i < artItems.length; i++) {
 				imgQueue.loadFile({id:"art_" + i, src:encodeURI("/assets/img/yellow/art/" + artItems[i].filename)});
 			}
 
-			imgQueue.addEventListener("complete", function() {
+			function renderCards() {
 				var cards = [];
 				var currentIndex = 0;
 				var isAnimating = false;
@@ -500,15 +512,25 @@ if (reversed == null) { reversed = false; }
 					}, 260);
 				}
 
-				makeNavButton("/assets/img/yellow/left.png", 48, -1, move);
-				makeNavButton("/assets/img/yellow/right.png", 412, 1, move);
+				var leftBtnImage = imgQueue.getResult("btn_left");
+				var rightBtnImage = imgQueue.getResult("btn_right");
+				if (leftBtnImage && rightBtnImage) {
+					makeNavButton(leftBtnImage, 48, -1, move);
+					makeNavButton(rightBtnImage, 412, 1, move);
+				}
 
 				updateCards(false);
+			}
+
+			imgQueue.addEventListener("complete", function() {
+				renderCards();
 			});
 
 			imgQueue.addEventListener("error", function() {
 				console.warn("yellow.js: one or more art images failed to load");
 			});
+
+			imgQueue.load();
 		}
 
 		var configQueue = new cjs.LoadQueue(false);
