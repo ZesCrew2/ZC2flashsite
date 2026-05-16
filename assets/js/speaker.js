@@ -77,6 +77,9 @@
         }
 
         function flyAway() {
+            if (!musicPlayer.classList.contains('show') || musicPlayer.classList.contains('minimizing')) return;
+            var active = document.activeElement;
+            if (active && active.closest && active.closest('.title-bar-controls')) active.blur();
             setFly();
             musicPlayer.classList.add('minimizing');
             musicPlayer.addEventListener('animationend', function() {
@@ -85,8 +88,20 @@
             }, { once: true });
         }
 
-        musicPlayer.querySelector('button[aria-label="Close"]').addEventListener('click', flyAway);
-        musicPlayer.querySelector('button[aria-label="Minimize"]').addEventListener('click', flyAway);
+        var closeButton = musicPlayer.querySelector('button[aria-label="Close"]');
+        var minimizeButton = musicPlayer.querySelector('button[aria-label="Minimize"]');
+
+        function blockSpaceOnWindowControls(e) {
+            if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }
+
+        closeButton.addEventListener('keydown', blockSpaceOnWindowControls);
+        minimizeButton.addEventListener('keydown', blockSpaceOnWindowControls);
+        closeButton.addEventListener('click', flyAway);
+        minimizeButton.addEventListener('click', flyAway);
         musicPlayer.querySelector('button[aria-label="Maximize"]').disabled = true;
 
         restoreBtn.addEventListener('click', function() {
