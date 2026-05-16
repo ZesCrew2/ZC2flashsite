@@ -550,7 +550,7 @@ lib.properties = {
 		{src:"assets/swf/banner/images/zc2banner_atlas_1.png", id:"zc2banner_atlas_1"},
 		{src:"assets/swf/banner/images/zc2banner_atlas_2.png", id:"zc2banner_atlas_2"},
 		{src:"assets/swf/banner/images/zc2banner_atlas_3.png", id:"zc2banner_atlas_3"},
-		{src:"assets/swf/banner/sounds/Duccwav.mp3", id:"Duccwav"}
+		{src:"assets/swf/banner/sounds/ducc.wav", id:"Duccwav"}
 	],
 	preloads: []
 };

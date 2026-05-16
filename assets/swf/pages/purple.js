@@ -1230,9 +1230,9 @@ lib.properties = {
 	opacity: 1.00,
 	manifest: [
 		{src:"images/purple_atlas_1.png?1778855027532", id:"purple_atlas_1"},
-		{src:"sounds/clickywav.mp3?1778855027611", id:"clickywav"},
-		{src:"sounds/hoverwav.mp3?1778855027611", id:"hoverwav"},
-		{src:"sounds/snd_badexplosionwav.mp3?1778855027611", id:"snd_badexplosionwav"}
+		{src:"../../sounds/clicky.wav", id:"clickywav"},
+		{src:"../../sounds/hover.wav", id:"hoverwav"},
+		{src:"sounds/snd_badexplosion.wav", id:"snd_badexplosionwav"}
 	],
 	preloads: []
 };

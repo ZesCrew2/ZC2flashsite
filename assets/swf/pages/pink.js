@@ -786,8 +786,8 @@ lib.properties = {
 	opacity: 1.00,
 	manifest: [
 		{src:"images/pink_atlas_1.png?1778910332797", id:"pink_atlas_1"},
-		{src:"sounds/clickywav.mp3?1778910332881", id:"clickywav"},
-		{src:"sounds/hoverwav.mp3?1778910332881", id:"hoverwav"}
+		{src:"../../sounds/clicky.wav", id:"clickywav"},
+		{src:"../../sounds/hover.wav", id:"hoverwav"}
 	],
 	preloads: []
 };

@@ -4,10 +4,25 @@ var currentLoader = null;
 var pageLoadToken = 0;
 var pageSoundsRegistered = {};
 
+if (typeof window.playSound !== 'function') {
+	window.playSound = function(id, loop, offset) {
+		if (!window.siteAudio || window.siteAudio.isMuted) {
+			return null;
+		}
+		return createjs.Sound.play(id, {'interrupt':createjs.Sound.INTERRUPT_EARLY, 'loop': loop, 'offset': offset});
+	};
+}
+
 function registerPageSound(src, id) {
 	if (!createjs.Sound || pageSoundsRegistered[id]) return;
 	pageSoundsRegistered[id] = true;
 	createjs.Sound.registerSound(src, id);
+}
+
+function resolvePageAssetPath(src) {
+	var resolver = document.createElement('a');
+	resolver.href = 'assets/swf/pages/' + src;
+	return resolver.pathname.replace(/^\//, '');
 }
 
 function loadPage(color) {
@@ -60,8 +75,8 @@ function initPage(color, token) {
 	var manifest = [];
 	lib.properties.manifest.forEach(function(item) {
 		var cleanSrc = item.src.replace(/\?.*$/, '');
-		var fullSrc = 'assets/swf/pages/' + cleanSrc;
-		if (/^sounds\//.test(cleanSrc)) {
+		var fullSrc = resolvePageAssetPath(cleanSrc);
+		if (/\.(mp3|wav|ogg)$/i.test(cleanSrc)) {
 			registerPageSound(fullSrc, item.id);
 			return;
 		}
