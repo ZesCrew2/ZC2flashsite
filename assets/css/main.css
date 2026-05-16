@@ -120,6 +120,10 @@ body {
     font-family: 'Kronika', sans-serif;
 }
 
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
 #site {
     position: relative;
     width: min(760px, 100vw, calc(100vh * 760 / 615));
