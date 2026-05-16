@@ -355,6 +355,11 @@ if (reversed == null) { reversed = false; }
 	this.instance = new lib.soundcredsclickable();
 	this.instance.setTransform(178.45,72.2);
 	new cjs.ButtonHelper(this.instance, 0, 1, 1);
+	this.instance.cursor = "pointer";
+	this.instance.removeAllEventListeners("click");
+	this.instance.addEventListener("click", function() {
+		window.open("https://zc2flashsite.pages.dev/assets/sounds/credits.txt", "_blank");
+	});
 
 	this.timeline.addTween(cjs.Tween.get(this.instance).wait(1));
 
