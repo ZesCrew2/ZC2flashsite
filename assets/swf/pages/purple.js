@@ -841,8 +841,7 @@ if (reversed == null) { reversed = false; }
 		playSound("snd_badexplosionwav");
 	}
 	this.frame_17 = function() {
-		/* stop();
-		*/
+		this.stop();
 	}
 
 	// actions tween:
@@ -1002,33 +1001,44 @@ if (reversed == null) { reversed = false; }
 		if(this.totalFrames == 1) {
 			this.isSingleFrame = true;
 		}
-		/* yt.onRelease = function(){
-			getURL("https://www.youtube.com/channel/UCx_HZy_jY70TNCwUuaTFr6A", "_blank");
+		var openInNewTab = function(url) {
+			window.open(url, "_blank");
 		};
-		
-		twitter.onRelease = function(){
-			getURL("https://www.twitter.com/ZesCrew2/", "_blank");
-		};
-		
-		ng.onRelease = function(){
-			getURL("https://zescrew2.newgrounds.com/", "_blank");
-		};
-		
-		kofi.onRelease = function(){
-			getURL("https://ko-fi.com/zescrew2", "_blank");
-		};
-		
-		discord.onRelease = function(){
-			getURL("https://discord.gg/wCXnpppegC", "_blank");
-		};
-		
-		github.onRelease = function(){
-			getURL("https://github.com/ZesCrew2/", "_blank");
-		};
-		
-		gmail.onRelease = function(){
-			getURL("mailto:lilyzescrew2@gmail.com", "_blank");
-		};*/
+
+		this.yt.removeAllEventListeners("click");
+		this.yt.addEventListener("click", function() {
+			openInNewTab("https://www.youtube.com/channel/UCx_HZy_jY70TNCwUuaTFr6A");
+		});
+
+		this.twitter.removeAllEventListeners("click");
+		this.twitter.addEventListener("click", function() {
+			openInNewTab("https://www.twitter.com/ZesCrew2/");
+		});
+
+		this.ng.removeAllEventListeners("click");
+		this.ng.addEventListener("click", function() {
+			openInNewTab("https://zescrew2.newgrounds.com/");
+		});
+
+		this.kofi.removeAllEventListeners("click");
+		this.kofi.addEventListener("click", function() {
+			openInNewTab("https://ko-fi.com/zescrew2");
+		});
+
+		this.discord.removeAllEventListeners("click");
+		this.discord.addEventListener("click", function() {
+			openInNewTab("https://discord.gg/wCXnpppegC");
+		});
+
+		this.github.removeAllEventListeners("click");
+		this.github.addEventListener("click", function() {
+			openInNewTab("https://github.com/ZesCrew2/");
+		});
+
+		this.gmail.removeAllEventListeners("click");
+		this.gmail.addEventListener("click", function() {
+			openInNewTab("mailto:lilyzescrew2@gmail.com");
+		});
 	}
 
 	// actions tween:
@@ -1099,14 +1109,14 @@ if (reversed == null) { reversed = false; }
 	this.actionFrames = [0,14];
 	// timeline functions:
 	this.frame_0 = function() {
-		/* stop();
-		gplus.onRelease = function(){
-			gotoAndPlay(2);
-			addNumber();
-		};*/
+		this.stop();
+		this.gplus.removeAllEventListeners("click");
+		this.gplus.addEventListener("click", function() {
+			this.gotoAndPlay(2);
+		}.bind(this));
 	}
 	this.frame_14 = function() {
-		/* stop();*/
+		this.stop();
 	}
 
 	// actions tween:

@@ -665,25 +665,21 @@ if (reversed == null) { reversed = false; }
 	this.actionFrames = [0,58,116];
 	// timeline functions:
 	this.frame_0 = function() {
-		/* stop();
-		*/
-		/* stop();
-		goright.onRelease = function(){
-			gotoAndPlay(2);
-			addNumber();
-		};*/
+		this.stop();
+		this.goright.removeAllEventListeners("click");
+		this.goright.addEventListener("click", function() {
+			this.gotoAndPlay(1);
+		}.bind(this));
 	}
 	this.frame_58 = function() {
-		/* stop();
-		*/
-		/* stop();
-		goleft.onRelease = function(){
-			gotoAndPlay(60);
-			addNumber();
-		};*/
+		this.stop();
+		this.goleft.removeAllEventListeners("click");
+		this.goleft.addEventListener("click", function() {
+			this.gotoAndPlay(59);
+		}.bind(this));
 	}
 	this.frame_116 = function() {
-		/* gotoAndStop(1);*/
+		this.gotoAndStop(0);
 	}
 
 	// actions tween:
