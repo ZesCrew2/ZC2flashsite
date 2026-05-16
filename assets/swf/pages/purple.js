@@ -1214,8 +1214,8 @@ if (reversed == null) { reversed = false; }
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_1},{t:this.shape}]}).wait(15));
 
 	this.filterCacheList = [];
-	this.filterCacheList.push({instance: this.instance_8, startFrame:1, endFrame:1, x:-507, y:-212, w:671, h:671});
-	this.filterCacheList.push({instance: this.instance_8, startFrame:1, endFrame:15, x:-507, y:-212, w:671, h:671});
+	this.filterCacheList.push({instance: this.instance_8, startFrame:0, endFrame:0, x:-507, y:-212, w:671, h:671});
+	this.filterCacheList.push({instance: this.instance_8, startFrame:0, endFrame:15, x:-507, y:-212, w:671, h:671});
 	this._renderFirstFrame();
 
 }).prototype = p = new lib.AnMovieClip();
