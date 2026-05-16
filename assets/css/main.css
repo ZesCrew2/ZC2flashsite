@@ -292,6 +292,19 @@ body {
     position: relative;
 }
 
+#animation_container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+#canvas {
+    position: absolute;
+    display: block;
+    background: transparent;
+}
+
 #flashContent::before,
 #banner::before {
     content: '';
