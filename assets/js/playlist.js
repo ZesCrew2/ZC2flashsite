@@ -13,8 +13,7 @@ window.musicPlaylist = [
     { path: 'assets/music/Drown in the Now.mp3', name: 'The Crystal Method (Feat. Matisyahu) - Drown in the Now' },
     { path: 'assets/music/Somebody's Watching Me (Instrumental).mp3', name: 'Mysto & Pizzi - Somebody's Watching Me (Instrumental)' },
     { path: 'assets/music/Let's Kill Tonight (Instrumental).mp3', name: 'Panic! at the Disco - Let's Kill Tonight (Instrumental)' },
-    { path: 'assets/music/Your Game is Over (Instrumental).mp3', name: 'MiatriSs - Your Game is Over (Instrumental)' },
-    { path: 'assets/music/seven color generator inst.mp3', name: '渡辺未来 - 七色ジェネレーター (Off-Vocal)' }
+    { path: 'assets/music/Your Game is Over (Instrumental).mp3', name: 'MiatriSs - Your Game is Over (Instrumental)' }
 ];
 
 (function() {
