@@ -321,84 +321,19 @@ if (reversed == null) { reversed = false; }
 			return normalized.length ? normalized : fallbackItems;
 		}
 
-		function getArtLayout(imgW, imgH, filename) {
-			var fitScale = Math.min(156 / imgW, 156 / imgH, 1);
-			var aspectRatio = imgW / imgH;
-			var yOffset = -8; // baseline
-			
-			if (aspectRatio > 1.2) {
-				yOffset = -4;
-			} else if (aspectRatio < 0.8) {
-				yOffset = 4;
-			} else {
-				yOffset = 0;
-			}
-
-			return { scale: fitScale, y: yOffset };
-		}
-
-		function makeNavButton(imageObj, xPos, direction, clickHandler) {
-			var btn = new cjs.Bitmap(imageObj);
-			btn.scaleX = navScale;
-			btn.scaleY = navScale;
-			btn.regX = 128;
-			btn.regY = 128;
-			btn.x = xPos;
-			btn.y = navY;
-			btn.shadow = new cjs.Shadow("rgba(106,68,0,0.55)", 0, 2, 6);
-			btn.cursor = "pointer";
-
-			function setButtonBrightness(isBright) {
-				if (!btn.image || !btn.image.width || !btn.image.height) {
-					return;
-				}
-				var add = isBright ? 46 : 0;
-				btn.filters = [new cjs.ColorFilter(1, 1, 1, 1, add, add, 12, 0)];
-				if (!btn.cacheCanvas) {
-					btn.cache(0, 0, btn.image.width, btn.image.height);
-				} else {
-					btn.updateCache();
-				}
-			}
-
-			setButtonBrightness(false);
-
-			btn.addEventListener("mouseover", function() {
-				if (typeof playSound === "function") {
-					playSound("hoverwav");
-				}
-				setButtonBrightness(true);
-			});
-
-			btn.addEventListener("mouseout", function() {
-				setButtonBrightness(false);
-			});
-
-			btn.addEventListener("click", function() {
-				if (typeof playSound === "function") {
-					playSound("clickywav");
-				}
-				clickHandler(direction);
-			});
-
-			uiLayer.addChild(btn);
-		}
-
 		function buildGallery(items) {
 			var artItems = normalizeItems(items);
 			var imgQueue = new cjs.LoadQueue(false);
 			imgQueue.setMaxConnections(8);
-			imgQueue.loadFile({id:"btn_left", src:"/assets/img/yellow/left.png"});
-			imgQueue.loadFile({id:"btn_right", src:"/assets/img/yellow/right.png"});
-			imgQueue.loadFile({id:"shine_overlay", src:"/assets/img/yellow/shine.png"});
+			imgQueue.loadFile({id:"btn_left", src:"assets/img/yellow/left.png"});
+			imgQueue.loadFile({id:"btn_right", src:"assets/img/yellow/right.png"});
+			imgQueue.loadFile({id:"shine_overlay", src:"assets/img/shine/shine_square.png"});
 			for (var i = 0; i < artItems.length; i++) {
-				imgQueue.loadFile({id:"art_" + i, src:encodeURI("/assets/img/yellow/art/" + artItems[i].filename)});
+				imgQueue.loadFile({id:"art_" + i, src:encodeURI("assets/img/yellow/art/" + artItems[i].filename)});
 			}
 
 			function renderCards() {
 				var cards = [];
-				var currentIndex = 0;
-				var isAnimating = false;
 				var spacing = 120;
 
 				for (var j = 0; j < artItems.length; j++) {
@@ -409,63 +344,28 @@ if (reversed == null) { reversed = false; }
 							return;
 						}
 
-						var card = new cjs.Container();
+						var card = Microsite.ui.createGalleryCard(imageObj, {
+							displayName: itemEntry.displayName,
+							shineImage: imgQueue.getResult("shine_overlay"),
+							shadowColor: "rgba(60,40,0,0.35)",
+							textColor: "#774900"
+						});
 						card.entry = itemEntry;
-
-						var cardBg = new cjs.Shape();
-						cardBg.graphics.f("#E7E7E7").s("rgba(255,255,255,0.85)").ss(2).rr(-86, -86, 172, 172, 12);
-						cardBg.shadow = new cjs.Shadow("rgba(60,40,0,0.35)", 0, 3, 8);
-						card.addChild(cardBg);
-
-						var artBmp = new cjs.Bitmap(imageObj);
-						artBmp.regX = imageObj.width / 2;
-						artBmp.regY = imageObj.height / 2;
-						
-						var layout = getArtLayout(imageObj.width, imageObj.height);
-						artBmp.scaleX = layout.scale;
-						artBmp.scaleY = layout.scale;
-						artBmp.y = layout.y;
-						
-						card.addChild(artBmp);
-
-						// add shine overlay to every card --thorns
-						var shineImage = imgQueue.getResult("shine_overlay");
-						if (shineImage) {
-							var shineBmp = new cjs.Bitmap(shineImage);
-							shineBmp.regX = shineImage.width / 2;
-							shineBmp.regY = shineImage.height / 2;
-							shineBmp.scaleX = 172 / shineImage.width;
-							shineBmp.scaleY = 172 / shineImage.height;
-							shineBmp.y = 0; 
-							card.addChild(shineBmp);
-						}
-
-						var nameLabel = new cjs.Text(card.entry.displayName, "14px Kronika", "#774900");
-						nameLabel.textAlign = "center";
-						nameLabel.y = 92;
-						nameLabel.shadow = new cjs.Shadow("rgba(255,255,255,0.8)", 0, 0, 2);
-						card.addChild(nameLabel);
-
-						card.hitArea = new cjs.Shape();
-						card.hitArea.graphics.f("#000000").rr(-88, -88, 176, 198, 12);
 
 						if (card.entry.link && card.entry.link.trim() !== "") {
 							card.cursor = "pointer";
-							card.addEventListener("mouseover", function() {
-								if (typeof playSound === "function") {
-									playSound("hoverwav");
-								}
+							card.on("mouseover", function() {
+								Microsite.audio.play("hoverwav");
 							});
-							card.addEventListener("click", function(evt) {
-								if (typeof playSound === "function") {
-									playSound("clickywav");
-								}
-								window.open(evt.currentTarget.entry.link, "_blank");
+							card.on("click", function(evt) {
+								Microsite.audio.play("clickywav");
+								var win = window.open(evt.currentTarget.entry.link, "_blank");
+								if (win) win.opener = null;
 							});
 						} else {
 							card.cursor = "zoom-in";
-							card.addEventListener("click", function(evt) {
-								if (Math.abs(distanceFromCenter(cards.indexOf(card))) > 0.1) return;
+							card.on("click", function(evt) {
+								if (Math.abs(gallery.distanceFromCenter(cards.indexOf(card))) > 0.1) return;
 								showFullPreview(card.entry, imageObj);
 							});
 						}
@@ -484,11 +384,10 @@ if (reversed == null) { reversed = false; }
 				function showFullPreview(entry, imageObj) {
 					if (isPreviewOpen) return;
 					isPreviewOpen = true;
-					if (typeof playSound === "function") {
-						playSound("clickywav");
-						if (entry.filename === "INTERNAL_SCREAMING.png" && Math.random() < 0.25) {
-							screamInstance = playSound("screamwav");
-						}
+					
+					Microsite.audio.play("clickywav");
+					if (entry.filename === "INTERNAL_SCREAMING.png") {
+						screamInstance = Microsite.audio.scream();
 					}
 
 					var overlay = new cjs.Shape();
@@ -500,7 +399,7 @@ if (reversed == null) { reversed = false; }
 					previewBmp.regX = imageObj.width / 2;
 					previewBmp.regY = imageObj.height / 2;
 
-					var layout = getArtLayout(imageObj.width, imageObj.height);
+					var layout = Microsite.ui.getFitLayout(imageObj.width, imageObj.height, 172, 172);
 					previewBmp.x = centerX;
 					previewBmp.y = centerY + layout.y;
 					previewBmp.scaleX = layout.scale * 0.92;
@@ -513,14 +412,14 @@ if (reversed == null) { reversed = false; }
 					cjs.Tween.get(overlay).to({alpha:1}, 300);
 					cjs.Tween.get(previewBmp).to({x:lib.properties.width/2, y:lib.properties.height/2, scaleX:targetScale, scaleY:targetScale}, 400, cjs.Ease.backOut);
 
-					// handle link logic --thorns
-					var finalLink = (entry.link && entry.link.trim() !== "") ? entry.link : "/assets/img/yellow/art/" + entry.filename;
+					var finalLink = (entry.link && entry.link.trim() !== "") ? entry.link : "assets/img/yellow/art/" + entry.filename;
 					
 					previewBmp.cursor = "pointer";
-					previewBmp.addEventListener("click", function(evt) {
+					previewBmp.on("click", function(evt) {
 						evt.stopImmediatePropagation();
-						if (typeof playSound === "function") playSound("clickywav");
-						window.open(finalLink, "_blank");
+						Microsite.audio.play("clickywav");
+						var win = window.open(finalLink, "_blank");
+						if (win) win.opener = null;
 					});
 
 					uiLayer.visible = false;
@@ -538,12 +437,13 @@ if (reversed == null) { reversed = false; }
 							previewGif.style.display = "none";
 							document.getElementById("animation_container").appendChild(previewGif);
 						}
-						previewGif.src = encodeURI("/assets/img/yellow/art/" + entry.filename);
+						previewGif.src = encodeURI("assets/img/yellow/art/" + entry.filename);
 						previewGif.style.cursor = "pointer";
 						previewGif.onclick = function(evt) {
 							evt.stopPropagation();
-							if (typeof playSound === "function") playSound("clickywav");
-							window.open(finalLink, "_blank");
+							Microsite.audio.play("clickywav");
+							var win = window.open(finalLink, "_blank");
+							if (win) win.opener = null;
 						};
 						
 						setTimeout(function() {
@@ -566,13 +466,13 @@ if (reversed == null) { reversed = false; }
 					cjs.Tween.get(closeHint).wait(500).to({alpha:0.6}, 300);
 
 					overlay.cursor = "zoom-out";
-					overlay.addEventListener("click", function() {
+					overlay.on("click", function() {
 						isPreviewOpen = false;
 						if (screamInstance) {
 							screamInstance.stop();
 							screamInstance = null;
 						}
-						if (typeof playSound === "function") playSound("clickywav");
+						Microsite.audio.play("clickywav");
 						if (previewGif) previewGif.style.display = "none";
 						previewBmp.visible = true;
 
@@ -596,78 +496,6 @@ if (reversed == null) { reversed = false; }
 					return;
 				}
 
-				function wrapIndex(value) {
-					var count = cards.length;
-					return ((value % count) + count) % count;
-				}
-
-				function distanceFromCenter(index) {
-					var raw = index - currentIndex;
-					var half = cards.length / 2;
-					if (raw > half) {
-						raw -= cards.length;
-					} else if (raw < -half) {
-						raw += cards.length;
-					}
-					return raw;
-				}
-
-				function drawOrder() {
-					var sorted = cards.slice(0).sort(function(a, b) {
-						return Math.abs(b._depthOffset || 0) - Math.abs(a._depthOffset || 0);
-					});
-					for (var idx = 0; idx < sorted.length; idx++) {
-						cardsLayer.setChildIndex(sorted[idx], cardsLayer.numChildren - 1);
-					}
-				}
-
-				function updateCards(animated) {
-					for (var k = 0; k < cards.length; k++) {
-						var card = cards[k];
-						var offset = distanceFromCenter(k);
-						card._depthOffset = offset;
-
-						var absOffset = Math.abs(offset);
-						var targetX = centerX + (offset * spacing);
-						var targetY = centerY + (absOffset * 10);
-						var targetScale = absOffset === 0 ? 0.92 : (absOffset === 1 ? 0.66 : 0.48);
-						var targetAlpha = absOffset === 0 ? 1 : (absOffset === 1 ? 0.58 : 0);
-
-						card.visible = absOffset <= 2;
-						card.mouseEnabled = absOffset <= 1;
-
-						// cjs bitmap was rendering just the first frame of the gif (fixed) --thorns
-						if (card.children[1] instanceof cjs.Bitmap) {
-							if (absOffset === 0 && card.entry.filename.toLowerCase().endsWith(".gif")) {
-								card.children[1].visible = false;
-							} else {
-								card.children[1].visible = true;
-							}
-						}
-
-						if (animated) {
-							cjs.Tween.removeTweens(card);
-							var tween = cjs.Tween.get(card).to({x:targetX, y:targetY, scaleX:targetScale, scaleY:targetScale, alpha:targetAlpha}, 240, cjs.Ease.quadOut);
-							
-							// sync gif overlay during animation
-							if (absOffset === 0 && card.entry.filename.toLowerCase().endsWith(".gif")) {
-								tween.addEventListener("change", function() {
-									updateGifOverlay();
-								});
-							}
-						} else {
-							card.x = targetX;
-							card.y = targetY;
-							card.scaleX = targetScale;
-							card.scaleY = targetScale;
-							card.alpha = targetAlpha;
-						}
-					}
-					drawOrder();
-					updateGifOverlay();
-				}
-
-				// gif animation fix: overlay html img element because cjs.Bitmap doesn't animate GIFs --thorns
 				var gifOverlay = document.getElementById("gallery-gif-overlay");
 				var shineOverlay = document.getElementById("gallery-shine-overlay");
 				if (!gifOverlay) {
@@ -684,51 +512,48 @@ if (reversed == null) { reversed = false; }
 						
 						shineOverlay = document.createElement("img");
 						shineOverlay.id = "gallery-shine-overlay";
-						shineOverlay.src = encodeURI("/assets/img/yellow/shine.png");
+						shineOverlay.src = encodeURI("assets/img/shine/shine_square.png");
 						shineOverlay.style.position = "absolute";
 						shineOverlay.style.pointerEvents = "none";
-						shineOverlay.style.zIndex = "11"; // Above GIF
+						shineOverlay.style.zIndex = "11";
 						shineOverlay.style.display = "none";
 						shineOverlay.style.transition = "none";
 						container.appendChild(shineOverlay);
 					}
 				}
 
+				var lastGifUpdate = 0;
 				function updateGifOverlay() {
-					if (isPreviewOpen) return;
-					var activeCard = cards[currentIndex];
+					if (isPreviewOpen || !gifOverlay) return;
+					var activeCard = cards[gallery.currentIndex];
 					if (activeCard && activeCard.entry.filename.toLowerCase().endsWith(".gif")) {
-						var imageObj = imgQueue.getResult("art_" + currentIndex);
+						var update = Microsite.ticker.shouldUpdate(lastGifUpdate, 24);
+						if (!update.ready) return;
+						lastGifUpdate = update.newTime;
+
+						var imageObj = imgQueue.getResult("art_" + gallery.currentIndex);
 						if (imageObj) {
 							var currentScale = activeCard.scaleX;
-							var layout = getArtLayout(imageObj.width, imageObj.height, activeCard.entry.filename);
+							var layout = Microsite.ui.getFitLayout(imageObj.width, imageObj.height, 172, 172);
 							var finalScale = layout.scale * currentScale;
 							
 							if (gifOverlay.getAttribute("data-filename") !== activeCard.entry.filename) {
-								gifOverlay.src = encodeURI("/assets/img/yellow/art/" + activeCard.entry.filename);
+								gifOverlay.src = encodeURI("assets/img/yellow/art/" + activeCard.entry.filename);
 								gifOverlay.setAttribute("data-filename", activeCard.entry.filename);
 							}
 							
-							// Calculate ratio between stage size and CSS size
-							var canvas = activeCard.stage.canvas;
+							var canvas = (activeCard.stage && activeCard.stage.canvas) || (window.stage && window.stage.canvas);
+							if (!canvas) return;
 							var ratio = canvas.width / canvas.clientWidth;
-							
-							// Get global position of the art bitmap center
 							var pt = activeCard.localToGlobal(0, layout.y);
 							
 							gifOverlay.style.width = (imageObj.width * finalScale) + "px";
 							gifOverlay.style.height = (imageObj.height * finalScale) + "px";
-							
-							// Position using stage coordinates / ratio and round to nearest pixel
-							var x = Math.round((pt.x / ratio) - (imageObj.width * finalScale / 2));
-							var y = Math.round((pt.y / ratio) - (imageObj.height * finalScale / 2));
-							
-							gifOverlay.style.left = x + "px";
-							gifOverlay.style.top = y + "px";
+							gifOverlay.style.left = Math.round((pt.x / ratio) - (imageObj.width * finalScale / 2)) + "px";
+							gifOverlay.style.top = Math.round((pt.y / ratio) - (imageObj.height * finalScale / 2)) + "px";
 							gifOverlay.style.display = "block";
 							gifOverlay.style.opacity = activeCard.alpha;
 
-							// Sync shine overlay
 							if (shineOverlay) {
 								var cardPt = activeCard.localToGlobal(0, 0);
 								var cardWidth = 172 * currentScale;
@@ -744,53 +569,58 @@ if (reversed == null) { reversed = false; }
 							gifOverlay.style.pointerEvents = activeCard.entry.link ? "auto" : "none";
 							gifOverlay.style.cursor = activeCard.entry.link ? "pointer" : "default";
 							gifOverlay.onclick = function() {
-								if (typeof playSound === "function") playSound("clickywav");
+								Microsite.audio.play("clickywav");
 								window.open(activeCard.entry.link, "_blank");
-							};
-							gifOverlay.onmouseover = function() {
-								if (typeof playSound === "function") playSound("hoverwav");
 							};
 						}
 					} else {
-						if (gifOverlay) {
-							gifOverlay.style.display = "none";
-							gifOverlay.style.opacity = "0";
-						}
-						if (shineOverlay) {
-							shineOverlay.style.display = "none";
-							shineOverlay.style.opacity = "0";
-						}
+						if (gifOverlay) gifOverlay.style.display = "none";
+						if (shineOverlay) shineOverlay.style.display = "none";
 					}
 				}
 
-				function move(direction) {
-					if (isAnimating || cards.length < 2) {
-						return;
+				var gallery = new Microsite.ui.Gallery(cards, {
+					centerX: centerX,
+					centerY: centerY,
+					spacing: spacing,
+					onTweenUpdate: function(card, offset) {
+						if (card.artBmp) {
+							if (Math.abs(offset) < 0.1 && card.entry.filename && card.entry.filename.toLowerCase().endsWith(".gif")) {
+								card.artBmp.visible = false;
+							} else {
+								card.artBmp.visible = true;
+							}
+						}
+						updateGifOverlay();
 					}
-					isAnimating = true;
-					currentIndex = wrapIndex(currentIndex + direction);
-					updateCards(true);
-					setTimeout(function() {
-						isAnimating = false;
-					}, 260);
-				}
+				});
 
 				var leftBtnImage = imgQueue.getResult("btn_left");
 				var rightBtnImage = imgQueue.getResult("btn_right");
 				if (leftBtnImage && rightBtnImage) {
-					makeNavButton(leftBtnImage, 48, -1, move);
-					makeNavButton(rightBtnImage, 412, 1, move);
+					var lb = Microsite.ui.createButton(leftBtnImage, {
+						scale: navScale, regX: 128, regY: 128,
+						shadowColor: "rgba(106,68,0,0.55)",
+						onClick: function() { gallery.move(-1); }
+					});
+					lb.x = 48; lb.y = navY;
+					uiLayer.addChild(lb);
+
+					var rb = Microsite.ui.createButton(rightBtnImage, {
+						scale: navScale, regX: 128, regY: 128,
+						shadowColor: "rgba(106,68,0,0.55)",
+						onClick: function() { gallery.move(1); }
+					});
+					rb.x = 412; rb.y = navY;
+					uiLayer.addChild(rb);
 				}
 
-				updateCards(false);
+				gallery.update(false);
+				updateGifOverlay();
 			}
 
-			imgQueue.addEventListener("complete", function() {
+			imgQueue.on("complete", function() {
 				renderCards();
-			});
-
-			imgQueue.addEventListener("error", function() {
-				console.warn("yellow.js: one or more art images failed to load");
 			});
 
 			imgQueue.load();
@@ -811,7 +641,7 @@ if (reversed == null) { reversed = false; }
 			buildGallery(fallbackItems);
 		});
 
-		configQueue.loadFile({id:"artConfig", src:"/assets/img/yellow/art-config.json", type:"json"});
+		configQueue.loadFile({id:"artConfig", src:"assets/img/yellow/art-config.json", type:"json"});
 	}
 
 	// actions tween:

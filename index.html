@@ -4,7 +4,8 @@
 <head>
 	<title>The ZesCrew2 Microsite!!</title>
 	<link rel="icon" type="image/png" href="favicon.png">
-	<link rel="stylesheet" href="https://unpkg.com/7.css/dist/7.scoped.css">
+	<link rel="stylesheet" href="https://unpkg.com/7.css/dist/7.scoped.css" crossorigin="anonymous">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data:; connect-src 'self'; font-src 'self';">
 	<link rel="preload" href="assets/css/main.css" as="style">
 	<link rel="preload" href="assets/img/loading_indicator.gif" as="image">
 	<link rel="preload" href="assets/wmp/wmplayer.css" as="style">
@@ -49,9 +50,9 @@
 			</div>
 			<div id="footer">
 				<p>Site CSS by <a href="https://sploder-saptarshi.github.io/" class="link"
-						target="_blank" title="https://sploder-saptarshi.github.io/"
+						target="_blank" rel="noopener noreferrer" title="https://sploder-saptarshi.github.io/"
 						tabindex="0"><span class="saptarshi-text">Saptarshi</span></a> and <a href="https://www.youtube.com/@thornsmusicvevo" class="link"
-						target="_blank" title="https://www.youtube.com/@thornsmusicvevo"
+						target="_blank" rel="noopener noreferrer" title="https://www.youtube.com/@thornsmusicvevo"
 						tabindex="0"><span class="thorns-text"><span style="animation-delay: 0.0s;">T</span><span style="animation-delay: 0.2s;">h</span><span style="animation-delay: 0.4s;">o</span><span style="animation-delay: 0.6s;">r</span><span style="animation-delay: 0.8s;">n</span><span style="animation-delay: 1.0s;">s</span></span></a></p>
 			</div>
 		</div>
@@ -67,7 +68,7 @@
 				</div>
 			</div>
 			<div class="window-body">
-				<wm-player id="wmp" data-controls-in-tray-left="shuffle loop separator stop prev" data-controls-in-tray-right="next mute volume" data-controls-in-gutter-right="" style="--max-video-height: 0; --min-video-height: 0; --scale: 0.75;"></wm-player>
+				<wm-player id="wmp" data-overlay-controls data-controls-in-tray-left="shuffle loop separator stop prev" data-controls-in-tray-right="next mute volume" data-controls-in-gutter-right="fullscreen" style="--scale: 0.75;"></wm-player>
 			</div>
 		</div>
 
@@ -76,6 +77,8 @@
 		</button>
 	</div>
 	<script src="assets/js/createjs.min.js"></script>
+	<script src="assets/js/api.js"></script>
+	<script src="assets/js/bg-shader.js"></script>
 	<script src="assets/swf/banner/zc2banner.js"></script>
 	<script src="assets/wmp/wmplayer.playlist.js"></script>
 	<script src="assets/wmp/wmplayer.slider.js"></script>

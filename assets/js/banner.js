@@ -31,11 +31,12 @@ function playSound(id, loop, offset) {
         var exportRoot = new lib.zc2banner();
         var stage = new lib.Stage(canvas);
         stage.enableMouseOver();
-        stage.autoClear = false;
-        createjs.Ticker.addEventListener("tick", function(event) {
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-            stage.update(event);
-        });
+        stage.autoClear = true;
+        
+        // throttled tick for authentic 24 fps banner speed --thorns
+        var throttledTick = Microsite.ticker.createThrottledTick(stage, 24);
+        createjs.Ticker.addEventListener("tick", throttledTick);
+
         AdobeAn.compositionLoaded(lib.properties.id);
         stage.addChild(exportRoot);
     }

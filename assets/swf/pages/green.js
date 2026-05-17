@@ -216,6 +216,370 @@ if (reversed == null) { reversed = false; }
 	props.reversed = reversed;
 	cjs.MovieClip.apply(this,[props]);
 
+	this.actionFrames = [0];
+	// timeline functions:
+	this.frame_0 = function() {
+		this.stop();
+		if (this._downloadsReady) {
+			return;
+		}
+		this._downloadsReady = true;
+
+		var root = this;
+		var galleryY = 104;
+		var galleryHeight = 190;
+		var centerX = 230;
+		var centerY = 183;
+		var navY = 314;
+		var navScale = 0.28;
+		var cardsLayer = new cjs.Container();
+		var uiLayer = new cjs.Container();
+
+		var maskShape = new cjs.Shape();
+		maskShape.graphics.f("#000000").drawRect(0, galleryY, lib.properties.width, galleryHeight);
+		cardsLayer.mask = maskShape;
+
+		root.addChild(uiLayer);
+		root.addChild(cardsLayer);
+
+		var fallbackItems = [
+			{filename:"MMDpreview.png", displayName:"Angel Lily MMD 2026", link:"https://github.com/ZesCrew2/ZC2flashsite/releases/download/sitedownloads/AngelLilyMMD2026.zip"}
+		];
+
+		function normalizeItems(items) {
+			if (!items || !items.length) {
+				return fallbackItems;
+			}
+			var normalized = [];
+			for (var i = 0; i < items.length; i++) {
+				if (!items[i] || !items[i].filename) {
+					continue;
+				}
+				normalized.push({
+					filename: items[i].filename,
+					displayName: items[i].displayName || items[i].filename,
+					link: items[i].link || ""
+				});
+			}
+			return normalized.length ? normalized : fallbackItems;
+		}
+
+		function buildGallery(items) {
+			var downloadItems = normalizeItems(items);
+			var imgQueue = new cjs.LoadQueue(false);
+			imgQueue.setMaxConnections(8);
+			imgQueue.loadFile({id:"btn_left", src:"assets/img/green/left.png"});
+			imgQueue.loadFile({id:"btn_right", src:"assets/img/green/right.png"});
+			imgQueue.loadFile({id:"shine_overlay", src:"assets/img/shine/shine_square.png"});
+			for (var i = 0; i < downloadItems.length; i++) {
+				imgQueue.loadFile({id:"item_" + i, src:encodeURI("assets/img/green/art/" + downloadItems[i].filename)});
+			}
+
+			function renderCards() {
+				var cards = [];
+				var spacing = 120;
+
+				for (var j = 0; j < downloadItems.length; j++) {
+					(function(index) {
+						var itemEntry = downloadItems[index];
+						var imageObj = imgQueue.getResult("item_" + index);
+						
+						var card = Microsite.ui.createGalleryCard(imageObj, {
+							displayName: itemEntry.displayName,
+							shineImage: imgQueue.getResult("shine_overlay"),
+							shadowColor: "rgba(0,60,0,0.35)",
+							textColor: "#004D00"
+						});
+						card.entry = itemEntry;
+
+						if (card.entry.link && card.entry.link.trim() !== "") {
+							card.cursor = "pointer";
+							card.on("mouseover", function() {
+								Microsite.audio.play("hoverwav");
+							});
+							card.on("click", function(evt) {
+								Microsite.audio.play("clickywav");
+								var win = window.open(evt.currentTarget.entry.link, "_blank");
+								if (win) win.opener = null;
+							});
+						} else {
+							card.cursor = "zoom-in";
+							card.on("click", function(evt) {
+								if (Math.abs(gallery.distanceFromCenter(cards.indexOf(card))) > 0.1) return;
+								showFullPreview(card.entry, imageObj);
+							});
+						}
+
+						cardsLayer.addChild(card);
+						cards.push(card);
+					})(j);
+				}
+
+				// preview overlay system --thorns
+				var previewLayer = new cjs.Container();
+				root.addChild(previewLayer);
+				var isPreviewOpen = false;
+				var screamInstance = null;
+
+				function showFullPreview(entry, imageObj) {
+					if (isPreviewOpen) return;
+					isPreviewOpen = true;
+					
+					Microsite.audio.play("clickywav");
+					if (entry.filename === "INTERNAL_SCREAMING.png") {
+						screamInstance = Microsite.audio.scream();
+					}
+
+					var overlay = new cjs.Shape();
+					overlay.graphics.f("rgba(0,0,0,0.85)").drawRect(0, 0, lib.properties.width, lib.properties.height);
+					overlay.alpha = 0;
+					previewLayer.addChild(overlay);
+
+					var previewBmp = new cjs.Bitmap(imageObj);
+					previewBmp.regX = imageObj.width / 2;
+					previewBmp.regY = imageObj.height / 2;
+
+					var layout = Microsite.ui.getFitLayout(imageObj.width, imageObj.height, 172, 172);
+					previewBmp.x = centerX;
+					previewBmp.y = centerY + layout.y;
+					previewBmp.scaleX = layout.scale * 0.92;
+					previewBmp.scaleY = layout.scale * 0.92;
+					previewLayer.addChild(previewBmp);
+
+					var margin = 40;
+					var targetScale = Math.min((lib.properties.width - margin) / imageObj.width, (lib.properties.height - margin) / imageObj.height, 1.2);
+
+					cjs.Tween.get(overlay).to({alpha:1}, 300);
+					cjs.Tween.get(previewBmp).to({x:lib.properties.width/2, y:lib.properties.height/2, scaleX:targetScale, scaleY:targetScale}, 400, cjs.Ease.backOut);
+
+					var finalLink = (entry.link && entry.link.trim() !== "") ? entry.link : "assets/img/green/art/" + entry.filename;
+					
+					previewBmp.cursor = "pointer";
+					previewBmp.on("click", function(evt) {
+						evt.stopImmediatePropagation();
+						Microsite.audio.play("clickywav");
+						var win = window.open(finalLink, "_blank");
+						if (win) win.opener = null;
+					});
+
+					uiLayer.visible = false;
+					cardsLayer.visible = false;
+					if (gifOverlay) gifOverlay.style.display = "none";
+					if (shineOverlay) shineOverlay.style.display = "none";
+
+					var previewGif = document.getElementById("preview-gif-overlay");
+					if (entry.filename.toLowerCase().endsWith(".gif")) {
+						if (!previewGif) {
+							previewGif = document.createElement("img");
+							previewGif.id = "preview-gif-overlay";
+							previewGif.style.position = "absolute";
+							previewGif.style.zIndex = "20";
+							previewGif.style.display = "none";
+							document.getElementById("animation_container").appendChild(previewGif);
+						}
+						previewGif.src = encodeURI("assets/img/green/art/" + entry.filename);
+						previewGif.style.cursor = "pointer";
+						previewGif.onclick = function(evt) {
+							evt.stopPropagation();
+							Microsite.audio.play("clickywav");
+							var win = window.open(finalLink, "_blank");
+							if (win) win.opener = null;
+						};
+						
+						setTimeout(function() {
+							if (!isPreviewOpen) return;
+							previewBmp.visible = false;
+							previewGif.style.width = (imageObj.width * targetScale) + "px";
+							previewGif.style.height = (imageObj.height * targetScale) + "px";
+							previewGif.style.left = (lib.properties.width/2 - (imageObj.width * targetScale / 2)) + "px";
+							previewGif.style.top = (lib.properties.height/2 - (imageObj.height * targetScale / 2)) + "px";
+							previewGif.style.display = "block";
+						}, 400);
+					}
+
+					var closeHint = new cjs.Text("Click background to close | Click image for link", "14px Trebuchet MS", "#FFFFFF");
+					closeHint.textAlign = "center";
+					closeHint.x = lib.properties.width / 2;
+					closeHint.y = lib.properties.height - 20;
+					closeHint.alpha = 0;
+					previewLayer.addChild(closeHint);
+					cjs.Tween.get(closeHint).wait(500).to({alpha:0.6}, 300);
+
+					overlay.cursor = "zoom-out";
+					overlay.on("click", function() {
+						isPreviewOpen = false;
+						if (screamInstance) {
+							screamInstance.stop();
+							screamInstance = null;
+						}
+						Microsite.audio.play("clickywav");
+						if (previewGif) previewGif.style.display = "none";
+						previewBmp.visible = true;
+
+						cjs.Tween.get(overlay).to({alpha:0}, 300);
+						cjs.Tween.get(closeHint).to({alpha:0}, 200);
+						cjs.Tween.get(previewBmp).to({x:centerX, y:centerY + layout.y, scaleX:layout.scale * 0.92, scaleY:layout.scale * 0.92}, 300, cjs.Ease.quadIn).call(function() {
+							previewLayer.removeAllChildren();
+							uiLayer.visible = true;
+							cardsLayer.visible = true;
+							updateGifOverlay();
+						});
+					});
+				}
+
+				if (!cards.length) {
+					var noItemsText = new cjs.Text("No downloads found", "20px Trebuchet MS", "#004D00");
+					noItemsText.textAlign = "center";
+					noItemsText.x = centerX;
+					noItemsText.y = centerY - 10;
+					uiLayer.addChild(noItemsText);
+					return;
+				}
+
+				var gifOverlay = document.getElementById("gallery-gif-overlay");
+				var shineOverlay = document.getElementById("gallery-shine-overlay");
+				if (!gifOverlay) {
+					var container = document.getElementById("animation_container");
+					if (container) {
+						gifOverlay = document.createElement("img");
+						gifOverlay.id = "gallery-gif-overlay";
+						gifOverlay.style.position = "absolute";
+						gifOverlay.style.pointerEvents = "none";
+						gifOverlay.style.zIndex = "10";
+						gifOverlay.style.display = "none";
+						gifOverlay.style.transition = "none";
+						container.appendChild(gifOverlay);
+						
+						shineOverlay = document.createElement("img");
+						shineOverlay.id = "gallery-shine-overlay";
+						shineOverlay.src = encodeURI("assets/img/shine/shine_square.png");
+						shineOverlay.style.position = "absolute";
+						shineOverlay.style.pointerEvents = "none";
+						shineOverlay.style.zIndex = "11";
+						shineOverlay.style.display = "none";
+						shineOverlay.style.transition = "none";
+						container.appendChild(shineOverlay);
+					}
+				}
+
+				var lastGifUpdate = 0;
+				function updateGifOverlay() {
+					if (isPreviewOpen || !gifOverlay) return;
+					var activeCard = cards[gallery.currentIndex];
+					if (activeCard && activeCard.entry.filename && activeCard.entry.filename.toLowerCase().endsWith(".gif")) {
+						var update = Microsite.ticker.shouldUpdate(lastGifUpdate, 24);
+						if (!update.ready) return;
+						lastGifUpdate = update.newTime;
+
+						var imageObj = imgQueue.getResult("item_" + gallery.currentIndex);
+						if (imageObj) {
+							var currentScale = activeCard.scaleX;
+							var layout = Microsite.ui.getFitLayout(imageObj.width, imageObj.height, 172, 172);
+							var finalScale = layout.scale * currentScale;
+							
+							if (gifOverlay.getAttribute("data-filename") !== activeCard.entry.filename) {
+								gifOverlay.src = encodeURI("assets/img/green/art/" + activeCard.entry.filename);
+								gifOverlay.setAttribute("data-filename", activeCard.entry.filename);
+							}
+							
+							var canvas = (activeCard.stage && activeCard.stage.canvas) || (window.stage && window.stage.canvas);
+							if (!canvas) return;
+							var ratio = canvas.width / canvas.clientWidth;
+							var pt = activeCard.localToGlobal(0, layout.y);
+							
+							gifOverlay.style.width = (imageObj.width * finalScale) + "px";
+							gifOverlay.style.height = (imageObj.height * finalScale) + "px";
+							gifOverlay.style.left = Math.round((pt.x / ratio) - (imageObj.width * finalScale / 2)) + "px";
+							gifOverlay.style.top = Math.round((pt.y / ratio) - (imageObj.height * finalScale / 2)) + "px";
+							gifOverlay.style.display = "block";
+							gifOverlay.style.opacity = activeCard.alpha;
+
+							if (shineOverlay) {
+								var cardPt = activeCard.localToGlobal(0, 0);
+								var cardWidth = 172 * currentScale;
+								var cardHeight = 172 * currentScale;
+								shineOverlay.style.width = cardWidth + "px";
+								shineOverlay.style.height = cardHeight + "px";
+								shineOverlay.style.left = Math.round(cardPt.x / ratio - (cardWidth / 2)) + "px";
+								shineOverlay.style.top = Math.round(cardPt.y / ratio - (cardHeight / 2)) + "px";
+								shineOverlay.style.display = "block";
+								shineOverlay.style.opacity = activeCard.alpha;
+							}
+
+							gifOverlay.style.pointerEvents = activeCard.entry.link ? "auto" : "none";
+							gifOverlay.style.cursor = activeCard.entry.link ? "pointer" : "default";
+							gifOverlay.onclick = function() {
+								Microsite.audio.play("clickywav");
+								var win = window.open(activeCard.entry.link, "_blank");
+								if (win) win.opener = null;
+							};
+						}
+					} else {
+						if (gifOverlay) gifOverlay.style.display = "none";
+						if (shineOverlay) shineOverlay.style.display = "none";
+					}
+				}
+
+				var gallery = new Microsite.ui.Gallery(cards, {
+					centerX: centerX,
+					centerY: centerY,
+					spacing: spacing,
+					onTweenUpdate: function(card, offset) {
+						if (card.artBmp) {
+							if (Math.abs(offset) < 0.1 && card.entry.filename && card.entry.filename.toLowerCase().endsWith(".gif")) {
+								card.artBmp.visible = false;
+							} else {
+								card.artBmp.visible = true;
+							}
+						}
+						updateGifOverlay();
+					}
+				});
+
+				var leftBtnImage = imgQueue.getResult("btn_left");
+				var rightBtnImage = imgQueue.getResult("btn_right");
+				if (leftBtnImage && rightBtnImage) {
+					var lb = Microsite.ui.createButton(leftBtnImage, {
+						scale: navScale, regX: 128, regY: 128,
+						onClick: function() { gallery.move(-1); }
+					});
+					lb.x = 48; lb.y = navY;
+					lb.shadow = new cjs.Shadow("rgba(0,106,0,0.55)", 0, 2, 6);
+					uiLayer.addChild(lb);
+
+					var rb = Microsite.ui.createButton(rightBtnImage, {
+						scale: navScale, regX: 128, regY: 128,
+						onClick: function() { gallery.move(1); }
+					});
+					rb.x = 412; rb.y = navY;
+					rb.shadow = new cjs.Shadow("rgba(0,106,0,0.55)", 0, 2, 6);
+					uiLayer.addChild(rb);
+				}
+
+				gallery.update(false);
+				updateGifOverlay();
+			}
+
+			imgQueue.addEventListener("complete", function() {
+				renderCards();
+			});
+			imgQueue.load();
+		}
+
+		var configQueue = new cjs.LoadQueue(true); // preferXHR=true for JSON
+		configQueue.addEventListener("complete", function() {
+			var config = configQueue.getResult("downloadsConfig");
+			buildGallery(config ? config.items : fallbackItems);
+		});
+		configQueue.addEventListener("error", function() {
+			buildGallery(fallbackItems);
+		});
+		configQueue.loadFile({id:"downloadsConfig", src:"assets/img/green/downloads-config.json", type:"json"});
+	}
+
+	// timeline functions:
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(1));
+
 	// Layer_2
 	this.instance = new lib.icon();
 	this.instance.setTransform(38,30.45,0.9448,0.9448);
@@ -294,7 +658,10 @@ lib.properties = {
 	color: "#8FFF2F",
 	opacity: 1.00,
 	manifest: [
-		{src:"images/green_atlas_1.png?1778909962960", id:"green_atlas_1"}
+		{src:"images/green_atlas_1.png?1778909962960", id:"green_atlas_1"},
+		{src:"../../sounds/clicky.wav", id:"clickywav"},
+		{src:"../../sounds/hover.wav", id:"hoverwav"},
+		{src:"../../sounds/scream.wav", id:"screamwav"}
 	],
 	preloads: []
 };

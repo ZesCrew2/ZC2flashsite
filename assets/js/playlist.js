@@ -18,14 +18,34 @@ window.musicPlaylist = [
     function init() {
         var player = document.getElementById('wmp');
         if (!player) return;
+        
         for (var i = 0; i < window.musicPlaylist.length; i++) {
             var track = window.musicPlaylist[i];
             player.addToPlaylist(new WMPlaylistItem({
                 src: track.path,
-                audio_only: true
+                audio_only: false,
+                metadata: { title: track.name },
+                poster: 'assets/img/bg.png' // default poster/viz --thorns
             }));
         }
+
+        // title update logic --thorns
+        function updateTitle() {
+            if (!player.shadowRoot) return;
+            var current = player.currentItem;
+            var overlay = player.shadowRoot.querySelector('.title-overlay');
+            if (overlay && current && current.metadata) {
+                var titleText = current.metadata.title || "Unknown Track";
+                if (overlay.textContent !== titleText) {
+                    overlay.textContent = titleText;
+                }
+            }
+        }
+
+        // poll for changes as minified events are unreliable --thorns
+        setInterval(updateTitle, 500);
     }
+    
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

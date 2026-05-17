@@ -27,12 +27,24 @@ function resolvePageAssetPath(src) {
 
 function loadPage(color) {
 	if (typeof createjs === 'undefined') return;
+	
+	// whitelist pages for security --thorns
+	var validPages = ['red', 'orange', 'yellow', 'lime', 'green', 'cyan', 'blue', 'purple', 'pink'];
+	if (validPages.indexOf(color) === -1) {
+		console.error("security: blocked attempt to load invalid page: " + color + " --thorns");
+		return;
+	}
+
 	pageLoadToken++;
 
 	var flashContent = document.getElementById('flashContent');
 
 	if (currentStage) {
-		createjs.Ticker.removeEventListener("tick", currentStage);
+		if (currentStage._throttledTick) {
+			createjs.Ticker.removeEventListener("tick", currentStage._throttledTick);
+		} else {
+			createjs.Ticker.removeEventListener("tick", currentStage);
+		}
 		currentStage = null;
 	}
 
@@ -113,8 +125,12 @@ function handlePageComplete(evt, comp, color) {
 	currentStage = new lib.Stage(canvas);
 	currentStage.enableMouseOver();
 	currentStage.addChild(exportRoot);
-	createjs.Ticker.framerate = lib.properties.fps;
-	createjs.Ticker.addEventListener("tick", currentStage);
+	
+	// use throttled tick for authentic flash speed --thorns
+	var throttledTick = Microsite.ticker.createThrottledTick(currentStage, lib.properties.fps);
+	createjs.Ticker.addEventListener("tick", throttledTick);
+	currentStage._throttledTick = throttledTick; // store for removal --thorns
+
 	AdobeAn.compositionLoaded(lib.properties.id);
 	fitPage();
 }

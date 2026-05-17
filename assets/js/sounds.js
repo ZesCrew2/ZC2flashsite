@@ -1,22 +1,28 @@
 // written by thorns
 
 (function() {
-    const hoverSound = new Audio('assets/sounds/hover.wav');
-    const clickSound = new Audio('assets/sounds/clicky.wav');
-
     function init() {
+        // register sounds with createjs.Sound --thorns
+        if (typeof createjs !== 'undefined' && createjs.Sound) {
+            createjs.Sound.registerSound('assets/sounds/hover.wav', 'hoverwav');
+            createjs.Sound.registerSound('assets/sounds/clicky.wav', 'clickywav');
+            createjs.Sound.registerSound('assets/sounds/click.webm', 'notifwav');
+            createjs.Sound.registerSound('assets/sounds/mk64_luigi01.wav', 'luigi1');
+            createjs.Sound.registerSound('assets/sounds/mk64_luigi02.wav', 'luigi2');
+            createjs.Sound.registerSound('assets/sounds/mk64_luigi03.wav', 'luigi3');
+            createjs.Sound.registerSound('assets/sounds/mk64_luigi06.wav', 'luigi4');
+        }
+
         // button sounds
         document.addEventListener('mouseover', function(e) {
-            if (window.siteAudio && !window.siteAudio.isMuted && e.target.classList.contains('btn')) {
-                hoverSound.currentTime = 0;
-                hoverSound.play().catch(e => {});
+            if (e.target.classList.contains('btn')) {
+                Microsite.audio.play('hoverwav');
             }
         });
 
         document.addEventListener('mousedown', function(e) {
-            if (window.siteAudio && !window.siteAudio.isMuted && e.target.classList.contains('btn')) {
-                clickSound.currentTime = 0;
-                clickSound.play().catch(e => {});
+            if (e.target.classList.contains('btn')) {
+                Microsite.audio.play('clickywav');
             }
         });
 
@@ -24,40 +30,25 @@
         const speaker = document.getElementById('speaker');
         if (speaker) {
             speaker.addEventListener('mouseover', function() {
-                if (window.siteAudio && !window.siteAudio.isMuted) {
-                    hoverSound.currentTime = 0;
-                    hoverSound.play().catch(e => {});
-                }
+                Microsite.audio.play('hoverwav');
             });
         }
 
         // saptarshi sound
         const saptarshi = document.querySelector('.saptarshi-text');
-        const notifSound = new Audio('assets/sounds/click.webm');
         if (saptarshi) {
             saptarshi.addEventListener('click', function() {
-                if (window.siteAudio && !window.siteAudio.isMuted) {
-                    notifSound.currentTime = 0;
-                    notifSound.play().catch(e => {});
-                }
+                Microsite.audio.play('notifwav');
             });
         }
 
         // thorns sound
         const thorns = document.querySelector('.thorns-text');
-        const luigiSounds = [
-            new Audio('assets/sounds/mk64_luigi01.wav'),
-            new Audio('assets/sounds/mk64_luigi02.wav'),
-            new Audio('assets/sounds/mk64_luigi03.wav'),
-            new Audio('assets/sounds/mk64_luigi06.wav')
-        ];
+        const luigiIds = ['luigi1', 'luigi2', 'luigi3', 'luigi4'];
         if (thorns) {
             thorns.addEventListener('click', function() {
-                if (window.siteAudio && !window.siteAudio.isMuted) {
-                    const randomSound = luigiSounds[Math.floor(Math.random() * luigiSounds.length)];
-                    randomSound.currentTime = 0;
-                    randomSound.play().catch(e => {});
-                }
+                const randomId = luigiIds[Math.floor(Math.random() * luigiIds.length)];
+                Microsite.audio.play(randomId);
             });
         }
     }
