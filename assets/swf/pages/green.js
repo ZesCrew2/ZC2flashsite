@@ -270,7 +270,7 @@ if (reversed == null) { reversed = false; }
 			imgQueue.setMaxConnections(8);
 			imgQueue.loadFile({id:"btn_left", src:"assets/img/green/left.png"});
 			imgQueue.loadFile({id:"btn_right", src:"assets/img/green/right.png"});
-			imgQueue.loadFile({id:"shine_overlay", src:"assets/img/shine/shine_square.png"});
+			imgQueue.loadFile({id:"shine_overlay", src:"assets/img/shine/shine_widescreen.png"});
 			for (var i = 0; i < downloadItems.length; i++) {
 				imgQueue.loadFile({id:"item_" + i, src:encodeURI("assets/img/green/art/" + downloadItems[i].filename)});
 			}
@@ -285,11 +285,13 @@ if (reversed == null) { reversed = false; }
 						var imageObj = imgQueue.getResult("item_" + index);
 						
 						var card = Microsite.ui.createGalleryCard(imageObj, {
+							sizeMode: "widescreen",
 							displayName: itemEntry.displayName,
 							shineImage: imgQueue.getResult("shine_overlay"),
 							shadowColor: "rgba(0,60,0,0.35)",
 							textColor: "#004D00"
 						});
+						if (card.artBmp) card.artBmp.y += 4;
 						card.entry = itemEntry;
 
 						if (card.entry.link && card.entry.link.trim() !== "") {
@@ -339,7 +341,8 @@ if (reversed == null) { reversed = false; }
 					previewBmp.regX = imageObj.width / 2;
 					previewBmp.regY = imageObj.height / 2;
 
-					var layout = Microsite.ui.getFitLayout(imageObj.width, imageObj.height, 172, 172);
+					var layout = Microsite.ui.getFitLayout(imageObj.width, imageObj.height, 172, 97);
+					layout.y += 4;
 					previewBmp.x = centerX;
 					previewBmp.y = centerY + layout.y;
 					previewBmp.scaleX = layout.scale * 0.92;
@@ -452,7 +455,7 @@ if (reversed == null) { reversed = false; }
 						
 						shineOverlay = document.createElement("img");
 						shineOverlay.id = "gallery-shine-overlay";
-						shineOverlay.src = encodeURI("assets/img/shine/shine_square.png");
+						shineOverlay.src = encodeURI("assets/img/shine/shine_widescreen.png");
 						shineOverlay.style.position = "absolute";
 						shineOverlay.style.pointerEvents = "none";
 						shineOverlay.style.zIndex = "11";
@@ -474,7 +477,8 @@ if (reversed == null) { reversed = false; }
 						var imageObj = imgQueue.getResult("item_" + gallery.currentIndex);
 						if (imageObj) {
 							var currentScale = activeCard.scaleX;
-							var layout = Microsite.ui.getFitLayout(imageObj.width, imageObj.height, 172, 172);
+							var layout = Microsite.ui.getFitLayout(imageObj.width, imageObj.height, 172, 97);
+							layout.y += 4;
 							var finalScale = layout.scale * currentScale;
 							
 							if (gifOverlay.getAttribute("data-filename") !== activeCard.entry.filename) {
@@ -497,7 +501,7 @@ if (reversed == null) { reversed = false; }
 							if (shineOverlay) {
 								var cardPt = activeCard.localToGlobal(0, 0);
 								var cardWidth = 172 * currentScale;
-								var cardHeight = 172 * currentScale;
+								var cardHeight = 97 * currentScale;
 								shineOverlay.style.width = cardWidth + "px";
 								shineOverlay.style.height = cardHeight + "px";
 								shineOverlay.style.left = Math.round(cardPt.x / ratio - (cardWidth / 2)) + "px";
