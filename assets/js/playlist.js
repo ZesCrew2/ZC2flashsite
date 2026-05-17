@@ -11,8 +11,8 @@ window.musicPlaylist = [
     { path: 'assets/music/Kalimba.mp3', name: 'Mr. Scruff - Kalimba' },
     { path: 'assets/music/weegee.mp3', name: 'sephfire, SGX - Mario Paint "Intense Color" OC ReMix' },
     { path: 'assets/music/Drown in the Now.mp3', name: 'The Crystal Method (Feat. Matisyahu) - Drown in the Now' },
-    { path: 'assets/music/Somebodys Watching Me (Instrumental).mp3', name: 'Mysto and Pizzi - Somebody's Watching Me (Instrumental)' },
-    { path: 'assets/music/Lets Kill Tonight (Instrumental).mp3', name: 'Panic! at the Disco - Let's Kill Tonight (Instrumental)' },
+    { path: 'assets/music/Somebodys Watching Me (Instrumental).mp3', name: 'Mysto and Pizzi - Somebodys Watching Me (Instrumental)' },
+    { path: 'assets/music/Lets Kill Tonight (Instrumental).mp3', name: 'Panic! at the Disco - Lets Kill Tonight (Instrumental)' },
     { path: 'assets/music/Your Game is Over (Instrumental).mp3', name: 'MiatriSs - Your Game is Over (Instrumental)' },
     { path: 'assets/music/seven color generator inst.mp3', name: '渡辺未来 - 七色ジェネレーター (Off-Vocal)' }
 ];
