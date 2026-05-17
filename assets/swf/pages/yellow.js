@@ -479,11 +479,17 @@ if (reversed == null) { reversed = false; }
 				var previewLayer = new cjs.Container();
 				root.addChild(previewLayer);
 				var isPreviewOpen = false;
+				var screamInstance = null;
 
 				function showFullPreview(entry, imageObj) {
 					if (isPreviewOpen) return;
 					isPreviewOpen = true;
-					if (typeof playSound === "function") playSound("clickywav");
+					if (typeof playSound === "function") {
+						playSound("clickywav");
+						if (entry.filename === "INTERNAL_SCREAMING.png" && Math.random() < 0.25) {
+							screamInstance = playSound("screamwav");
+						}
+					}
 
 					var overlay = new cjs.Shape();
 					overlay.graphics.f("rgba(0,0,0,0.85)").drawRect(0, 0, lib.properties.width, lib.properties.height);
@@ -562,6 +568,10 @@ if (reversed == null) { reversed = false; }
 					overlay.cursor = "zoom-out";
 					overlay.addEventListener("click", function() {
 						isPreviewOpen = false;
+						if (screamInstance) {
+							screamInstance.stop();
+							screamInstance = null;
+						}
 						if (typeof playSound === "function") playSound("clickywav");
 						if (previewGif) previewGif.style.display = "none";
 						previewBmp.visible = true;
@@ -880,7 +890,8 @@ lib.properties = {
 	manifest: [
 		{src:"images/yellow_atlas_1.png?1778909900410", id:"yellow_atlas_1"},
 		{src:"../../sounds/clicky.wav", id:"clickywav"},
-		{src:"../../sounds/hover.wav", id:"hoverwav"}
+		{src:"../../sounds/hover.wav", id:"hoverwav"},
+		{src:"../../sounds/scream.wav", id:"screamwav"}
 	],
 	preloads: []
 };
