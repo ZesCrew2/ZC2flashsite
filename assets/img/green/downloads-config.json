@@ -2,13 +2,23 @@
   "items": [
     {
       "filename": "MMDpreview.png",
-      "displayName": "Angel Lily MMD 2026",
+      "displayName": "Lily MMD Model (2026)",
       "link": "https://github.com/ZesCrew2/ZC2flashsite/releases/download/sitedownloads/AngelLilyMMD2026.zip"
     },
     {
       "filename": "FESTpreview.png",
       "displayName": "Julyuary First FLA/FLP",
       "link": "https://github.com/ZesCrew2/ZC2flashsite/releases/download/sitedownloads/JULYUARYFIRST_FLAandFLP.zip"
+    },
+    {
+      "filename": "SITEpreview.png",
+      "displayName": "ZC2 Microsite Source Code",
+      "link": "https://github.com/ZesCrew2/ZC2flashsite/archive/refs/heads/main.zip"
+    },
+    {
+      "filename": "zc2classickey2 copy.png",
+      "displayName": "ZC2 Orb .PSD",
+      "link": "https://zc2flashsite.pages.dev/assets/img/green/zc2classickey2.psd"
     }
   ]
 }
