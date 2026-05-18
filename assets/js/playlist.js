@@ -1,5 +1,6 @@
 // playlist data for the WMP (thorns)
 window.musicPlaylist = [
+    { path: 'assets/music/gleeble.mp3', name: 'Lily (ZesCrew2) - Gleeble' },
     { path: 'assets/music/Virgill - Interference Ending.mp3', name: 'Virgill - Interference Ending' },
     { path: 'assets/music/Mario Paint - Monkey Song.mp3', name: 'Mario Paint - Monkey Song' },
     { path: 'assets/music/Animal Crossing - Town Hall (Pelly).mp3', name: 'Animal Crossing - Town Hall (Pelly)' },
