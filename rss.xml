@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Last Generated: 2026-05-21T14:55:23.791Z -->
+<?xml-stylesheet type="text/xsl" href="assets/css/rss-style.xsl"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2007/Atom">
+<channel>
+  <title>The ZesCrew2 Microsite Updates</title>
+  <link>https://zc2flashsite.com</link>
+  <description>Standard computer-readable updates for the ZC2 microsite.</description>
+  <language>en-us</language>
+  <lastBuildDate>Thu, 21 May 2026 14:55:23 GMT</lastBuildDate>
+  <atom:link href="https://zc2flashsite.com/rss.xml" rel="self" type="application/rss+xml" />
+  
+  <item>
+    <title>Test Test Test</title>
+    <link>https://zc2flashsite.com</link>
+    <description><![CDATA[<p>I am testing to see if this fucking thing works, I'll delete it later. <em>Test</em>. <strong>Test</strong>.</p>]]></description>
+    <pubDate>Thu, 21 May 2026 14:15:59 GMT</pubDate>
+    <guid isPermaLink="false">Test-Test-Test-1779372959112</guid>
+  </item>
+</channel>
+</rss>

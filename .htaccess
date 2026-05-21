@@ -1,0 +1,43 @@
+# ZC2 Microsite Security Rules --thorns
+
+# Disable directory listing
+Options -Indexes
+
+# Prevent access to source files
+<FilesMatch "\.(fla|psd|ai|log|sh)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block direct access to subpage HTML files unless referred by the site itself
+RewriteEngine On
+RewriteCond %{HTTP_REFERER} !^https?://%{HTTP_HOST} [NC]
+RewriteRule ^assets/swf/pages/.*\.html$ - [F,L]
+
+# Ensure computer-readable updates (RSS) are accessible and never cached --thorns
+<Files "rss.xml">
+    Order deny,allow
+    Allow from all
+    <IfModule mod_headers.c>
+        Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+    </IfModule>
+</Files>
+
+# Gzip compression --thorns
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript
+</IfModule>
+
+# Browser caching --thorns
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType audio/mpeg "access plus 1 year"
+    ExpiresByType audio/wav "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/css "access plus 1 month"
+</IfModule>

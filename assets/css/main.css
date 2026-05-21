@@ -325,12 +325,13 @@ body {
 
 #footer {
     position: absolute;
-    bottom: 50px;
+    bottom: 25px;
     left: 0;
     right: 0;
     text-align: center;
     color: #fff;
-    font-size: 18px;
+    font-size: 14px;
+    z-index: 100;
 }
 
 #footer .link {
@@ -341,29 +342,53 @@ body {
     color:yellowgreen;
 }
 
+#nav-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    width: 680px;
+    position: relative;
+    left: -20px;
+}
+
 #speaker {
     display: block;
-    position: relative;
-    left: -30px;
-    margin: 10px auto 0;
     width: 60px;
     height: 60px;
     cursor: pointer;
     z-index: 100;
-    filter: grayscale(100%);
     transition: filter 0.3s ease, transform 0.1s ease;
 }
 
-#speaker:hover {
+#rss-nav {
+    display: block;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    z-index: 100;
+    transition: filter 0.3s ease, transform 0.1s ease;
+}
+
+#speaker {
+    filter: grayscale(100%);
+    margin-left: 50px;
+}
+
+#speaker:hover, #rss-nav:hover {
     transform: scale(1.1);
 }
 
-#speaker:active {
+#speaker:active, #rss-nav:active {
     transform: scale(0.9);
 }
 
 #speaker.unmuted {
     filter: grayscale(0%);
+}
+
+#rss-nav img {
+    width: 100%;
+    height: 100%;
 }
 
 @keyframes sine-wave {

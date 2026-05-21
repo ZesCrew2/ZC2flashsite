@@ -58,11 +58,16 @@ function handleComplete(evt,comp) {
 }
 </script>
 <!-- write your code here -->
+<script>if (window.top === window.self) { window.location.href = '../../../index.html?page=' + window.location.pathname.split('/').pop().replace('.html', ''); }</script>
 </head>
-<body onload="init();" style="margin:0px;">
+<body style="margin:0px;">
 	<div id="animation_container" style="background-color:rgba(198, 255, 51, 1.00); width:460px; height:352px">
 		<canvas id="canvas" width="460" height="352" style="position: absolute; display: block; background-color:rgba(198, 255, 51, 1.00);"></canvas>
 		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:460px; height:352px; position: absolute; left: 0px; top: 0px; display: block;">
+		</div>
+	</div>
+</body>
+</html>x; display: block;">
 		</div>
 	</div>
 </body>

@@ -3,14 +3,17 @@
 
 <head>
 	<title>The ZesCrew2 Microsite!!</title>
-	<link rel="icon" type="image/png" href="favicon.png">
+	<link rel="icon" type="image/png" href="/favicon-96x96.png?v=20260521" sizes="96x96" />
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260521" />
+	<link rel="shortcut icon" href="/favicon.ico?v=20260521" />
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260521" />
+	<meta name="apple-mobile-web-app-title" content="ZC2 Site" />
+	<link rel="manifest" href="/site.webmanifest?v=20260521" />
+	<link rel="alternate" type="application/rss+xml" title="ZC2 Microsite Updates" href="/rss.xml" />
 	<link rel="stylesheet" href="https://unpkg.com/7.css/dist/7.scoped.css" crossorigin="anonymous">
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data:; connect-src 'self'; font-src 'self';">
-	<link rel="preload" href="assets/css/main.css" as="style">
-	<link rel="preload" href="assets/img/loading_indicator.gif" as="image">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vvt4KWwuNr51XfE5m+hzeNEGhiOfZzG97ccfqGsPwvE='; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data:; connect-src 'self' https://unpkg.com; font-src 'self';">
 	<link rel="preload" href="assets/wmp/wmplayer.css" as="style">
 	<link rel="preload" href="assets/wmp/wmplayer.buttons.css" as="style">
-	<link rel="preload" href="assets/wmp/wmplayer.slider.css" as="style">
 	<link rel="stylesheet" href="assets/css/main.css">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
@@ -19,7 +22,7 @@
 	<div id="swirl"></div>
 	<div id="site">
 		<div id="logo-layer">
-			<div id="logo-idle-wrap" onclick="loadPage('orange')">
+			<div id="logo-idle-wrap">
 				<img src="assets/img/zc2aeroorb.png" alt="ZC2 Logo" id="logo">
 			</div>
 		</div>
@@ -34,27 +37,32 @@
 				</div>
 			</div>
 			<div id="buttons">
-				<button class="btn red" onclick="loadPage('red')">Introduction</button>
-				<button class="btn orange" onclick="loadPage('orange')">Home</button>
-				<button class="btn yellow" onclick="loadPage('yellow')">Art</button>
-				<button class="btn lime" onclick="loadPage('lime')">Videos</button>
-				<button class="btn green" onclick="loadPage('green')">Downloads</button>
-				<button class="btn cyan" onclick="loadPage('cyan')">Oldies</button>
-				<button class="btn blue" onclick="loadPage('blue')">2006 (Album)</button>
-				<button class="btn purple" onclick="loadPage('purple')">Socials</button>
-				<button class="btn pink" onclick="loadPage('pink')">Site Credits</button>
-				<img src="assets/img/speaker.png" alt="Mute Toggle" id="speaker">
+				<button class="btn red">Introduction</button>
+				<button class="btn orange">Home</button>
+				<button class="btn yellow">Art</button>
+				<button class="btn lime">Videos</button>
+				<button class="btn green">Downloads</button>
+				<button class="btn cyan">Oldies</button>
+				<button class="btn blue">2006 (Album)</button>
+				<button class="btn purple">Socials</button>
+				<button class="btn pink">Site Credits</button>
+				<div id="nav-footer">
+					<img src="assets/img/speaker.png" alt="Mute Toggle" id="speaker">
+					<a href="rss.xml" target="_blank" id="rss-nav">
+						<img src="assets/img/rss.svg" alt="RSS Feed">
+					</a>
+				</div>
 			</div>
 			<div id="content-area">
 				<div id="flashContent"></div>
 			</div>
-			<div id="footer">
-				<p>Site CSS by <a href="https://sploder-saptarshi.github.io/" class="link"
-						target="_blank" rel="noopener noreferrer" title="https://sploder-saptarshi.github.io/"
-						tabindex="0"><span class="saptarshi-text">Saptarshi</span></a> and <a href="https://www.youtube.com/@thornsmusicvevo" class="link"
-						target="_blank" rel="noopener noreferrer" title="https://www.youtube.com/@thornsmusicvevo"
-						tabindex="0"><span class="thorns-text"><span style="animation-delay: 0.0s;">T</span><span style="animation-delay: 0.2s;">h</span><span style="animation-delay: 0.4s;">o</span><span style="animation-delay: 0.6s;">r</span><span style="animation-delay: 0.8s;">n</span><span style="animation-delay: 1.0s;">s</span></span></a></p>
-			</div>
+		</div>
+		<div id="footer">
+			<p>Site CSS by <a href="https://sploder-saptarshi.github.io/" class="link"
+					target="_blank" rel="noopener noreferrer" title="https://sploder-saptarshi.github.io/"
+					tabindex="0"><span class="saptarshi-text">Saptarshi</span></a> and <a href="https://www.youtube.com/@thornsmusicvevo" class="link"
+					target="_blank" rel="noopener noreferrer" title="https://www.youtube.com/@thornsmusicvevo"
+					tabindex="0"><span class="thorns-text"><span style="animation-delay: 0.0s;">T</span><span style="animation-delay: 0.2s;">h</span><span style="animation-delay: 0.4s;">o</span><span style="animation-delay: 0.6s;">r</span><span style="animation-delay: 0.8s;">n</span><span style="animation-delay: 1.0s;">s</span></span></a></p>
 		</div>
 	</div>
 	<div class="win7">
@@ -90,6 +98,7 @@
 	<script src="assets/js/logo.js"></script>
 	<script src="assets/js/title.js"></script>
 	<script src="assets/js/pageloader.js"></script>
+	<script src="assets/js/main-events.js"></script>
 </body>
 
 </html>

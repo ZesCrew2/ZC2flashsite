@@ -1,158 +1,198 @@
-var currentStage = null;
-var currentPage = null;
-var currentLoader = null;
-var pageLoadToken = 0;
-var pageSoundsRegistered = {};
+let currentStage = null;
+let currentPage = null;
+let currentLoader = null;
+let pageLoadToken = 0;
+const pageSoundsRegistered = {};
 
-if (typeof window.playSound !== 'function') {
-	window.playSound = function(id, loop, offset) {
-		if (!window.siteAudio || window.siteAudio.isMuted) {
-			return null;
-		}
-		return createjs.Sound.play(id, {'interrupt':createjs.Sound.INTERRUPT_EARLY, 'loop': loop, 'offset': offset});
-	};
+if (typeof window.playSound !== "function") {
+  window.playSound = (id, loop, offset) => {
+    if (!window.siteAudio || window.siteAudio.isMuted) return null;
+    return createjs.Sound.play(id, {
+      interrupt: createjs.Sound.INTERRUPT_EARLY,
+      loop: loop,
+      offset: offset,
+    });
+  };
 }
 
 function registerPageSound(src, id) {
-	if (!createjs.Sound || pageSoundsRegistered[id]) return;
-	pageSoundsRegistered[id] = true;
-	createjs.Sound.registerSound(src, id);
+  if (!createjs.Sound || pageSoundsRegistered[id]) return;
+  pageSoundsRegistered[id] = true;
+  createjs.Sound.registerSound(src, id);
 }
 
 function resolvePageAssetPath(src) {
-	var resolver = document.createElement('a');
-	resolver.href = 'assets/swf/pages/' + src;
-	return resolver.pathname.replace(/^\//, '');
+  return new URL(
+    `assets/swf/pages/${src}`,
+    window.location.href,
+  ).pathname.replace(/^\//, "");
 }
 
 function loadPage(color) {
-	if (typeof createjs === 'undefined') return;
-	
-	// whitelist pages for security --thorns
-	var validPages = ['red', 'orange', 'yellow', 'lime', 'green', 'cyan', 'blue', 'purple', 'pink'];
-	if (validPages.indexOf(color) === -1) {
-		console.error("security: blocked attempt to load invalid page: " + color + " --thorns");
-		return;
-	}
+  if (typeof createjs === "undefined") return;
 
-	pageLoadToken++;
+  // whitelist pages for security --thorns
+  const validPages = [
+    "red",
+    "orange",
+    "yellow",
+    "lime",
+    "green",
+    "cyan",
+    "blue",
+    "purple",
+    "pink",
+  ];
+  if (!validPages.includes(color)) {
+    console.error(
+      `security: blocked attempt to load invalid page: ${color} --thorns`,
+    );
+    return;
+  }
 
-	var flashContent = document.getElementById('flashContent');
+  pageLoadToken++;
+  const token = pageLoadToken;
 
-	if (currentStage) {
-		if (currentStage._throttledTick) {
-			createjs.Ticker.removeEventListener("tick", currentStage._throttledTick);
-		} else {
-			createjs.Ticker.removeEventListener("tick", currentStage);
-		}
-		currentStage = null;
-	}
+  const flashContent = document.getElementById("flashContent");
 
-	if (currentLoader) {
-		currentLoader.removeAllEventListeners();
-		currentLoader.close();
-		currentLoader = null;
-	}
+  if (currentStage) {
+    createjs.Ticker.removeEventListener(
+      "tick",
+      currentStage._throttledTick || currentStage,
+    );
+    currentStage = null;
+  }
 
-	var oldScript = document.getElementById('page-script');
-	if (oldScript) oldScript.remove();
+  if (currentLoader) {
+    currentLoader.removeAllEventListeners();
+    currentLoader.close();
+    currentLoader = null;
+  }
 
-	flashContent.innerHTML = '';
-	currentPage = color;
+  const oldScript = document.getElementById("page-script");
+  if (oldScript) oldScript.remove();
 
-	var anim_container = document.createElement('div');
-	anim_container.id = 'animation_container';
-	var canvas = document.createElement('canvas');
-	canvas.id = 'canvas';
+  flashContent.innerHTML = "";
+  currentPage = color;
 
-	anim_container.appendChild(canvas);
-	flashContent.appendChild(anim_container);
+  const anim_container = document.createElement("div");
+  anim_container.id = "animation_container";
+  const canvas = document.createElement("canvas");
+  canvas.id = "canvas";
 
-	var script = document.createElement('script');
-	script.id = 'page-script';
-	script.src = 'assets/swf/pages/' + color + '.js';
-	var token = pageLoadToken;
-	script.onload = function() {
-		if (currentPage === color && pageLoadToken === token) initPage(color, token);
-	};
-	document.body.appendChild(script);
+  anim_container.appendChild(canvas);
+  flashContent.appendChild(anim_container);
+
+  const script = document.createElement("script");
+  script.id = "page-script";
+  script.src = `assets/swf/pages/${color}.js`;
+  script.onload = () => {
+    if (currentPage === color && pageLoadToken === token)
+      initPage(color, token);
+  };
+  document.body.appendChild(script);
 }
 
 function initPage(color, token) {
-	var canvas = document.getElementById('canvas');
-	var anim_container = document.getElementById('animation_container');
-	if (!canvas || !anim_container) return;
-	var comp = AdobeAn.getComposition("B325F180281AD548AF0E7778EAE237A2");
-	var lib = comp.getLibrary();
-	var manifest = [];
-	lib.properties.manifest.forEach(function(item) {
-		var cleanSrc = item.src.replace(/\?.*$/, '');
-		var fullSrc = resolvePageAssetPath(cleanSrc);
-		if (/\.(mp3|wav|ogg)$/i.test(cleanSrc)) {
-			registerPageSound(fullSrc, item.id);
-			return;
-		}
-		manifest.push({ src: fullSrc, id: item.id });
-	});
-	var loader = new createjs.LoadQueue(false);
-	currentLoader = loader;
-	loader.addEventListener("fileload", function(evt) {
-		if (token !== pageLoadToken || loader !== currentLoader) return;
-		handlePageFileLoad(evt, comp);
-	});
-	loader.addEventListener("complete", function(evt) {
-		if (token !== pageLoadToken || loader !== currentLoader) return;
-		currentLoader = null;
-		handlePageComplete(evt, comp, color);
-	});
-	loader.loadManifest(manifest);
-}
+  const canvas = document.getElementById("canvas");
+  const anim_container = document.getElementById("animation_container");
+  if (!canvas || !anim_container) return;
 
-function handlePageFileLoad(evt, comp) {
-	if (evt.item.type == "image") { comp.getImages()[evt.item.id] = evt.result; }
+  const comp = AdobeAn.getComposition("B325F180281AD548AF0E7778EAE237A2");
+  const lib = comp.getLibrary();
+  const manifest = [];
+
+  lib.properties.manifest.forEach((item) => {
+    const cleanSrc = item.src.replace(/\?.*$/, "");
+    const fullSrc = resolvePageAssetPath(cleanSrc);
+    if (/\.(mp3|wav|ogg)$/i.test(cleanSrc)) {
+      registerPageSound(fullSrc, item.id);
+    } else {
+      manifest.push({ src: fullSrc, id: item.id });
+    }
+  });
+
+  const loader = new createjs.LoadQueue(false);
+  currentLoader = loader;
+  loader.addEventListener("fileload", (evt) => {
+    if (token === pageLoadToken && loader === currentLoader) {
+      if (evt.item.type === "image") comp.getImages()[evt.item.id] = evt.result;
+    }
+  });
+  loader.addEventListener("complete", (evt) => {
+    if (token === pageLoadToken && loader === currentLoader) {
+      currentLoader = null;
+      handlePageComplete(evt, comp, color);
+    }
+  });
+  loader.loadManifest(manifest);
 }
 
 function handlePageComplete(evt, comp, color) {
-	var lib = comp.getLibrary();
-	var ss = comp.getSpriteSheet();
-	var ssMetadata = lib.ssMetadata;
-	for (var i = 0; i < ssMetadata.length; i++) {
-		ss[ssMetadata[i].name] = new createjs.SpriteSheet({"images": [evt.target.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames});
-	}
-	var exportRoot = new lib[color]();
-	exportRoot.addEventListener("tick", AdobeAn.handleFilterCache);
-	var canvas = document.getElementById('canvas');
-	currentStage = new lib.Stage(canvas);
-	currentStage.enableMouseOver();
-	currentStage.addChild(exportRoot);
-	
-	// use throttled tick for authentic flash speed --thorns
-	var throttledTick = Microsite.ticker.createThrottledTick(currentStage, lib.properties.fps);
-	createjs.Ticker.addEventListener("tick", throttledTick);
-	currentStage._throttledTick = throttledTick; // store for removal --thorns
+  const lib = comp.getLibrary();
+  const ss = comp.getSpriteSheet();
+  const { ssMetadata } = lib;
 
-	AdobeAn.compositionLoaded(lib.properties.id);
-	fitPage();
+  ssMetadata.forEach((meta) => {
+    ss[meta.name] = new createjs.SpriteSheet({
+      images: [evt.target.getResult(meta.name)],
+      frames: meta.frames,
+    });
+  });
+
+  const exportRoot = new lib[color]();
+  exportRoot.addEventListener("tick", AdobeAn.handleFilterCache);
+  const canvas = document.getElementById("canvas");
+  currentStage = new lib.Stage(canvas);
+  currentStage.enableMouseOver();
+  currentStage.addChild(exportRoot);
+
+  // use throttled tick for authentic flash speed --thorns
+  const throttledTick = Microsite.ticker.createThrottledTick(
+    currentStage,
+    lib.properties.fps,
+  );
+  createjs.Ticker.addEventListener("tick", throttledTick);
+  currentStage._throttledTick = throttledTick; // store for removal --thorns
+
+  AdobeAn.compositionLoaded(lib.properties.id);
+  fitPage();
 }
 
 function fitPage() {
-	var container = document.getElementById('animation_container');
-	var cvs = document.getElementById('canvas');
-	if (!container || !cvs) return;
-	var fit = Math.min(container.clientWidth / 460, container.clientHeight / 352);
-	var scale = fit + (1 - fit) * 0.5;
-	cvs.width = Math.round(460 * scale);
-	cvs.height = Math.round(352 * scale);
-	
+  const container = document.getElementById("animation_container");
+  const cvs = document.getElementById("canvas");
+  if (!container || !cvs) return;
+  const fit = Math.min(
+    container.clientWidth / 460,
+    container.clientHeight / 352,
+  );
+  const scale = fit + (1 - fit) * 0.5;
+  cvs.width = Math.round(460 * scale);
+  cvs.height = Math.round(352 * scale);
 }
-window.addEventListener('resize', fitPage);
+window.addEventListener("resize", fitPage);
 
 function scaleSite() {
-	var scale = document.getElementById('site').clientWidth / 760;
-	document.getElementById('site-inner').style.transform = 'scale(' + scale + ')';
-	document.getElementById('logo-layer').style.transform = 'scale(' + scale + ')';
+  const site = document.getElementById("site");
+  if (!site) return;
+  const scale = site.clientWidth / 760;
+  const siteInner = document.getElementById("site-inner");
+  const logoLayer = document.getElementById("logo-layer");
+  if (siteInner) siteInner.style.transform = `scale(${scale})`;
+  if (logoLayer) logoLayer.style.transform = `scale(${scale})`;
 }
-window.addEventListener('resize', scaleSite);
+window.addEventListener("resize", scaleSite);
 scaleSite();
 
-loadPage('orange');
+// Start with default page or deep link --thorns
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const page = params.get("page") || "orange";
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => loadPage(page));
+  } else {
+    loadPage(page);
+  }
+})();
