@@ -8,7 +8,8 @@ const GENERATE_SCRIPT = path.join(__dirname, 'generate-rss.js');
 
 const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
+    terminal: true
 });
 
 function ask(question) {
@@ -25,19 +26,22 @@ async function start() {
         return;
     }
 
-    console.log('\nEnter Content (Press Enter twice to finish):');
+    console.log('\nEnter Content (Press CTRL+D on a new line to finish, or CTRL+C to cancel):');
     let contentLines = [];
     
-    // Multi-line input logic --thorns
-    for await (const line of rl) {
-        if (line === '') break;
+    // use the standard 'line' event. ctrl+d triggers 'close' --thorns
+    rl.on('line', (line) => {
         contentLines.push(line);
-    }
+    });
+
+    // wait for the 'close' event (triggered by ctrl+d) --thorns
+    await new Promise((resolve) => {
+        rl.on('close', resolve);
+    });
     
     const content = contentLines.join('\n');
-    if (!content) {
-        console.log('Content required. Exiting.');
-        rl.close();
+    if (!content.trim()) {
+        console.log('\nNo content provided. Exiting.');
         return;
     }
 
@@ -59,7 +63,7 @@ ${content}
 `;
 
     fs.writeFileSync(filePath, mdContent);
-    console.log(`\nSuccess! Created Markdown file: "updates/${fileName}" --thorns`);
+    console.log(`\n\nSuccess! Created Markdown file: "updates/${fileName}" --thorns`);
 
     // Regenerate RSS immediately --thorns
     try {
@@ -67,8 +71,6 @@ ${content}
     } catch (e) {
         console.error('Failed to regenerate RSS:', e.message);
     }
-
-    rl.close();
 }
 
 start();

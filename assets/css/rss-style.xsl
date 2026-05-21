@@ -19,7 +19,21 @@
             margin-bottom: 30px;
             padding-bottom: 10px;
           }
-          h1 { color: orange; margin: 0; }
+          @keyframes wobble {
+            0%, 100% { transform: rotate(-5deg) translateY(0); }
+            50% { transform: rotate(5deg) translateY(-5px); }
+          }
+          h1 { 
+            color: orange; 
+            margin: 0; 
+            display: inline-block;
+          }
+          h1 span {
+            display: inline-block;
+            animation: wobble 2s ease-in-out infinite;
+            transform-origin: center;
+            white-space: pre;
+          }
           .subtitle { color: #888; font-size: 0.9em; }
           .item {
             background: #2a2a2a;
@@ -72,7 +86,11 @@
       <body>
         <div id="metro-icons-container"></div>
         <div class="header">
-          <h1><xsl:value-of select="rss/channel/title"/></h1>
+          <h1>
+            <xsl:call-template name="wobble-text">
+              <xsl:with-param name="text" select="rss/channel/title"/>
+            </xsl:call-template>
+          </h1>
           <p class="subtitle"><xsl:value-of select="rss/channel/description"/></p>
         </div>
         
@@ -95,5 +113,19 @@
         <script src="assets/js/metro-bg.js"></script>
       </body>
     </html>
+  </xsl:template>
+
+  <xsl:template name="wobble-text">
+    <xsl:param name="text"/>
+    <xsl:param name="index" select="0"/>
+    <xsl:if test="string-length($text) > 0">
+      <span style="animation-delay: {$index * 0.1}s;">
+        <xsl:value-of select="substring($text, 1, 1)"/>
+      </span>
+      <xsl:call-template name="wobble-text">
+        <xsl:with-param name="text" select="substring($text, 2)"/>
+        <xsl:with-param name="index" select="$index + 1"/>
+      </xsl:call-template>
+    </xsl:if>
   </xsl:template>
 </xsl:stylesheet>
