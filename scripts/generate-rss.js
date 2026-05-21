@@ -60,7 +60,7 @@ function generateRSS() {
   <item>
     <title>${escapeXml(item.title)}</title>
     <link>${item.link}</link>
-    <description>${escapeXml(item.description)}</description>
+    <description><![CDATA[${item.description}]]></description>
     <pubDate>${item.pubDate}</pubDate>
     <guid isPermaLink="false">${item.title.replace(/\s+/g, '-')}-${item.timestamp}</guid>
   </item>`).join('')}
