@@ -38,6 +38,7 @@
 
     let isDragging = false;
     let dragOffsetX, dragOffsetY;
+    let dragTicking = false;
     const titleBar = musicPlayer.querySelector(".title-bar");
 
     titleBar.addEventListener("mousedown", (e) => {
@@ -57,16 +58,24 @@
     });
 
     document.addEventListener("mousemove", (e) => {
-      if (!isDragging) return;
-      let x = e.clientX - dragOffsetX;
-      let y = e.clientY - dragOffsetY;
-      x = Math.max(0, Math.min(x, window.innerWidth - musicPlayer.offsetWidth));
-      y = Math.max(
-        0,
-        Math.min(y, window.innerHeight - musicPlayer.offsetHeight),
-      );
-      musicPlayer.style.left = `${x}px`;
-      musicPlayer.style.top = `${y}px`;
+      if (!isDragging || dragTicking) return;
+      dragTicking = true;
+
+      requestAnimationFrame(() => {
+        let x = e.clientX - dragOffsetX;
+        let y = e.clientY - dragOffsetY;
+        x = Math.max(
+          0,
+          Math.min(x, window.innerWidth - musicPlayer.offsetWidth),
+        );
+        y = Math.max(
+          0,
+          Math.min(y, window.innerHeight - musicPlayer.offsetHeight),
+        );
+        musicPlayer.style.left = `${x}px`;
+        musicPlayer.style.top = `${y}px`;
+        dragTicking = false;
+      });
     });
 
     document.addEventListener("mouseup", () => {

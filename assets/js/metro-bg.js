@@ -28,6 +28,8 @@
         document.body.prepend(container);
     }
 
+    const activeIcons = new Set();
+
     function spawnIcon() {
         const iconFile = iconFiles[Math.floor(Math.random() * iconFiles.length)];
         const icon = document.createElement('img');
@@ -48,30 +50,41 @@
         
         const duration = Math.random() * 10000 + 10000; // 10s to 20s
         const rotationStart = Math.random() * 360;
-        const rotationEnd = rotationStart + (Math.random() * 720 - 360); // rotate up to 1 full circle either way
+        const rotationEnd = rotationStart + (Math.random() * 720 - 360);
         
         container.appendChild(icon);
         
-        const startTime = performance.now();
-        
-        function animate(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
+        activeIcons.add({
+            element: icon,
+            startTime: performance.now(),
+            duration: duration,
+            startX: startX,
+            endX: endX,
+            rotationStart: rotationStart,
+            rotationEnd: rotationEnd
+        });
+    }
+
+    function animate(currentTime) {
+        activeIcons.forEach(iconData => {
+            const elapsed = currentTime - iconData.startTime;
+            const progress = Math.min(elapsed / iconData.duration, 1);
             
-            const currentX = startX + (endX - startX) * progress;
-            const currentRotation = rotationStart + (rotationEnd - rotationStart) * progress;
+            const currentX = iconData.startX + (iconData.endX - iconData.startX) * progress;
+            const currentRotation = iconData.rotationStart + (iconData.rotationEnd - iconData.rotationStart) * progress;
             
-            icon.style.transform = `translateX(${currentX - startX}px) rotate(${currentRotation}deg)`;
+            iconData.element.style.transform = `translateX(${currentX - iconData.startX}px) rotate(${currentRotation}deg)`;
             
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                icon.remove();
+            if (progress >= 1) {
+                iconData.element.remove();
+                activeIcons.delete(iconData);
             }
-        }
+        });
         
         requestAnimationFrame(animate);
     }
+
+    requestAnimationFrame(animate);
 
     // Spawn icons periodically
     setInterval(spawnIcon, 2500); // every 2.5 seconds
