@@ -5,6 +5,10 @@
       <head>
         <title><xsl:value-of select="rss/channel/title"/> - Feed</title>
         <style type="text/css">
+          @font-face {
+            font-family: 'Kronika';
+            src: url('../fonts/KRONIKA.ttf') format('truetype');
+          }
           body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background: transparent;
@@ -16,7 +20,7 @@
           }
           .header {
             border-bottom: 2px solid orange;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             padding-bottom: 10px;
           }
           @keyframes wobble {
@@ -27,6 +31,7 @@
             color: orange; 
             margin: 0; 
             display: inline-block;
+            font-family: 'Kronika', sans-serif;
           }
           h1 span {
             display: inline-block;
@@ -36,23 +41,34 @@
           }
           .subtitle { color: #888; font-size: 0.9em; }
           .item {
-            background: #2a2a2a;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border-left: 4px solid orange;
+            background: #4c4c4c;
+            background: linear-gradient(to bottom,  #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%);
+            margin-bottom: 30px;
+            border-radius: 12px;
+            border: 1px solid #555;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
           }
           .item-title {
-            font-size: 1.2em;
+            background: #fffe6e;
+            background: linear-gradient(to bottom,  #fffe6e 0%,#ffea51 22%,#ffd842 33%,#ffc133 44%,#fbad22 51%,#fbad22 51%,#ee8800 52%,#e07b00 63%,#ce6a00 74%,#b85500 85%,#9e3d00 96%,#923200 100%);
+            padding: 12px 20px;
+            font-size: 1.3em;
             font-weight: bold;
-            margin-bottom: 5px;
-            color: #fff;
+            color: #000;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+            border-bottom: 1px solid #923200;
+            font-family: 'Kronika', sans-serif;
           }
           .item-title a {
-            color: #fff;
+            color: #000;
             text-decoration: none;
           }
           .item-title a:hover { text-decoration: underline; }
+          .item-content-wrap {
+            padding: 20px;
+            color: #eee;
+          }
           .item-date {
             font-size: 0.8em;
             color: #aaa;
@@ -100,9 +116,11 @@
             <div class="item-title">
               <xsl:value-of select="title"/>
             </div>
-            <div class="item-date"><xsl:value-of select="pubDate"/></div>
-            <div class="item-description">
-              <xsl:value-of select="description" />
+            <div class="item-content-wrap">
+              <div class="item-date"><xsl:value-of select="pubDate"/></div>
+              <div class="item-description">
+                <xsl:value-of select="description" />
+              </div>
             </div>
           </div>
         </xsl:for-each>
