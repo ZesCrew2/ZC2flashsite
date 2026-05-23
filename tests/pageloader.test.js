@@ -34,7 +34,8 @@ const window = {
             createThrottledTick: () => {}
         }
     },
-    addEventListener: () => {}
+    addEventListener: () => {},
+    location: { search: '', href: 'http://localhost/' }
 };
 
 global.window = window;
