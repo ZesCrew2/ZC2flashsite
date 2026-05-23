@@ -4,7 +4,7 @@
       "filename": "2026 lily ref new.png",
       "displayName": "2026 Lily Ref",
       "link": "",
-      "ratio": "square"
+      "ratio": "widescreen"
     },
     {
       "filename": "mix art thing.png",
@@ -70,7 +70,7 @@
       "filename": "new 2006 cover v4 flatter.png",
       "displayName": "New 2006 Cover (2026)",
       "link": "",
-      "ratio": "standard"
+      "ratio": "square"
     },
     {
       "filename": "sonicv6 idle.gif",
@@ -85,7 +85,7 @@
       "ratio": "square"
     },
     {
-      "filename": "banner.png",
+      "filename": "bannerWIDE.png",
       "displayName": "Sonic Spindrift Banner",
       "link": "",
       "ratio": "widescreen"
