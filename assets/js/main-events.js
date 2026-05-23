@@ -1,8 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
   // logo click handler
   const logoIdleWrap = document.getElementById("logo-idle-wrap");
+  let logoClickCount = 0;
+  let logoClickTimeout = null;
+
   if (logoIdleWrap) {
     logoIdleWrap.addEventListener("click", () => {
+      // 25% chance to trigger maze
+      if (Math.random() < 0.25) {
+        if (window.Microsite && window.Microsite.maze) {
+          window.Microsite.maze.init();
+          return; // stop further execution
+        }
+      }
+      
       loadPage("orange");
     });
   }

@@ -3,6 +3,13 @@
     src: url('../fonts/KRONIKA.ttf') format('truetype');
 }
 
+@font-face {
+    font-family: 'PetscopHand';
+    src: url('../fonts/PetscopHand.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 .btn {
     display: inline-block;
     width: 199px;
@@ -168,6 +175,24 @@ body {
     height: auto;
     animation: logo-idle 5s ease-in-out infinite;
     z-index: 10;
+}
+
+/* Maze Active State */
+body.maze-active #site,
+body.maze-active .win7,
+body.maze-active #swirl,
+body.maze-active #bg-canvas {
+    display: none !important;
+}
+
+body.maze-active {
+    background-color: black !important;
+    overflow: hidden;
+}
+
+#maze-canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 
 #logo {
