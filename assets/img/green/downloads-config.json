@@ -16,7 +16,7 @@
       "filename": "SITEpreview.png",
       "displayName": "ZC2 Microsite Source Code",
       "link": "https://github.com/ZesCrew2/ZC2flashsite/archive/refs/heads/main.zip",
-      "ratio": "widescreen"
+      "ratio": "standard"
     },
     {
       "filename": "zc2classickey2 copy.png",
@@ -28,7 +28,7 @@
       "filename": "2025OUTROpreview.png",
       "displayName": "2025 Outro FLA",
       "link": "https://github.com/ZesCrew2/ZC2flashsite/releases/download/sitedownloads/2025OutroFLA.zip",
-      "ratio": "widescreen"
+      "ratio": "standard"
     }
   ]
 }
