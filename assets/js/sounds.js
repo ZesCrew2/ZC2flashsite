@@ -2,30 +2,28 @@
 
 (() => {
   const init = () => {
-    // register sounds with createjs.Sound --thorns
-    if (typeof createjs !== "undefined" && createjs.Sound) {
-      const sounds = [
-        { src: "assets/sounds/hover.wav", id: "hoverwav" },
-        { src: "assets/sounds/clicky.wav", id: "clickywav" },
-        { src: "assets/sounds/click.webm", id: "notifwav" },
-        { src: "assets/sounds/mk64_luigi01.wav", id: "luigi1" },
-        { src: "assets/sounds/mk64_luigi02.wav", id: "luigi2" },
-        { src: "assets/sounds/mk64_luigi03.wav", id: "luigi3" },
-        { src: "assets/sounds/mk64_luigi06.wav", id: "luigi4" },
-      ];
-      sounds.forEach((s) => createjs.Sound.registerSound(s.src, s.id));
+    // Define global playSound for Adobe Animate compatibility if not already defined --thorns
+    if (typeof window.playSound !== "function") {
+      window.playSound = function(id, loop, offset) {
+        if (window.siteAudio && window.siteAudio.isMuted) return null;
+        return createjs.Sound.play(id, {
+          interrupt: createjs.Sound.INTERRUPT_ANY,
+          loop: loop || 0,
+          offset: offset || 0
+        });
+      };
     }
 
     // button sounds
     document.addEventListener("mouseover", (e) => {
       if (e.target.classList.contains("btn")) {
-        Microsite.audio.play("hoverwav");
+        Microsite.audio.play("site_hover");
       }
     });
 
     document.addEventListener("mousedown", (e) => {
       if (e.target.classList.contains("btn")) {
-        Microsite.audio.play("clickywav");
+        Microsite.audio.play("site_click");
       }
     });
 
@@ -33,7 +31,7 @@
     const speaker = document.getElementById("speaker");
     if (speaker) {
       speaker.addEventListener("mouseover", () => {
-        Microsite.audio.play("hoverwav");
+        Microsite.audio.play("site_hover");
       });
     }
 
@@ -41,7 +39,7 @@
     const saptarshi = document.querySelector(".saptarshi-text");
     if (saptarshi) {
       saptarshi.addEventListener("click", () => {
-        Microsite.audio.play("notifwav");
+        Microsite.audio.play("site_notif");
       });
     }
 

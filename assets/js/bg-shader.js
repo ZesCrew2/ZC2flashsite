@@ -88,26 +88,30 @@
     img.crossOrigin = "Anonymous";
     img.src = "assets/img/bg.png";
     img.onload = () => {
+      const settings = window.Microsite.perf ? window.Microsite.perf.getSettings() : { fps: 60, logicThrottle: 1, postProcessing: true };
+      
       const bitmap = new createjs.Bitmap(img);
       stage.addChild(bitmap);
 
-      const wiggle = new createjs.WiggleFilter(shaderCode, 4, 2.0, 10.0, 0.015);
-      bitmap.filters = [wiggle];
+      // FALLBACK: If Tier 3, don't use filters at all, just show the image
+      if (settings.fps > 24) {
+          const wiggle = new createjs.WiggleFilter(shaderCode, 4, 2.0, 10.0, 0.015);
+          bitmap.filters = [wiggle];
 
-      if (window.Microsite) {
-        window.Microsite.shader.instance = wiggle;
-        window.Microsite.shader.loadShader = async (newPath) => {
-          try {
-            const response = await fetch(newPath);
-            wiggle.FRAG_SHADER_BODY = await response.text();
-            bitmap.updateCache();
-          } catch (err) {
-            console.error(`failed to load inner shader: ${err} --thorns`);
+          if (window.Microsite) {
+            window.Microsite.shader.instance = wiggle;
+            window.Microsite.shader.loadShader = async (newPath) => {
+              try {
+                const response = await fetch(newPath);
+                wiggle.FRAG_SHADER_BODY = await response.text();
+                bitmap.updateCache();
+              } catch (err) {
+                console.error(`failed to load inner shader: ${err} --thorns`);
+              }
+            };
           }
-        };
+          bitmap.cache(0, 0, img.width, img.height, 1, { useGL: "stage" });
       }
-
-      bitmap.cache(0, 0, img.width, img.height, 1, { useGL: "stage" });
 
       const resize = () => {
         canvas.width = window.innerWidth;
@@ -120,16 +124,32 @@
         bitmap.scaleX = bitmap.scaleY = scale;
         bitmap.x = (canvas.width - img.width * scale) / 2;
         bitmap.y = (canvas.height - img.height * scale) / 2;
-        bitmap.updateCache();
+        if (bitmap.cacheCanvas) bitmap.updateCache();
       };
       window.addEventListener("resize", resize);
       resize();
 
-      createjs.Ticker.timingMode = createjs.Ticker.RAF;
+      createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
+      createjs.Ticker.framerate = settings.fps;
+      
+      let tickCount = 0;
       createjs.Ticker.addEventListener("tick", (event) => {
         if (event.paused) return;
-        wiggle.time += event.delta / 1000;
-        if (bitmap.cacheCanvas) bitmap.updateCache();
+        
+        tickCount++;
+        // Throttle shader update on low tier
+        if (tickCount % settings.logicThrottle !== 0) {
+            stage.update(event);
+            return;
+        }
+
+        // Only update time if the filter exists (Tier 1-2)
+        const instance = window.Microsite?.shader?.instance;
+        if (instance) {
+          instance.time += (event.delta * settings.logicThrottle) / 1000;
+          if (bitmap.cacheCanvas) bitmap.updateCache();
+        }
+        
         stage.update(event);
       });
     };

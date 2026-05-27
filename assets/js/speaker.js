@@ -7,7 +7,6 @@
     const speaker = document.getElementById("speaker");
     const musicPlayer = document.getElementById("music-player");
     const restoreBtn = document.getElementById("music-restore");
-    const clickSound = new Audio("assets/sounds/clicky.wav");
     const wmp = document.getElementById("wmp");
 
     let hasStarted = false;
@@ -32,7 +31,7 @@
           );
         }
         wmp.play();
-        clickSound.play().catch(() => {});
+        Microsite.audio.play("site_click");
       }
     });
 
