@@ -1012,7 +1012,7 @@ if (reversed == null) { reversed = false; }
 
 		this.twitter.removeAllEventListeners("click");
 		this.twitter.addEventListener("click", function() {
-			openInNewTab("https://www.twitter.com/ZesCrew2/");
+			openInNewTab("https://bsky.app/profile/zescrew2.bsky.social");
 		});
 
 		this.ng.removeAllEventListeners("click");
@@ -1032,7 +1032,7 @@ if (reversed == null) { reversed = false; }
 
 		this.github.removeAllEventListeners("click");
 		this.github.addEventListener("click", function() {
-			openInNewTab("https://github.com/ZesCrew2/");
+			openInNewTab("https://flashdojo.com/user/LilyZesCrew2");
 		});
 
 		this.gmail.removeAllEventListeners("click");
