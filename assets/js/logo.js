@@ -3,14 +3,12 @@
 (function () {
   function init() {
     const logo = document.getElementById("logo");
-    const medalClickSound = new Audio("assets/sounds/mm_medal_click.wav");
 
     if (logo) {
       logo.addEventListener("click", function () {
         // have this play when not muted
         if (window.siteAudio && !window.siteAudio.isMuted) {
-          medalClickSound.currentTime = 0;
-          medalClickSound.play().catch((e) => {});
+          Microsite.audio.play("site_medal");
         }
 
         // animation thingy

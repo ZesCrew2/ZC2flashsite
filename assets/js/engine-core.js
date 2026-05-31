@@ -6,6 +6,26 @@
     program: null,
     vao: null,
     uniforms: {},
+
+    // Object Pooling for math objects --thorns
+    pool: {
+      vec3: [],
+      mat4: [],
+      getVec3: function() { 
+        const v = this.vec3.pop() || window.vec3?.create() || new Float32Array(3); 
+        window.vec3?.set(v, 0, 0, 0);
+        return v;
+      },
+      getMat4: function() { 
+        const m = this.mat4.pop() || window.mat4?.create() || new Float32Array(16); 
+        window.mat4?.identity(m);
+        return m;
+      },
+      recycle: function(obj) {
+        if (obj.length === 3) this.vec3.push(obj);
+        else if (obj.length === 16) this.mat4.push(obj);
+      }
+    },
     
     // Post-processing
     fbo: null,
@@ -35,8 +55,11 @@
         v_tangent = mat3(u_model) * a_tangent;
       }`,
 
-    fsSource: `#version 300 es
-      precision highp float;
+    fsSource: function(tier = 1) {
+      const precision = window.Microsite.perf?.getSettings().precision || 'highp';
+      return `#version 300 es
+      precision ${precision} float;
+      #define TIER ${tier}
       in vec2 v_texcoord;
       in vec3 v_normal;
       in vec3 v_tangent;
@@ -51,43 +74,88 @@
       uniform float u_wiggleFreq;
       uniform float u_wiggleAmp;
       uniform float u_isEntity; 
-      
+      uniform float u_isSky;
+
       uniform vec3 u_viewPos;
       uniform float u_fogNear;
       uniform float u_fogFar;
       uniform vec4 u_fogColor;
-      
+
       layout(location = 0) out vec4 outColor;
       layout(location = 1) out vec4 outMask;
 
       vec2 wiggle(vec2 pt) {
-        float offsetY = sin(pt.x * u_wiggleFreq + u_time * u_wiggleSpeed) * u_wiggleAmp;
-        float offsetX = sin(pt.y * u_wiggleFreq + u_time * u_wiggleSpeed) * u_wiggleAmp;
-        return vec2(pt.x + offsetX, pt.y + offsetY);
+        #if TIER < 3
+          float offsetY = sin(pt.x * u_wiggleFreq + u_time * u_wiggleSpeed) * u_wiggleAmp;
+          float offsetX = sin(pt.y * u_wiggleFreq + u_time * u_wiggleSpeed) * u_wiggleAmp;
+          return vec2(pt.x + offsetX, pt.y + offsetY);
+        #else
+          return pt;
+        #endif
       }
 
       void main() {
-        vec2 uv = wiggle(v_texcoord);
+        if (u_isSky > 0.5) {
+          #if TIER == 3
+            outColor = vec4(u_fogColor.rgb, 1.0);
+            outMask = vec4(0.0, 0.0, 0.0, 1.0);
+            return;
+          #endif
+        }
+
+        vec2 uv;
+        if (u_isSky > 0.5) {
+          vec3 viewDir = normalize(v_worldPos - u_viewPos);
+          float theta = atan(viewDir.z, viewDir.x);
+          uv = vec2(theta / 6.28318530718 + 0.5, v_texcoord.y); 
+          uv.y = viewDir.y * 0.5 + 0.5;
+        } else {
+          uv = wiggle(v_texcoord);
+        }
+
         vec3 normal = normalize(v_normal);
-        vec3 tangent = normalize(v_tangent);
-        vec3 bitangent = normalize(cross(normal, tangent));
-        mat3 TBN = mat3(tangent, bitangent, normal);
-        vec3 mapNormal = texture(u_normalMap, uv).rgb * 2.0 - 1.0;
-        vec3 worldNormal = normalize(TBN * mapNormal);
+        vec3 worldNormal = normal;
+        float roughness = 0.5;
+        float spec = 0.0;
+
+        #if TIER < 2
+          vec3 tangent = normalize(v_tangent);
+          vec3 bitangent = normalize(cross(normal, tangent));
+          mat3 TBN = mat3(tangent, bitangent, normal);
+          vec3 mapNormal = texture(u_normalMap, uv).rgb * 2.0 - 1.0;
+          worldNormal = normalize(TBN * mapNormal);
+        #endif
+
         vec3 lightPos = u_viewPos;
         vec3 lightDir = normalize(lightPos - v_worldPos);
         float diff = max(dot(worldNormal, lightDir), 0.1);
-        vec3 viewDir = normalize(u_viewPos - v_worldPos);
-        vec3 reflectDir = reflect(-lightDir, worldNormal);
-        float roughness = texture(u_roughnessMap, uv).r;
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), mix(64.0, 2.0, roughness));
+
+        if (u_isSky > 0.5) {
+          diff = 1.0; // Sky is self-illuminated
+          spec = 0.0;
+        } else {
+          #if TIER < 3
+            vec3 viewDir = normalize(u_viewPos - v_worldPos);
+            vec3 reflectDir = reflect(-lightDir, worldNormal);
+            #if TIER < 2
+              roughness = texture(u_roughnessMap, uv).r;
+            #endif
+            spec = pow(max(dot(viewDir, reflectDir), 0.0), mix(64.0, 2.0, roughness)) * (1.0 - roughness);
+          #endif
+        }
+
         vec4 texColor = texture(u_diffuseMap, uv);
-        vec3 finalColor = texColor.rgb * diff + spec * (1.0 - roughness);
+        vec3 finalColor = texColor.rgb * diff + spec;
+
         float dist = distance(u_viewPos, v_worldPos);
         float fogFactor = smoothstep(u_fogNear, u_fogFar, dist);
+        if (u_isSky > 0.5) fogFactor = 0.0; // No fog on sky
+
         outColor = vec4(mix(finalColor, u_fogColor.rgb, fogFactor), 1.0);
         outMask = vec4(u_isEntity, 0.0, 0.0, 1.0);
-      }`,
+      }
+`;
+    },
 
     // Post-processing Shaders (Gendither ONLY)
     postVS: `#version 300 es
@@ -99,8 +167,11 @@
         v_texcoord = a_texcoord;
       }`,
 
-    postFS: `#version 300 es
-      precision highp float;
+    postFS: function(tier = 1) {
+      const precision = window.Microsite.perf?.getSettings().precision || 'highp';
+      return `#version 300 es
+      precision ${precision} float;
+      #define TIER ${tier}
       in vec2 v_texcoord;
       uniform sampler2D u_scene;
       uniform sampler2D u_mask;
@@ -115,47 +186,76 @@
         vec3 final = base.rgb;
 
         if (isEntity < 0.5) {
-          // Gendither
-          vec2 screenPos = v_texcoord * u_resolution;
-          int ditherIndex = int(mod(screenPos.x, 4.0)) * 4 + int(mod(screenPos.y, 4.0));
-          int ditherValue = ditherTable[ditherIndex];
-          final += vec3(float(ditherValue)) * 0.0039215686;
-          final = floor(final * 4.4) / 4.4;
+          #if TIER < 3
+            // Gendither
+            vec2 screenPos = v_texcoord * u_resolution;
+            int ditherIndex = int(mod(screenPos.x, 4.0)) * 4 + int(mod(screenPos.y, 4.0));
+            int ditherValue = ditherTable[ditherIndex];
+            final += vec3(float(ditherValue)) * 0.0039215686;
+            final = floor(final * 4.4) / 4.4;
+          #endif
         }
 
         outColor = vec4(final, 1.0);
-      }`,
+      }`;
+    },
+
+    applyQuality: function() {
+      const gl = this.gl;
+      if (!gl) return;
+      const tier = window.Microsite.perf?.TIER || 1;
+      const settings = window.Microsite.perf?.getSettings() || { precision: 'highp', postProcessing: true, res: { w: 800, h: 600 } };
+      
+      // Recompile shaders
+      const newProgram = this.createProgram(this.vsSource, typeof this.fsSource === "function" ? this.fsSource(tier) : this.fsSource);
+      if (newProgram) {
+        if (this.program) gl.deleteProgram(this.program);
+        this.program = newProgram;
+        this.uniforms = {
+          matrix: gl.getUniformLocation(this.program, "u_matrix"),
+          model: gl.getUniformLocation(this.program, "u_model"),
+          diffuseMap: gl.getUniformLocation(this.program, "u_diffuseMap"),
+          normalMap: gl.getUniformLocation(this.program, "u_normalMap"),
+          roughnessMap: gl.getUniformLocation(this.program, "u_roughnessMap"),
+          time: gl.getUniformLocation(this.program, "u_time"),
+          wiggleSpeed: gl.getUniformLocation(this.program, "u_wiggleSpeed"),
+          wiggleFreq: gl.getUniformLocation(this.program, "u_wiggleFreq"),
+          wiggleAmp: gl.getUniformLocation(this.program, "u_wiggleAmp"),
+          isEntity: gl.getUniformLocation(this.program, "u_isEntity"),
+          isSky: gl.getUniformLocation(this.program, "u_isSky"),
+          viewPos: gl.getUniformLocation(this.program, "u_viewPos"),
+          fogNear: gl.getUniformLocation(this.program, "u_fogNear"),
+          fogFar: gl.getUniformLocation(this.program, "u_fogFar"),
+          fogColor: gl.getUniformLocation(this.program, "u_fogColor"),
+        };
+      }
+
+      const newPostProgram = this.createProgram(this.postVS, typeof this.postFS === "function" ? this.postFS(tier) : this.postFS);
+      if (newPostProgram) {
+        if (this.postProgram) gl.deleteProgram(this.postProgram);
+        this.postProgram = newPostProgram;
+        this.postUniforms = {
+          scene: gl.getUniformLocation(this.postProgram, "u_scene"),
+          mask: gl.getUniformLocation(this.postProgram, "u_mask"),
+          resolution: gl.getUniformLocation(this.postProgram, "u_resolution"),
+        };
+      }
+
+      // Resolution scaling check
+      if (!this.currentRes || this.currentRes.w !== settings.res.w || this.currentRes.h !== settings.res.h) {
+        this.setupFramebuffer(settings.res.w, settings.res.h);
+      }
+    },
 
     init: function (canvas) {
       const gl = canvas.getContext("webgl2", { antialias: true });
       if (!gl) return null;
       this.gl = gl;
       if (window.glMatrix) Object.assign(window, window.glMatrix);
-      this.program = this.createProgram(this.vsSource, this.fsSource);
-      this.uniforms = {
-        matrix: gl.getUniformLocation(this.program, "u_matrix"),
-        model: gl.getUniformLocation(this.program, "u_model"),
-        diffuseMap: gl.getUniformLocation(this.program, "u_diffuseMap"),
-        normalMap: gl.getUniformLocation(this.program, "u_normalMap"),
-        roughnessMap: gl.getUniformLocation(this.program, "u_roughnessMap"),
-        time: gl.getUniformLocation(this.program, "u_time"),
-        wiggleSpeed: gl.getUniformLocation(this.program, "u_wiggleSpeed"),
-        wiggleFreq: gl.getUniformLocation(this.program, "u_wiggleFreq"),
-        wiggleAmp: gl.getUniformLocation(this.program, "u_wiggleAmp"),
-        isEntity: gl.getUniformLocation(this.program, "u_isEntity"),
-        viewPos: gl.getUniformLocation(this.program, "u_viewPos"),
-        fogNear: gl.getUniformLocation(this.program, "u_fogNear"),
-        fogFar: gl.getUniformLocation(this.program, "u_fogFar"),
-        fogColor: gl.getUniformLocation(this.program, "u_fogColor"),
-      };
-      this.postProgram = this.createProgram(this.postVS, this.postFS);
-      this.postUniforms = {
-        scene: gl.getUniformLocation(this.postProgram, "u_scene"),
-        mask: gl.getUniformLocation(this.postProgram, "u_mask"),
-        resolution: gl.getUniformLocation(this.postProgram, "u_resolution"),
-      };
-      this.setupFramebuffer(canvas.width, canvas.height);
+      
+      this.applyQuality();
       this.setupQuad();
+      
       gl.enable(gl.DEPTH_TEST);
       gl.enable(gl.CULL_FACE);
       return gl;
@@ -166,21 +266,27 @@
       if (this.fbo) gl.deleteFramebuffer(this.fbo);
       this.fbo = gl.createFramebuffer();
       gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
+      
       this.renderTexture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, this.renderTexture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.renderTexture, 0);
+      
       this.entityMaskTexture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, this.entityMaskTexture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, this.entityMaskTexture, 0);
+      
       gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
+      
       const depthBuffer = gl.createRenderbuffer();
       gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
       gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
       gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
+      
+      this.currentRes = { w, h };
     },
 
     setupQuad: function() {
@@ -199,6 +305,7 @@
 
     startFrame: function() {
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
+      this.gl.viewport(0, 0, this.currentRes.w, this.currentRes.h);
       this.gl.useProgram(this.program);
     },
 
@@ -212,7 +319,7 @@
       gl.uniform1i(this.postUniforms.scene, 0);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.entityMaskTexture);
       gl.uniform1i(this.postUniforms.mask, 1);
-      gl.uniform2f(this.postUniforms.resolution, 800, 600);
+      gl.uniform2f(this.postUniforms.resolution, this.currentRes.w, this.currentRes.h);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     },
 
@@ -291,6 +398,17 @@
         };
         img.src = url;
       });
+    },
+
+    createTextureFromImage: function(img) {
+      const gl = this.gl;
+      const tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      return tex;
     }
   };
 

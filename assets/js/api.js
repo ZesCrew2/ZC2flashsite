@@ -698,6 +698,6 @@
     },
   };
 
-  window.Microsite = Microsite;
+  window.Microsite = Object.assign(window.Microsite || {}, Microsite);
   console.log("microsite api initialized. --thorns");
 })();

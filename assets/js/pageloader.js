@@ -4,17 +4,6 @@ let currentLoader = null;
 let pageLoadToken = 0;
 const pageSoundsRegistered = {};
 
-if (typeof window.playSound !== "function") {
-  window.playSound = (id, loop, offset) => {
-    if (!window.siteAudio || window.siteAudio.isMuted) return null;
-    return createjs.Sound.play(id, {
-      interrupt: createjs.Sound.INTERRUPT_EARLY,
-      loop: loop,
-      offset: offset,
-    });
-  };
-}
-
 function registerPageSound(src, id) {
   if (!createjs.Sound || pageSoundsRegistered[id]) return;
   pageSoundsRegistered[id] = true;
@@ -175,7 +164,7 @@ window.addEventListener("resize", fitPage);
 
 function scaleSite() {
   const site = document.getElementById("site");
-  if (!site) return;
+  if (!site || site.clientWidth === 0) return;
   const scale = site.clientWidth / 760;
   const siteInner = document.getElementById("site-inner");
   const logoLayer = document.getElementById("logo-layer");

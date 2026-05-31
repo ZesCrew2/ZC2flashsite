@@ -90,24 +90,17 @@
       if (this.isActive) return;
       this.isActive = true;
 
+      const assets = window.Microsite.assets;
+
       // Initialize Web Audio Context
       this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-      // Fetch psychological messages
-      try {
-        const msgResp = await fetch("assets/json/maze_messages.json");
-        this.messages = await msgResp.json();
-      } catch (e) {
-        console.warn("Failed to load maze messages, using defaults.");
-        this.messages = ["..."];
-      }
+      // Fetch psychological messages from AssetManager
+      this.messages = assets.getAsset("maze_messages") || ["..."];
 
       document.body.classList.add("maze-active");
       const wmp = document.getElementById("wmp");
       if (wmp && wmp.pause) wmp.pause();
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      }
 
       this.fadeOverlay = document.createElement("div");
       this.fadeOverlay.id = "maze-fade-overlay";
@@ -116,6 +109,36 @@
         backgroundColor: "black", zIndex: "20000", transition: "opacity 4s ease", pointerEvents: "none",
       });
       document.body.appendChild(this.fadeOverlay);
+
+      // DELAYED SETTINGS SCREEN --thorns
+      setTimeout(() => {
+          const settingsScreen = document.createElement("div");
+          settingsScreen.id = "maze-settings";
+          Object.assign(settingsScreen.style, {
+            position: "fixed", top: "0", left: "0", width: "100vw", height: "100vh",
+            backgroundColor: "black", zIndex: "25000", display: "flex", flexDirection: "column",
+            justifyContent: "center", alignItems: "center", color: "white", fontFamily: "PetscopHand, monospace"
+          });
+          const currentTierName = () => {
+            const t = window.Microsite.perf?.TIER;
+            return t === 1 ? 'HIGH' : t === 2 ? 'MEDIUM' : 'LOW';
+          };
+          settingsScreen.innerHTML = `
+            <h1 style="margin-bottom: 40px; font-size: 32px; letter-spacing: 2px;">SELECT GRAPHICS QUALITY</h1>
+            <div style="display: flex; gap: 20px;">
+              <button class="maze-set-btn" data-tier="1" style="background: none; border: 2px solid white; color: white; padding: 10px 30px; cursor: pointer; font-family: inherit;">HIGH</button>
+              <button class="maze-set-btn" data-tier="2" style="background: none; border: 2px solid white; color: white; padding: 10px 30px; cursor: pointer; font-family: inherit;">MEDIUM</button>
+              <button class="maze-set-btn" data-tier="3" style="background: none; border: 2px solid white; color: white; padding: 10px 30px; cursor: pointer; font-family: inherit;">LOW</button>
+            </div>
+            <p id="maze-tier-label" style="margin-top: 40px; font-size: 14px; opacity: 0.6;">(Detected: ${currentTierName()})</p>
+          `;
+          document.body.appendChild(settingsScreen);
+          
+          if (window.createjs && createjs.Sound) {
+            createjs.Sound.play("maze_select");
+          }
+          this._settingsScreen = settingsScreen; // Store for removal in startMaze
+      }, 3000);
 
       this.canvas = document.createElement("canvas");
       this.canvas.id = "maze-canvas";
@@ -166,45 +189,76 @@
       window.addEventListener("resize", () => {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-        this.engine.setupFramebuffer(800, 600);
+        const res = window.Microsite.perf?.getSettings().res || { w: 800, h: 600 };
+        this.engine.setupFramebuffer(res.w, res.h);
       });
 
-      const basePath = "assets/img/maze-textures/";
-      const [wD, wN, wR, fD, fN, fR, bC, bO] = await Promise.all([
-        this.engine.loadTexture(basePath + "cracked_concrete_wall/cracked_concrete_wall_diff_1k.jpg"),
-        this.engine.loadTexture(basePath + "cracked_concrete_wall/cracked_concrete_wall_nor_gl_1k.png"),
-        this.engine.loadTexture(basePath + "cracked_concrete_wall/cracked_concrete_wall_rough_1k.png"),
-        this.engine.loadTexture(basePath + "stained_pine_floor/stained_pine_diff_1k.jpg"),
-        this.engine.loadTexture(basePath + "stained_pine_floor/stained_pine_nor_gl_1k.png"),
-        this.engine.loadTexture(basePath + "stained_pine_floor/stained_pine_rough_1k.png"),
-        this.engine.loadTexture(basePath + "button_closed.png"),
-        this.engine.loadTexture(basePath + "button_opened.png"),
-      ]);
-
-      this.materials.wall = { diffuse: wD, normal: wN, roughness: wR };
-      this.materials.floor = { diffuse: fD, normal: fN, roughness: fR };
-      this.materials.buttonClosed = bC;
-      this.materials.buttonOpened = bO;
-
-      // Pre-load audio buffers for seamless Web Audio looping
-      const loadBuffer = async (url) => {
-        const resp = await fetch(url);
-        const arrayBuffer = await resp.arrayBuffer();
-        return await this.audioCtx.decodeAudioData(arrayBuffer);
+      this.materials.wall = {
+        diffuse: this.engine.createTextureFromImage(assets.getAsset("wall_diff")),
+        normal: this.engine.createTextureFromImage(assets.getAsset("wall_nor")),
+        roughness: this.engine.createTextureFromImage(assets.getAsset("wall_rough"))
+      };
+      this.materials.floor = {
+        diffuse: this.engine.createTextureFromImage(assets.getAsset("floor_diff")),
+        normal: this.engine.createTextureFromImage(assets.getAsset("floor_nor")),
+        roughness: this.engine.createTextureFromImage(assets.getAsset("floor_rough"))
+      };
+      this.materials.buttonClosed = this.engine.createTextureFromImage(assets.getAsset("btn_closed"));
+      this.materials.buttonOpened = this.engine.createTextureFromImage(assets.getAsset("btn_opened"));
+      this.materials.skybox = {
+        diffuse: this.engine.createTextureFromImage(assets.getAsset("skybox"))
       };
 
-      this.audioBuffers.wallMove = await loadBuffer("assets/sounds/maze_sounds/wall_move.wav");
-      this.audioBuffers.wallStop = await loadBuffer("assets/sounds/maze_sounds/wall_stop.wav");
+      // Decode spatial audio from preloaded buffers
+      const wallMoveAsset = assets.getAsset("wall_move");
+      const wallStopAsset = assets.getAsset("wall_stop");
+      
+      console.log("Maze: wallMoveAsset", wallMoveAsset, "type:", wallMoveAsset ? wallMoveAsset.constructor.name : "null");
+      console.log("Maze: wallStopAsset", wallStopAsset, "type:", wallStopAsset ? wallStopAsset.constructor.name : "null");
 
-      this.audio = new Audio("assets/music/maze_music/song.mp3");
-      this.audio.loop = true;
-      this.audio.volume = 0;
+      // Handle both pre-decoded AudioBuffer (from SoundJS) and raw ArrayBuffer (from BinaryLoader)
+      if (window.AudioBuffer && wallMoveAsset instanceof AudioBuffer) {
+          this.audioBuffers.wallMove = wallMoveAsset;
+      } else if (wallMoveAsset instanceof ArrayBuffer) {
+          this.audioBuffers.wallMove = await this.audioCtx.decodeAudioData(wallMoveAsset.slice(0));
+      } else {
+          throw new Error("Maze: wall_move asset is invalid type. Got: " + (wallMoveAsset ? wallMoveAsset.constructor.name : "null"));
+      }
+
+      if (window.AudioBuffer && wallStopAsset instanceof AudioBuffer) {
+          this.audioBuffers.wallStop = wallStopAsset;
+      } else if (wallStopAsset instanceof ArrayBuffer) {
+          this.audioBuffers.wallStop = await this.audioCtx.decodeAudioData(wallStopAsset.slice(0));
+      } else {
+          throw new Error("Maze: wall_stop asset is invalid type. Got: " + (wallStopAsset ? wallStopAsset.constructor.name : "null"));
+      }
+
+      // Background Music
+      this.audio = null; // Will be initialized in startMaze
       
       requestAnimationFrame((t) => {
         this.lastTime = t;
         this.startTime = t;
         
-        const startMaze = () => {
+        const startMaze = (e) => {
+          if (!e.target.classList.contains("maze-set-btn")) return;
+          
+          const selectedTier = parseInt(e.target.dataset.tier);
+          if (window.Microsite.perf) {
+            window.Microsite.perf.setTier(selectedTier);
+            const label = document.getElementById("maze-tier-label");
+            if (label) label.innerText = `(Selected: ${selectedTier === 1 ? 'HIGH' : selectedTier === 2 ? 'MEDIUM' : 'LOW'})`;
+          }
+          this.engine.applyQuality();
+
+          // Brief delay to show selection
+          setTimeout(() => {
+            if (this._settingsScreen) {
+                this._settingsScreen.remove();
+                this._settingsScreen = null;
+            }
+          }, 200);
+
           this.fadeOverlay.style.opacity = "0";
           this.canvas.requestPointerLock({ unadjustedMovement: true });
           
@@ -217,11 +271,20 @@
           let vol = 0;
           const duration = 5000, interval = 100, step = 0.7 / (duration / interval);
           
-          this.audio.play().catch(() => {});
+          // Start music using SoundJS
+          if (window.createjs && createjs.Sound) {
+              this.audio = createjs.Sound.play("maze_music", { loop: -1, volume: 0 });
+          }
+
           const fadeIn = setInterval(() => {
             vol += step;
-            if (vol >= 0.7) { this.audio.volume = 0.7; clearInterval(fadeIn); }
-            else this.audio.volume = vol;
+            if (vol >= 0.7) { 
+                if (this.audio) this.audio.volume = 0.7; 
+                clearInterval(fadeIn); 
+            }
+            else {
+                if (this.audio) this.audio.volume = vol;
+            }
           }, interval);
           
           window.removeEventListener("click", startMaze);
@@ -251,9 +314,9 @@
         if (msg[i] === " ") this.hudElement.innerHTML += "&nbsp;";
         else {
           this.hudElement.innerText += msg[i];
-          const typewriterSfx = new Audio("assets/sounds/maze_sounds/textbox.wav");
-          typewriterSfx.volume = 0.1;
-          typewriterSfx.play().catch(() => {});
+          if (window.createjs && createjs.Sound) {
+            createjs.Sound.play("maze_textbox", { volume: 0.1 });
+          }
         }
         await new Promise(r => setTimeout(r, 50 + Math.random() * 50));
       }
@@ -272,7 +335,9 @@
         const dist = Math.sqrt(dx*dx + dy*dy);
         if (dist < 1.2) {
           btn.state = btn.state === "closed" ? "opened" : "closed";
-          new Audio("assets/sounds/maze_sounds/switch_on.wav").play().catch(() => {});
+          if (window.createjs && createjs.Sound) {
+            createjs.Sound.play("maze_switch");
+          }
           
           const door = this.doors.find(d => d.id === btn.targetId);
           if (door) {
@@ -302,11 +367,16 @@
             panner.positionY.value = 0.5 + door.offsetY;
             panner.positionZ.value = midY + 0.5;
             
+            const gainNode = this.audioCtx.createGain();
+            gainNode.gain.value = 4.0;
+            
             source.connect(panner);
-            panner.connect(this.audioCtx.destination);
+            panner.connect(gainNode);
+            gainNode.connect(this.audioCtx.destination);
             
             door.moveSource = source;
             door.movePanner = panner;
+            door.moveGain = gainNode;
             source.start(0);
           }
         }
@@ -345,7 +415,7 @@
             door.offsetY = 1.1;
             door.state = "opened";
             if (door.moveSource) { door.moveSource.stop(); door.moveSource = null; }
-            this.playWebAudioSpatial("wallStop", midX, midY);
+            this.playWebAudioSpatial("wallStop", midX, midY, 5.0);
           }
         } else if (door.state === "closing") {
           door.offsetY -= speed;
@@ -353,7 +423,7 @@
             door.offsetY = 0.0;
             door.state = "closed";
             if (door.moveSource) { door.moveSource.stop(); door.moveSource = null; }
-            this.playWebAudioSpatial("wallStop", midX, midY);
+            this.playWebAudioSpatial("wallStop", midX, midY, 5.0);
           }
         }
         if (door.movePanner) {
@@ -429,7 +499,7 @@
       }
     },
 
-    playWebAudioSpatial: function(bufferKey, x, y) {
+    playWebAudioSpatial: function(bufferKey, x, y, volume = 1.0) {
       const source = this.audioCtx.createBufferSource();
       source.buffer = this.audioBuffers[bufferKey];
       
@@ -446,13 +516,18 @@
       panner.positionY.value = 0.5 + (door ? door.offsetY : 0);
       panner.positionZ.value = y + 0.5;
       
+      const gainNode = this.audioCtx.createGain();
+      gainNode.gain.value = volume;
+      
       source.connect(panner);
-      panner.connect(this.audioCtx.destination);
+      panner.connect(gainNode);
+      gainNode.connect(this.audioCtx.destination);
       source.start(0);
     },
 
     render: function (time) {
       const gl = this.gl;
+      const perfSettings = window.Microsite.perf?.getSettings() || { skybox: true };
       const targetAspect = 4 / 3;
       let viewWidth = window.innerWidth, viewHeight = window.innerHeight;
       const currentAspect = viewWidth / viewHeight;
@@ -460,15 +535,23 @@
       const xOffset = (window.innerWidth - viewWidth) / 2, yOffset = (window.innerHeight - viewHeight) / 2;
 
       this.engine.startFrame();
-      gl.viewport(0, 0, 800, 600);
-      gl.clearColor(0.01, 0, 0, 1);
+      gl.viewport(0, 0, this.engine.currentRes.w, this.engine.currentRes.h);
+      
+      // Darker background if no skybox to avoid ghosting
+      if (perfSettings.skybox) gl.clearColor(0.01, 0, 0, 1);
+      else gl.clearColor(0, 0, 0, 1);
+      
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-      const projectionMatrix = mat4.create();
+      // Memory Management: Use Pool --thorns
+      const projectionMatrix = this.engine.pool.getMat4();
       mat4.perspective(projectionMatrix, this.player.fov, targetAspect, 0.1, 100.0);
-      const viewMatrix = mat4.create();
-      const eyePos = vec3.fromValues(this.player.x + this.player.bobX, 0.5 + this.player.bobY, this.player.y);
-      const q = quat.create();
+      
+      const viewMatrix = this.engine.pool.getMat4();
+      const eyePos = this.engine.pool.getVec3();
+      vec3.set(eyePos, this.player.x + this.player.bobX, 0.5 + this.player.bobY, this.player.y);
+      
+      const q = quat.create(); // quat pooling not yet in engine, keeping local for now
       quat.rotateY(q, q, -this.player.dir);
       quat.rotateX(q, q, this.player.pitch);
       quat.rotateZ(q, q, this.player.roll + this.player.lean);
@@ -481,34 +564,36 @@
       gl.uniform1f(this.engine.uniforms.fogFar, 12.0);
       gl.uniform4fv(this.engine.uniforms.fogColor, [0.02, 0, 0, 1]);
       gl.uniform1f(this.engine.uniforms.time, (time - this.startTime) * 0.001);
+      
       gl.uniform1f(this.engine.uniforms.wiggleSpeed, 2.0);
       gl.uniform1f(this.engine.uniforms.wiggleFreq, 8.0);
       gl.uniform1f(this.engine.uniforms.wiggleAmp, 0.02);
 
-      const drawMesh = (modelMat, material, isEntity = 0.0) => {
-        const mvpMatrix = mat4.create();
+      const drawMesh = (modelMat, material, isEntity = 0.0, isSky = 0.0) => {
+        const mvpMatrix = this.engine.pool.getMat4();
         mat4.multiply(mvpMatrix, projectionMatrix, viewMatrix);
         mat4.multiply(mvpMatrix, mvpMatrix, modelMat);
         gl.uniformMatrix4fv(this.engine.uniforms.matrix, false, mvpMatrix);
         gl.uniformMatrix4fv(this.engine.uniforms.model, false, modelMat);
         gl.uniform1f(this.engine.uniforms.isEntity, isEntity);
+        gl.uniform1f(this.engine.uniforms.isSky, isSky);
         
         gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, material.diffuse);
         gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, (material.normal || this.materials.wall.normal));
         gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, (material.roughness || this.materials.wall.roughness));
         gl.drawElements(gl.TRIANGLES, this.cube.count, gl.UNSIGNED_SHORT, 0);
+        this.engine.pool.recycle(mvpMatrix);
       };
 
       for (let y = 0; y < this.map.length; y++) {
         for (let x = 0; x < this.map[y].length; x++) {
           const cell = this.map[y][x];
+          const modelMatrix = this.engine.pool.getMat4();
           if (cell === 1) {
-            const modelMatrix = mat4.create();
             mat4.translate(modelMatrix, modelMatrix, [x + 0.5, 0.5, y + 0.5]);
             drawMesh(modelMatrix, this.materials.wall, 0.0);
           } else if (cell === 2) {
             const btn = this.buttons.find(b => b.x === x && b.y === y);
-            const modelMatrix = mat4.create();
             let px = x + 0.5, py = 0.5, pz = y + 0.5, sx = 0.3, sy = 0.3, sz = 0.3;
             if (this.map[y][x-1] === 1) { px -= 0.52; sx = 0.05; }
             else if (this.map[y][x+1] === 1) { px += 0.52; sx = 0.05; }
@@ -519,18 +604,33 @@
             drawMesh(modelMatrix, { diffuse: btn.state === "closed" ? this.materials.buttonClosed : this.materials.buttonOpened }, 1.0);
           } else if (cell === 3) {
             const door = this.doors.find(d => d.tiles.some(t => t.x === x && t.y === y));
-            const modelMatrix = mat4.create();
             mat4.translate(modelMatrix, modelMatrix, [x + 0.5, 0.5 + door.offsetY, y + 0.5]);
             drawMesh(modelMatrix, this.materials.wall, 0.0);
           }
+          this.engine.pool.recycle(modelMatrix);
         }
       }
-      const floorModel = mat4.create(); mat4.translate(floorModel, floorModel, [10, -0.01, 10]); mat4.scale(floorModel, floorModel, [20, 0.1, 20]);
+      
+      const floorModel = this.engine.pool.getMat4(); 
+      mat4.translate(floorModel, floorModel, [10, -0.01, 10]); mat4.scale(floorModel, floorModel, [20, 0.1, 20]);
       drawMesh(floorModel, this.materials.floor, 0.0);
-      const ceilModel = mat4.create(); mat4.translate(ceilModel, ceilModel, [10, 1.01, 10]); mat4.scale(ceilModel, ceilModel, [20, 0.1, 20]);
-      drawMesh(ceilModel, this.materials.wall, 0.0);
+      
+      let ceilModel = null;
+      if (perfSettings.skybox) {
+        ceilModel = this.engine.pool.getMat4(); 
+        mat4.translate(ceilModel, ceilModel, [10, 1.01, 10]); mat4.scale(ceilModel, ceilModel, [20, 0.1, 20]);
+        drawMesh(ceilModel, this.materials.skybox, 0.0, 1.0);
+      }
 
-      this.engine.endFrame(800, 600, xOffset, yOffset, viewWidth, viewHeight);
+      this.engine.endFrame(this.engine.currentRes.w, this.engine.currentRes.h, xOffset, yOffset, viewWidth, viewHeight);
+      
+      // Recycle globals
+      this.engine.pool.recycle(projectionMatrix);
+      this.engine.pool.recycle(viewMatrix);
+      this.engine.pool.recycle(eyePos);
+      this.engine.pool.recycle(floorModel);
+      if (ceilModel) this.engine.pool.recycle(ceilModel);
+
       if (this.hudElement) {
         this.hudElement.style.left = (xOffset + 30) + "px";
         this.hudElement.style.top = (yOffset + 30) + "px";
@@ -538,31 +638,46 @@
       }
     },
 
+    tickCount: 0,
     loop: function (currentTime) {
       if (!this.isActive) return;
       const dt = Math.min(1.2, (currentTime - this.lastTime) / 16.6);
       this.lastTime = currentTime;
+
+      const settings = window.Microsite.perf?.getSettings() || { logicThrottle: 1 };
+      this.tickCount++;
+
+      // Decoupled Update/Render Throttling
+      // Update always for input responsiveness, Render throttled by tier
       this.update(dt);
-      this.render(currentTime);
+
+      if (this.tickCount % settings.logicThrottle === 0) {
+          this.render(currentTime);
+      }
+      
       requestAnimationFrame((t) => this.loop(t));
     },
 
     triggerEndSequence: function () {
       if (!this.isActive) return;
       this.isActive = false;
-      if (this.audio) { this.audio.pause(); this.audio = null; }
+      const assets = window.Microsite.assets;
+      if (this.audio) { this.audio.stop(); this.audio = null; }
       this.doors.forEach(d => { if (d.moveSource) { d.moveSource.stop(); d.moveSource = null; } });
       if (this.hudElement) { this.hudElement.remove(); this.hudElement = null; }
       if (document.exitPointerLock) document.exitPointerLock();
-      const img = new Image();
-      img.src = "assets/img/maze-textures/end_asset.png";
+      
+      const img = assets.getAsset("maze_end_img");
       Object.assign(img.style, { 
         position: "fixed", top: "0", left: "0", width: "100vw", height: "100vh", 
         zIndex: "30000", objectFit: "contain", backgroundColor: "black" 
       });
       document.body.appendChild(img);
-      new Audio("assets/sounds/maze_sounds/end_asset.wav").play().catch(() => {});
-      setTimeout(() => { if (document.exitFullscreen) document.exitFullscreen().catch(() => {}); location.reload(); }, 1500);
+
+      if (window.createjs && createjs.Sound) {
+        createjs.Sound.play("maze_end_sfx");
+      }
+      setTimeout(() => { location.reload(); }, 1500);
     },
   };
 
