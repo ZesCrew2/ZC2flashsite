@@ -117,10 +117,15 @@
 
         // Global SFX
         { id: "site_click", src: "assets/sounds/clicky.wav" },
+        { id: "clickywav", src: "assets/sounds/clicky.wav" },
         { id: "site_hover", src: "assets/sounds/hover.wav" },
+        { id: "hoverwav", src: "assets/sounds/hover.wav" },
         { id: "site_notif", src: "assets/sounds/click.webm" },
         { id: "site_medal", src: "assets/sounds/mm_medal_click.wav" },
         { id: "site_scream", src: "assets/sounds/scream.wav" },
+        { id: "screamwav", src: "assets/sounds/scream.wav" },
+        { id: "snd_badexplosionwav", src: "assets/sounds/snd_badexplosion.wav" },
+        { id: "Duccwav", src: "assets/sounds/ducc.wav" },
         { id: "luigi1", src: "assets/sounds/mk64_luigi01.wav" },
         { id: "luigi2", src: "assets/sounds/mk64_luigi02.wav" },
         { id: "luigi3", src: "assets/sounds/mk64_luigi03.wav" },

@@ -56,32 +56,13 @@
       { id: "ent_19_9", tiles: [{x: 19, y: 9}], offsetY: 0.0, state: "closed", moveSource: null, movePanner: null }
     ],
 
-    // Psychological HUD
+    // Physiological HUD
     messages: [],
     messageIndex: 0,
     hudElement: null,
     allowJumpscares: true,
 
-    player: {
-      x: 1.5,
-      y: 18.5,
-      dir: 0,
-      pitch: 0,
-      roll: 0,
-      fov: (60 * Math.PI) / 180,
-      velX: 0,
-      velY: 0,
-      accel: 0.003,
-      friction: 0.88,
-      bobTimer: 0,
-      bobX: 0,
-      bobY: 0,
-      lean: 0,
-      stateWeight: 0,
-      sprintWeight: 0,
-      jitter: 0,
-      radius: 0.2, 
-    },
+    player: null,
 
     keys: {},
     mouseSensitivity: 0.0015,
@@ -91,6 +72,7 @@
       this.isActive = true;
 
       const assets = window.Microsite.assets;
+      this.player = new window.Microsite.Player();
 
       // Initialize Web Audio Context
       this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -179,9 +161,9 @@
       document.addEventListener("mousemove", (e) => {
         if (document.pointerLockElement === this.canvas) {
           const mouseX = e.movementX;
-          this.player.dir += mouseX * this.mouseSensitivity;
-          this.player.pitch -= e.movementY * 0.002;
-          this.player.pitch = Math.max(-Math.PI/3, Math.min(Math.PI/3, this.player.pitch));
+          this.player.targetDir += mouseX * this.mouseSensitivity;
+          this.player.targetPitch -= e.movementY * 0.002;
+          this.player.targetPitch = Math.max(-Math.PI/3, Math.min(Math.PI/3, this.player.targetPitch));
           this.player.lean = Math.max(-0.05, Math.min(0.05, -mouseX * 0.001));
         }
       });
@@ -206,7 +188,7 @@
       this.materials.buttonClosed = this.engine.createTextureFromImage(assets.getAsset("btn_closed"));
       this.materials.buttonOpened = this.engine.createTextureFromImage(assets.getAsset("btn_opened"));
       this.materials.skybox = {
-        diffuse: this.engine.createTextureFromImage(assets.getAsset("skybox"))
+        diffuse: this.engine.createTextureFromImage(assets.getAsset("skybox"), true)
       };
 
       // Decode spatial audio from preloaded buffers
@@ -457,39 +439,7 @@
         listener.upZ.value = sinP * cosD;
       }
 
-      const nextX = this.player.x + this.player.velX * dt, nextY = this.player.y + this.player.velY * dt;
-      const isWall = (x, y) => {
-        const floorX = Math.floor(x), floorY = Math.floor(y);
-        if (floorX < 0 || floorX >= 20 || floorY < 0 || floorY >= 20) return true;
-        if (this.map[floorY][floorX] === 1) return true;
-        if (this.map[floorY][floorX] === 3) {
-          const door = this.doors.find(d => d.tiles.some(t => t.x === floorX && t.y === floorY));
-          return door && door.offsetY < 0.8;
-        }
-        return false;
-      };
-      const r = this.player.radius;
-      if (!isWall(nextX + (this.player.velX > 0 ? r : -r), this.player.y)) this.player.x = nextX; else this.player.velX = 0;
-      if (!isWall(this.player.x, nextY + (this.player.velY > 0 ? r : -r))) this.player.y = nextY; else this.player.velY = 0;
-
-      const speed = Math.sqrt(this.player.velX * this.player.velX + this.player.velY * this.player.velY);
-      const targetStateWeight = speed > 0.001 ? 1.0 : 0.0;
-      const targetSprintWeight = (speed > 0.001 && isSprinting) ? 1.0 : 0.0;
-      this.player.stateWeight += (targetStateWeight - this.player.stateWeight) * 0.08 * dt;
-      this.player.sprintWeight += (targetSprintWeight - this.player.sprintWeight) * 0.08 * dt;
-
-      const mix = (a, b, t) => a * (1 - t) + b * t;
-      if (this.player.stateWeight > 0.01) {
-        const currentBobSpeed = mix(0.12, 0.18, this.player.sprintWeight);
-        this.player.bobTimer += currentBobSpeed * dt;
-        this.player.jitter = Math.sin(this.player.bobTimer * 7.0) * 0.002 * this.player.stateWeight;
-        this.player.bobX = Math.cos(this.player.bobTimer) * mix(0.03, 0.05, this.player.sprintWeight) * this.player.stateWeight;
-        this.player.bobY = (Math.sin(this.player.bobTimer * 2) * mix(0.02, 0.04, this.player.sprintWeight) * this.player.stateWeight) + this.player.jitter;
-        this.player.roll = Math.sin(this.player.bobTimer) * mix(0.015, 0.03, this.player.sprintWeight) * this.player.stateWeight;
-      } else {
-        this.player.bobX *= 0.9; this.player.bobY *= 0.9; this.player.roll *= 0.9;
-      }
-      this.player.lean *= 0.95;
+      this.player.update(dt, this.keys, this.map, this.doors);
 
       if (Math.floor(this.player.x) === 19 && Math.floor(this.player.y) === 9) {
         const finalDoor = this.doors.find(d => d.id === "ent_19_9");
@@ -549,7 +499,7 @@
       
       const viewMatrix = this.engine.pool.getMat4();
       const eyePos = this.engine.pool.getVec3();
-      vec3.set(eyePos, this.player.x + this.player.bobX, 0.5 + this.player.bobY, this.player.y);
+      vec3.set(eyePos, this.player.x + this.player.bobX, 0.5 + this.player.bobY + this.player.jitter, this.player.y);
       
       const q = quat.create(); // quat pooling not yet in engine, keeping local for now
       quat.rotateY(q, q, -this.player.dir);

@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (logoIdleWrap) {
     logoIdleWrap.addEventListener("click", () => {
-      // 25% chance to trigger maze
-      if (Math.random() < 0.25) {
+      // 5% chance to trigger maze
+      if (Math.random() < 0.05) {
         if (window.Microsite && window.Microsite.maze) {
           window.Microsite.maze.init();
           return; // stop further execution

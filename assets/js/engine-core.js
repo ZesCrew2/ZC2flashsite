@@ -84,10 +84,10 @@
       layout(location = 0) out vec4 outColor;
       layout(location = 1) out vec4 outMask;
 
-      vec2 wiggle(vec2 pt) {
+      vec2 wiggle(vec2 pt, float ampMult) {
         #if TIER < 3
-          float offsetY = sin(pt.x * u_wiggleFreq + u_time * u_wiggleSpeed) * u_wiggleAmp;
-          float offsetX = sin(pt.y * u_wiggleFreq + u_time * u_wiggleSpeed) * u_wiggleAmp;
+          float offsetY = sin(pt.x * u_wiggleFreq + u_time * u_wiggleSpeed) * u_wiggleAmp * ampMult;
+          float offsetX = sin(pt.y * u_wiggleFreq + u_time * u_wiggleSpeed) * u_wiggleAmp * ampMult;
           return vec2(pt.x + offsetX, pt.y + offsetY);
         #else
           return pt;
@@ -109,8 +109,9 @@
           float theta = atan(viewDir.z, viewDir.x);
           uv = vec2(theta / 6.28318530718 + 0.5, v_texcoord.y); 
           uv.y = viewDir.y * 0.5 + 0.5;
+          uv = wiggle(uv, 0.5); // Less aggressive for sky
         } else {
-          uv = wiggle(v_texcoord);
+          uv = wiggle(v_texcoord, 1.0);
         }
 
         vec3 normal = normalize(v_normal);
@@ -152,7 +153,7 @@
         if (u_isSky > 0.5) fogFactor = 0.0; // No fog on sky
 
         outColor = vec4(mix(finalColor, u_fogColor.rgb, fogFactor), 1.0);
-        outMask = vec4(u_isEntity, 0.0, 0.0, 1.0);
+        outMask = vec4(u_isEntity, u_isSky, 0.0, 1.0);
       }
 `;
     },
@@ -182,10 +183,12 @@
 
       void main() {
         vec4 base = texture(u_scene, v_texcoord);
-        float isEntity = texture(u_mask, v_texcoord).r;
+        vec4 maskData = texture(u_mask, v_texcoord);
+        float isEntity = maskData.r;
+        float isSky = maskData.g;
         vec3 final = base.rgb;
 
-        if (isEntity < 0.5) {
+        if (isEntity < 0.5 && isSky < 0.5) {
           #if TIER < 3
             // Gendither
             vec2 screenPos = v_texcoord * u_resolution;
@@ -400,14 +403,19 @@
       });
     },
 
-    createTextureFromImage: function(img) {
+    createTextureFromImage: function(img, nearest = false) {
       const gl = this.gl;
       const tex = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
       gl.generateMipmap(gl.TEXTURE_2D);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      if (nearest) {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      } else {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      }
       return tex;
     }
   };
