@@ -29,7 +29,13 @@
         // Setup progress listener
         assetMgr.onProgress = function(progress) {
             var percent = Math.floor(progress * 100);
-            if (self.progressFill) self.progressFill.style.width = percent + "%";
+            if (self.progressFill) {
+                self.progressFill.style.width = percent + "%";
+                var container = self.progressFill.parentElement;
+                if (container && container.getAttribute('role') === 'progressbar') {
+                    container.setAttribute('aria-valuenow', percent);
+                }
+            }
             if (self.progressStatus) self.progressStatus.textContent = "Loading Assets... " + percent + "%";
         };
 

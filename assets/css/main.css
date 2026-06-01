@@ -526,22 +526,8 @@ body.maze-active {
     margin-bottom: 20px;
 }
 
-.progress-container {
-    width: 100%;
-    height: 20px;
-    background-color: #333;
-    border: 2px solid #555;
-    border-radius: 10px;
-    overflow: hidden;
+div[role="progressbar"] {
     margin-bottom: 10px;
-}
-
-#progress-fill {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(to bottom, #7cfc00, #32cd32);
-    box-shadow: 0 0 10px #7cfc00;
-    transition: width 0.3s ease;
 }
 
 #progress-status {
