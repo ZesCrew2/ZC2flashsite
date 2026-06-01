@@ -124,7 +124,9 @@
         { id: "luigi1", src: "assets/sounds/mk64_luigi01.wav" },
         { id: "luigi2", src: "assets/sounds/mk64_luigi02.wav" },
         { id: "luigi3", src: "assets/sounds/mk64_luigi03.wav" },
-        { id: "luigi4", src: "assets/sounds/mk64_luigi06.wav" }
+        { id: "luigi4", src: "assets/sounds/mk64_luigi06.wav" },
+        { id: "ducc", src: "assets/sounds/ducc.wav" },
+        { id: "snd_badexplosion", src: "assets/sounds/snd_badexplosion.wav" }
     ];
 
     window.Microsite = window.Microsite || {};
