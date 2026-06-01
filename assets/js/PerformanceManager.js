@@ -69,7 +69,7 @@
       switch(this.TIER) {
         case 3:
           return {
-            fps: 24,
+            fps: 60,
             precision: "lowp",
             pbr: false,
             wiggle: false,
@@ -77,12 +77,12 @@
             dither: false,
             postProcessing: true,
             highResAssets: false,
-            logicThrottle: 3, // run logic every 3rd tick
+            logicThrottle: 1, // run logic every tick
             res: { w: 400, h: 300 }
           };
         case 2:
           return {
-            fps: 30,
+            fps: 60,
             precision: "mediump",
             pbr: false,
             wiggle: true,
@@ -90,7 +90,7 @@
             dither: true,
             postProcessing: true,
             highResAssets: true,
-            logicThrottle: 2,
+            logicThrottle: 1,
             res: { w: 640, h: 480 }
           };
         default:
