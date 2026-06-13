@@ -423,20 +423,28 @@
         const cosD = Math.cos(this.player.dir);
         const sinD = Math.sin(this.player.dir);
 
-        // Position (match eye level)
-        listener.positionX.value = this.player.x;
-        listener.positionY.value = 0.5 + this.player.bobY;
-        listener.positionZ.value = this.player.y;
-        
-        // Forward vector
-        listener.forwardX.value = cosP * sinD;
-        listener.forwardY.value = sinP;
-        listener.forwardZ.value = -cosP * cosD;
-        
-        // Up vector (orthogonal to forward)
-        listener.upX.value = -sinP * sinD;
-        listener.upY.value = cosP;
-        listener.upZ.value = sinP * cosD;
+        if (listener.positionX !== undefined) {
+          // Position (match eye level)
+          listener.positionX.value = this.player.x;
+          listener.positionY.value = 0.5 + this.player.bobY;
+          listener.positionZ.value = this.player.y;
+          
+          // Forward vector
+          listener.forwardX.value = cosP * sinD;
+          listener.forwardY.value = sinP;
+          listener.forwardZ.value = -cosP * cosD;
+          
+          // Up vector (orthogonal to forward)
+          listener.upX.value = -sinP * sinD;
+          listener.upY.value = cosP;
+          listener.upZ.value = sinP * cosD;
+        } else {
+          listener.setPosition(this.player.x, 0.5 + this.player.bobY, this.player.y);
+          listener.setOrientation(
+            cosP * sinD, sinP, -cosP * cosD,
+            -sinP * sinD, cosP, sinP * cosD
+          );
+        }
       }
 
       this.player.update(dt, this.keys, this.map, this.doors);
