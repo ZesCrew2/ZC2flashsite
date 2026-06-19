@@ -31,7 +31,7 @@
           );
         }
         wmp.play();
-        Microsite.audio.play("site_click");
+        Microsite.audio.play("clickywav");
       }
     });
 

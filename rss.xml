@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- Last Generated: 2026-05-27T17:10:08.607Z -->
+<!-- Last Generated: 2026-06-19T21:05:03.013Z -->
 <?xml-stylesheet type="text/xsl" href="assets/css/rss-style.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2007/Atom">
 <channel>
@@ -7,9 +7,18 @@
   <link>https://zc2flashsite.com</link>
   <description>Standard computer-readable updates for the ZC2 microsite.</description>
   <language>en-us</language>
-  <lastBuildDate>Wed, 27 May 2026 17:10:08 GMT</lastBuildDate>
+  <lastBuildDate>Fri, 19 Jun 2026 21:05:03 GMT</lastBuildDate>
   <atom:link href="https://zc2flashsite.com/rss.xml" rel="self" type="application/rss+xml" />
   
+  <item>
+    <title>Optimizations.</title>
+    <link>https://zc2flashsite.com</link>
+    <description><![CDATA[<p>As much as I've been wanting to take a break for a while, working on the site is what I've done for these past few days (just to clarify this isn't Lily speaking, it's thorns) and I am having a lot of fun doing this. I've discovered a workflow that allows me to also have time for both myself and to spend time with my family.</p>
+<p>I decided to pull out my magnum opus of an update, an overall optimization of the site, to at least try and get it to run on low end devices, sooooo... Hopefully it works. I mean it loads up pretty fast (to be fair my pc is pretty beefy so I can understand why...)</p>
+<p>Love you all. Stay safe!</p>]]></description>
+    <pubDate>Fri, 19 Jun 2026 21:05:02 GMT</pubDate>
+    <guid isPermaLink="false">Optimizations.-1781903102955</guid>
+  </item>
   <item>
     <title>Update!</title>
     <link>https://zc2flashsite.com</link>

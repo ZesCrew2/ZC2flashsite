@@ -85,7 +85,23 @@ window.musicPlaylist = [
       }
     };
 
-    setInterval(updateTitle, 500);
+    // Event-driven: listen for track changes instead of polling every 500ms --thorns
+    player.addEventListener("playlistitemchange", updateTitle);
+    player.addEventListener("play", updateTitle);
+    player.addEventListener("playing", updateTitle);
+
+    // Fallback: MutationObserver on shadowRoot for custom elements that don't
+    // fire standard events reliably --thorns
+    const setupObserver = () => {
+      if (!player.shadowRoot) {
+        // Shadow root may not be ready yet; retry once --thorns
+        requestAnimationFrame(setupObserver);
+        return;
+      }
+      const observer = new MutationObserver(updateTitle);
+      observer.observe(player.shadowRoot, { childList: true, subtree: true, characterData: true });
+    };
+    setupObserver();
   };
 
   if (document.readyState === "loading") {

@@ -1,7 +1,10 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
-const { execSync } = require('child_process');
+const { exec } = require('child_process');
+const { promisify } = require('util');
 const readline = require('readline');
+
+const execAsync = promisify(exec);
 
 const UPDATES_DIR = path.join(__dirname, '../updates');
 const GENERATE_SCRIPT = path.join(__dirname, 'generate-rss.js');
@@ -45,9 +48,7 @@ async function start() {
         return;
     }
 
-    if (!fs.existsSync(UPDATES_DIR)) {
-        fs.mkdirSync(UPDATES_DIR);
-    }
+    await fs.mkdir(UPDATES_DIR, { recursive: true });
 
     const timestamp = new Date().toISOString();
     const safeTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -62,15 +63,20 @@ date: ${timestamp}
 ${content}
 `;
 
-    fs.writeFileSync(filePath, mdContent);
+    await fs.writeFile(filePath, mdContent);
     console.log(`\n\nSuccess! Created Markdown file: "updates/${fileName}" --thorns`);
 
     // Regenerate RSS immediately --thorns
     try {
-        execSync(`node "${GENERATE_SCRIPT}"`, { stdio: 'inherit' });
+        const { stdout, stderr } = await execAsync(`node "${GENERATE_SCRIPT}"`);
+        if (stdout) process.stdout.write(stdout);
+        if (stderr) process.stderr.write(stderr);
     } catch (e) {
         console.error('Failed to regenerate RSS:', e.message);
     }
 }
 
-start();
+start().catch(err => {
+    console.error('new-update failed:', err);
+    process.exit(1);
+});

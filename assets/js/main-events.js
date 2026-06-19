@@ -9,7 +9,14 @@ document.addEventListener("DOMContentLoaded", () => {
       // 5% chance to trigger maze
       if (Math.random() < 0.05) {
         if (window.Microsite && window.Microsite.maze) {
-          window.Microsite.maze.init();
+          // Load deferred maze assets before starting --thorns
+          if (window.Microsite.assets && window.Microsite.assets.loadDeferred) {
+            window.Microsite.assets.loadDeferred().then(() => {
+              window.Microsite.maze.init();
+            });
+          } else {
+            window.Microsite.maze.init();
+          }
           return; // stop further execution
         }
       }

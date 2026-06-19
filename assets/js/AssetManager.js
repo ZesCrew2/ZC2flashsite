@@ -43,8 +43,62 @@
         });
     };
 
+    /**
+     * Alias map for deduplicated asset IDs. Old code referencing removed
+     * duplicate IDs will transparently fall back to the canonical ID. --thorns
+     */
+    AssetManager.ALIASES = {
+        "site_click": "clickywav",
+        "site_hover": "hoverwav",
+        "site_scream": "screamwav",
+        "snd_badexplosionwav": "snd_badexplosion",
+        "Duccwav": "ducc"
+    };
+
     AssetManager.prototype.getAsset = function(id) {
-        return this.queue.getResult(id);
+        var result = this.queue.getResult(id);
+        if (!result && AssetManager.ALIASES[id]) {
+            result = this.queue.getResult(AssetManager.ALIASES[id]);
+        }
+        // Check deferred results if not found in main queue --thorns
+        if (!result && this._deferredResults && this._deferredResults[id]) {
+            result = this._deferredResults[id];
+        }
+        return result;
+    };
+
+    /**
+     * Loads deferred (non-critical) assets on demand. Returns a promise.
+     * Safe to call multiple times — subsequent calls resolve immediately. --thorns
+     */
+    AssetManager.prototype.loadDeferred = function() {
+        if (this._deferredLoaded) return Promise.resolve();
+        if (this._deferredLoading) return this._deferredLoading;
+
+        var self = this;
+        this._deferredResults = {};
+        this._deferredLoading = new Promise(function(resolve, reject) {
+            var deferredQueue = new createjs.LoadQueue(true);
+            if (window.createjs && createjs.Sound) {
+                deferredQueue.installPlugin(createjs.Sound);
+            }
+            deferredQueue.on("fileload", function(evt) {
+                // Store each result as it loads for immediate access --thorns
+                self._deferredResults[evt.item.id] = evt.result;
+            });
+            deferredQueue.on("complete", function() {
+                self._deferredLoaded = true;
+                self._deferredLoading = null;
+                console.log("AssetManager: Deferred assets loaded (" + Object.keys(self._deferredResults).length + " items). --thorns");
+                resolve();
+            });
+            deferredQueue.on("error", function(evt) {
+                console.error("AssetManager deferred error:", evt.item ? evt.item.id : "unknown");
+                reject(evt);
+            });
+            deferredQueue.loadManifest(AssetManager.DEFERRED_MANIFEST);
+        });
+        return this._deferredLoading;
     };
 
     Object.defineProperty(AssetManager.prototype, "onProgress", {
@@ -75,7 +129,42 @@
     /**
      * Global manifest of all essential assets.
      */
+    /**
+     * CRITICAL: Assets required for initial site render (boot, banner, core UI/SFX).
+     * These load during the preloader and block the site reveal.
+     */
     AssetManager.MANIFEST = [
+        // Core Site UI
+        { id: "site_logo", src: "assets/img/zc2aeroorb.png" },
+        { id: "site_speaker", src: "assets/img/speaker.png" },
+        { id: "site_banner", src: "assets/img/banner/banner.png" },
+        { id: "site_rss", src: "assets/img/rss.svg" },
+
+        // Banner Assets (Atlas)
+        { id: "zc2banner_atlas_1", src: "assets/swf/banner/images/zc2banner_atlas_1.png" },
+        { id: "zc2banner_atlas_2", src: "assets/swf/banner/images/zc2banner_atlas_2.png" },
+        { id: "zc2banner_atlas_3", src: "assets/swf/banner/images/zc2banner_atlas_3.png" },
+
+        // Global SFX (deduplicated — aliases resolved via getAsset fallback) --thorns
+        { id: "clickywav", src: "assets/sounds/clicky.wav" },
+        { id: "hoverwav", src: "assets/sounds/hover.wav" },
+        { id: "site_notif", src: "assets/sounds/click.webm" },
+        { id: "site_medal", src: "assets/sounds/mm_medal_click.wav" },
+        { id: "screamwav", src: "assets/sounds/scream.wav" },
+        { id: "snd_badexplosion", src: "assets/sounds/snd_badexplosion.wav" },
+        { id: "ducc", src: "assets/sounds/ducc.wav" },
+        { id: "luigi1", src: "assets/sounds/mk64_luigi01.wav" },
+        { id: "luigi2", src: "assets/sounds/mk64_luigi02.wav" },
+        { id: "luigi3", src: "assets/sounds/mk64_luigi03.wav" },
+        { id: "luigi4", src: "assets/sounds/mk64_luigi06.wav" }
+    ];
+
+    /**
+     * DEFERRED: Maze textures, maze audio, and JSON loaded on-demand when
+     * the maze is actually triggered (5% chance on logo click). --thorns
+     * This cuts ~2MB+ from initial page load for the majority of visitors.
+     */
+    AssetManager.DEFERRED_MANIFEST = [
         // JSON
         { id: "maze_messages", src: "assets/json/maze_messages.json" },
 
@@ -102,36 +191,7 @@
         { id: "maze_select", src: "assets/sounds/maze_sounds/select.wav" },
         { id: "maze_textbox", src: "assets/sounds/maze_sounds/textbox.wav" },
         { id: "maze_switch", src: "assets/sounds/maze_sounds/switch_on.wav" },
-        { id: "maze_end_sfx", src: "assets/sounds/maze_sounds/end_asset.wav" },
-
-        // Core Site UI
-        { id: "site_logo", src: "assets/img/zc2aeroorb.png" },
-        { id: "site_speaker", src: "assets/img/speaker.png" },
-        { id: "site_banner", src: "assets/img/banner/banner.png" },
-        { id: "site_rss", src: "assets/img/rss.svg" },
-
-        // Banner Assets (Atlas)
-        { id: "zc2banner_atlas_1", src: "assets/swf/banner/images/zc2banner_atlas_1.png" },
-        { id: "zc2banner_atlas_2", src: "assets/swf/banner/images/zc2banner_atlas_2.png" },
-        { id: "zc2banner_atlas_3", src: "assets/swf/banner/images/zc2banner_atlas_3.png" },
-
-        // Global SFX
-        { id: "site_click", src: "assets/sounds/clicky.wav" },
-        { id: "clickywav", src: "assets/sounds/clicky.wav" },
-        { id: "site_hover", src: "assets/sounds/hover.wav" },
-        { id: "hoverwav", src: "assets/sounds/hover.wav" },
-        { id: "site_notif", src: "assets/sounds/click.webm" },
-        { id: "site_medal", src: "assets/sounds/mm_medal_click.wav" },
-        { id: "site_scream", src: "assets/sounds/scream.wav" },
-        { id: "screamwav", src: "assets/sounds/scream.wav" },
-        { id: "snd_badexplosionwav", src: "assets/sounds/snd_badexplosion.wav" },
-        { id: "Duccwav", src: "assets/sounds/ducc.wav" },
-        { id: "luigi1", src: "assets/sounds/mk64_luigi01.wav" },
-        { id: "luigi2", src: "assets/sounds/mk64_luigi02.wav" },
-        { id: "luigi3", src: "assets/sounds/mk64_luigi03.wav" },
-        { id: "luigi4", src: "assets/sounds/mk64_luigi06.wav" },
-        { id: "ducc", src: "assets/sounds/ducc.wav" },
-        { id: "snd_badexplosion", src: "assets/sounds/snd_badexplosion.wav" }
+        { id: "maze_end_sfx", src: "assets/sounds/maze_sounds/end_asset.wav" }
     ];
 
     window.Microsite = window.Microsite || {};

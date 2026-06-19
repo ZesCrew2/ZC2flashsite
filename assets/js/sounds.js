@@ -17,13 +17,13 @@
     // button sounds
     document.addEventListener("mouseover", (e) => {
       if (e.target.classList.contains("btn")) {
-        Microsite.audio.play("site_hover");
+        Microsite.audio.play("hoverwav");
       }
     });
 
     document.addEventListener("mousedown", (e) => {
       if (e.target.classList.contains("btn")) {
-        Microsite.audio.play("site_click");
+        Microsite.audio.play("clickywav");
       }
     });
 
@@ -31,7 +31,7 @@
     const speaker = document.getElementById("speaker");
     if (speaker) {
       speaker.addEventListener("mouseover", () => {
-        Microsite.audio.play("site_hover");
+        Microsite.audio.play("hoverwav");
       });
     }
 

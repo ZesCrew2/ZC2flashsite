@@ -1,4 +1,4 @@
-# ZC2 Microsite Security Rules --thorns
+# ZC2 Microsite Security & Performance Rules --thorns
 
 # Disable directory listing
 Options -Indexes
@@ -25,19 +25,66 @@ RewriteRule ^assets/swf/pages/.*\.html$ - [F,L]
     </IfModule>
 </Files>
 
-# Gzip compression --thorns
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript
+# Same for the pre-shaped JSON updates feed --thorns
+<Files "updates.json">
+    Order deny,allow
+    Allow from all
+    <IfModule mod_headers.c>
+        Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+    </IfModule>
+</Files>
+
+# --- COMPRESSION --- --thorns
+
+# Brotli compression (preferred, better ratio than gzip for text assets) --thorns
+<IfModule mod_brotli.c>
+    AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json image/svg+xml application/xml application/rss+xml font/woff2
 </IfModule>
 
-# Browser caching --thorns
+# Gzip compression (fallback for clients without Brotli support) --thorns
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json image/svg+xml application/xml application/rss+xml
+</IfModule>
+
+# --- ETAGS --- --thorns
+# Enable ETags for conditional requests (cuts redundant transfers for low-spec clients) --thorns
+FileETag MTime Size
+
+# --- BROWSER CACHING --- --thorns
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresDefault "access plus 1 month"
+
+    # Images: long cache with versioned filenames --thorns
     ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
     ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+
+    # Audio: long cache (these never change) --thorns
     ExpiresByType audio/mpeg "access plus 1 year"
     ExpiresByType audio/wav "access plus 1 year"
+    ExpiresByType audio/webm "access plus 1 year"
+
+    # Fonts: long cache --thorns
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+
+    # JS/CSS: shorter cache for potential updates --thorns
     ExpiresByType application/javascript "access plus 1 month"
     ExpiresByType text/css "access plus 1 month"
+
+    # JSON data: short cache for dynamic content --thorns
+    ExpiresByType application/json "access plus 5 minutes"
+</IfModule>
+
+# Immutable hints for fingerprinted/versioned assets --thorns
+<IfModule mod_headers.c>
+    <FilesMatch "\.(png|jpg|jpeg|gif|webp|svg|wav|mp3|webm|woff2|woff|glsl)$">
+        Header append Cache-Control "immutable"
+    </FilesMatch>
 </IfModule>

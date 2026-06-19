@@ -1,46 +1,64 @@
-const fs = require('fs');
+const fs = require('fs').promises;
+const fsSync = require('fs');
 const path = require('path');
 
 // config --thorns
 const SITE_URL = 'https://zc2flashsite.com';
 const UPDATES_DIR = path.join(__dirname, '../updates');
 const RSS_OUTPUT = path.join(__dirname, '../rss.xml');
+const JSON_OUTPUT = path.join(__dirname, '../updates.json');
 
-function generateRSS() {
+async function generateRSS() {
+    // Ensure updates directory exists --thorns
+    try {
+        await fs.mkdir(UPDATES_DIR, { recursive: true });
+    } catch (e) { /* already exists */ }
+
+    const allFiles = await fs.readdir(UPDATES_DIR);
+    const mdFiles = allFiles.filter(f => f.endsWith('.md'));
+
+    // Read all markdown files concurrently --thorns
+    const fileContents = await Promise.all(
+        mdFiles.map(async (file) => {
+            const fullPath = path.join(UPDATES_DIR, file);
+            const content = await fs.readFile(fullPath, 'utf8');
+            return { file, fullPath, content };
+        })
+    );
+
     let items = [];
 
-    if (!fs.existsSync(UPDATES_DIR)) {
-        fs.mkdirSync(UPDATES_DIR);
-    }
-
-    const files = fs.readdirSync(UPDATES_DIR).filter(f => f.endsWith('.md'));
-
-    files.forEach(file => {
-        const fullPath = path.join(UPDATES_DIR, file);
-        const content = fs.readFileSync(fullPath, 'utf8');
-
+    for (const { file, fullPath, content } of fileContents) {
         // Simple Frontmatter Parser --thorns
         const match = content.match(/^---\r?\n([\s\S]+?)\r?\n---\r?\n([\s\S]*)$/);
-        
+
         if (match) {
             const yaml = match[1];
             const body = match[2].trim();
-            
+
             const titleMatch = yaml.match(/title:\s*(.*)/);
             const dateMatch = yaml.match(/date:\s*(.*)/);
 
             const title = titleMatch ? titleMatch[1].trim() : file;
-            const dateStr = dateMatch ? dateMatch[1].trim() : fs.statSync(fullPath).mtime.toISOString();
+            let dateStr;
+            if (dateMatch) {
+                dateStr = dateMatch[1].trim();
+            } else {
+                const stat = await fs.stat(fullPath);
+                dateStr = stat.mtime.toISOString();
+            }
 
             items.push({
                 title: title,
                 link: SITE_URL,
                 description: markdownToHtml(body),
+                body: body,
                 pubDate: new Date(dateStr).toUTCString(),
+                isoDate: new Date(dateStr).toISOString(),
                 timestamp: new Date(dateStr).getTime()
             });
         }
-    });
+    }
 
     // Sort by date (newest first) --thorns
     items.sort((a, b) => b.timestamp - a.timestamp);
@@ -67,8 +85,25 @@ function generateRSS() {
 </channel>
 </rss>`;
 
-    fs.writeFileSync(RSS_OUTPUT, rssXml);
+    // Pre-shaped JSON payload for low-spec clients (smaller than XML, no parse cost) --thorns
+    const updatesJson = {
+        generated: new Date().toISOString(),
+        count: items.length,
+        updates: items.map(item => ({
+            title: item.title,
+            date: item.isoDate,
+            body: item.body
+        }))
+    };
+
+    // Write both outputs concurrently --thorns
+    await Promise.all([
+        fs.writeFile(RSS_OUTPUT, rssXml),
+        fs.writeFile(JSON_OUTPUT, JSON.stringify(updatesJson))
+    ]);
+
     console.log(`RSS feed generated at rss.xml from ${items.length} markdown files. --thorns`);
+    console.log(`JSON feed generated at updates.json (${Buffer.byteLength(JSON.stringify(updatesJson))} bytes). --thorns`);
 }
 
 function markdownToHtml(md) {
@@ -82,8 +117,7 @@ function markdownToHtml(md) {
 
     // Handle bullet points --thorns
     html = html.replace(/^- (.*)$/gm, '<li>$1</li>');
-    html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
-    html = html.replace(/<\/ul>\s*<ul>/g, ''); // merge adjacent lists
+    html = html.replace(/((<li>[\s\S]*?<\/li>\s*)+)/g, '<ul>$1</ul>');
 
     // Paragraphs and line breaks --thorns
     return html.split(/\n\n+/).map(p => {
@@ -106,4 +140,7 @@ function escapeXml(unsafe) {
     });
 }
 
-generateRSS();
+generateRSS().catch(err => {
+    console.error('RSS generation failed:', err);
+    process.exit(1);
+});
