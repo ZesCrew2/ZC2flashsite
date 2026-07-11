@@ -6,7 +6,14 @@
     if (typeof window.playSound !== "function") {
       window.playSound = function(id, loop, offset) {
         if (window.siteAudio && window.siteAudio.isMuted) return null;
-        return createjs.Sound.play(id, {
+
+        // Resolve alias if one exists in AssetManager
+        let resolvedId = id;
+        if (window.Microsite && window.Microsite.AssetManager && window.Microsite.AssetManager.ALIASES) {
+          resolvedId = window.Microsite.AssetManager.ALIASES[id] || id;
+        }
+
+        return createjs.Sound.play(resolvedId, {
           interrupt: createjs.Sound.INTERRUPT_ANY,
           loop: loop || 0,
           offset: offset || 0

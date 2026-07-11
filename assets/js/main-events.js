@@ -43,7 +43,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const color = [...btn.classList].find((c) => validColors.includes(c));
     if (color) {
       btn.addEventListener("click", () => {
-        loadPage(color);
+        if (color === "cyan") {
+          window.open("https://forum.zescrew2.art/", "_blank");
+        } else {
+          loadPage(color);
+        }
       });
     }
   });

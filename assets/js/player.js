@@ -19,8 +19,9 @@
       this.fov = (100 * Math.PI) / 180; // Wide Action-Cam FOV (GoPro style)
       this.velX = 0;
       this.velY = 0;
-      this.accel = 0.003;
-      this.friction = 0.88;
+      this.accel = 0.005; // Doom-like high speed acceleration
+      this.friction = 0.86; // Snappy sliding friction
+      this.neckLength = 0.12; // Radius from neck pivot to eyes
       this.bobTimer = 0;
       this.bobX = 0;
       this.bobY = 0;
@@ -103,6 +104,13 @@
       // 1. Snappy Damping: Higher friction for rigid, tactical look-snaps
       this.targetDir += this.rotVelDir * dt;
       this.targetPitch += this.rotVelPitch * dt;
+
+      // Clamp target pitch to prevent looking too far up/down
+      this.targetPitch = Math.max(
+        -Math.PI / 3,
+        Math.min(Math.PI / 3, this.targetPitch),
+      );
+
       this.rotVelDir *= Math.pow(this.rotFriction, dt);
       this.rotVelPitch *= Math.pow(this.rotFriction, dt);
 
@@ -156,6 +164,39 @@
         );
         this.lean = Math.max(-0.05, Math.min(0.05, -e.movementX * 0.001));
       }
+    }
+
+    bindMouse(canvas, sensitivity) {
+      this.canvas = canvas;
+      this.mouseSensitivity = sensitivity;
+      this._mouseMoveHandler = (e) => {
+        this.handleMouseMove(e, this.canvas, this.mouseSensitivity);
+      };
+      document.addEventListener("mousemove", this._mouseMoveHandler);
+    }
+
+    unbindMouse() {
+      if (this._mouseMoveHandler) {
+        document.removeEventListener("mousemove", this._mouseMoveHandler);
+        this._mouseMoveHandler = null;
+      }
+    }
+
+    getEyePosition() {
+      const cosP = Math.cos(this.pitch);
+      const sinP = Math.sin(this.pitch);
+      const cosD = Math.cos(this.dir);
+      const sinD = Math.sin(this.dir);
+
+      const forwardX = cosP * sinD;
+      const forwardY = sinP;
+      const forwardZ = -cosP * cosD;
+
+      return [
+        this.x + this.bobX + forwardX * this.neckLength,
+        0.5 + this.bobY + this.jitter + forwardY * this.neckLength,
+        this.y + forwardZ * this.neckLength
+      ];
     }
   }
 

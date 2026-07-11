@@ -371,7 +371,7 @@ body.maze-active {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+    margin-top: -5px;
     width: 680px;
     position: relative;
     left: -20px;
@@ -395,16 +395,28 @@ body.maze-active {
     transition: filter 0.3s ease, transform 0.1s ease;
 }
 
+#kofi-footer {
+    display: block;
+    height: 50px;
+    z-index: 100;
+    transition: filter 0.3s ease, transform 0.1s ease;
+}
+
+#kofi-footer img {
+    height: 100%;
+    width: auto;
+}
+
 #speaker {
     filter: grayscale(100%);
     margin-left: 50px;
 }
 
-#speaker:hover, #rss-nav:hover {
+#speaker:hover, #rss-nav:hover, #kofi-footer:hover {
     transform: scale(1.1);
 }
 
-#speaker:active, #rss-nav:active {
+#speaker:active, #rss-nav:active, #kofi-footer:active {
     transform: scale(0.9);
 }
 

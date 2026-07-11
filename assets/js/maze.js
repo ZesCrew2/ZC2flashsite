@@ -158,15 +158,7 @@
       window.addEventListener("keydown", (e) => (this.keys[e.key.toLowerCase()] = true));
       window.addEventListener("keyup", (e) => (this.keys[e.key.toLowerCase()] = false));
 
-      document.addEventListener("mousemove", (e) => {
-        if (document.pointerLockElement === this.canvas) {
-          const mouseX = e.movementX;
-          this.player.targetDir += mouseX * this.mouseSensitivity;
-          this.player.targetPitch -= e.movementY * 0.002;
-          this.player.targetPitch = Math.max(-Math.PI/3, Math.min(Math.PI/3, this.player.targetPitch));
-          this.player.lean = Math.max(-0.05, Math.min(0.05, -mouseX * 0.001));
-        }
-      });
+      this.player.bindMouse(this.canvas, this.mouseSensitivity);
 
       window.addEventListener("resize", () => {
         this.canvas.width = window.innerWidth;
@@ -506,8 +498,10 @@
       mat4.perspective(projectionMatrix, this.player.fov, targetAspect, 0.1, 100.0);
       
       const viewMatrix = this.engine.pool.getMat4();
+      
       const eyePos = this.engine.pool.getVec3();
-      vec3.set(eyePos, this.player.x + this.player.bobX, 0.5 + this.player.bobY + this.player.jitter, this.player.y);
+      const pos = this.player.getEyePosition();
+      vec3.set(eyePos, pos[0], pos[1], pos[2]);
       
       const q = quat.create(); // quat pooling not yet in engine, keeping local for now
       quat.rotateY(q, q, -this.player.dir);
@@ -624,6 +618,8 @@
       this.doors.forEach(d => { if (d.moveSource) { d.moveSource.stop(); d.moveSource = null; } });
       if (this.hudElement) { this.hudElement.remove(); this.hudElement = null; }
       if (document.exitPointerLock) document.exitPointerLock();
+      
+      this.player.unbindMouse();
       
       const img = assets.getAsset("maze_end_img");
       Object.assign(img.style, { 
