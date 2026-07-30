@@ -36,8 +36,8 @@ window.musicPlaylist = [
     name: 'sephfire, SGX - Mario Paint "Intense Color" OC ReMix',
   },
   {
-    path: "assets/music/Drown in the Now.mp3",
-    name: "The Crystal Method (Feat. Matisyahu) - Drown in the Now",
+    path: "assets/music/Drown in the Now (Instrumental).mp3",
+    name: "The Crystal Method (Feat. Matisyahu) - Drown in the Now (Instrumental)",
   },
   {
     path: "assets/music/Somebodys Watching Me (Instrumental).mp3",
