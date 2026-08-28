@@ -1,6 +1,5 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const fs = require('node:fs');
 const path = require('node:path');
 
 // Mock window and other browser globals
@@ -71,10 +70,12 @@ global.document = {
     body: { appendChild: () => {} }
 };
 
-// Load the pageloader.js file and export functions to global
-const plPath = path.resolve(__dirname, '../assets/js/pageloader.js');
-const plCode = fs.readFileSync(plPath, 'utf8');
-eval(plCode);
+// Load the compiled pageloader module and expose its entry points
+test.before(async () => {
+    const pl = await import(path.resolve(__dirname, '../assets/ts/pageloader.js'));
+    global.loadPage = pl.loadPage;
+    global.resolvePageAssetPath = pl.resolvePageAssetPath;
+});
 
 test('PL-01: loadPage blocks non-whitelisted pages', () => {
     window.lastError = null;
@@ -86,28 +87,11 @@ test('PL-01: loadPage blocks non-whitelisted pages', () => {
     assert.strictEqual(window.lastError, null);
 });
 
-test('PL-02: resolvePageAssetPath returns correct relative path', () => {
-    // Mock the anchor tag behavior in browser
-    const originalCreateElement = global.document.createElement;
-    global.document.createElement = (tag) => {
-        if (tag === 'a') {
-            const a = {
-                set href(val) {
-                    // Simple mock: assume it resolves to /assets/swf/pages/val
-                    this.pathname = '/assets/swf/pages/' + val.split('/').pop();
-                },
-                pathname: ''
-            };
-            return a;
-        }
-        return { ...mockElement };
-    };
-
-    const pathResult = resolvePageAssetPath('test.mp3');
-    // resolvePageAssetPath implementation: return resolver.pathname.replace(/^\//, '');
-    assert.strictEqual(pathResult, 'assets/swf/pages/test.mp3');
-    
-    global.document.createElement = originalCreateElement;
+test('PL-02: resolvePageAssetPath returns an absolute URL resolved from the page location', () => {
+  const pathResult = resolvePageAssetPath('test.mp3');
+  // resolvePageAssetPath now returns an absolute URL so it loads correctly
+  // regardless of where the site is served (e.g. /zc2sitelol/ subpath).
+  assert.strictEqual(pathResult, 'http://localhost/assets/swf/pages/test.mp3');
 });
 
 // Restore console at end (optional since it's a test process)

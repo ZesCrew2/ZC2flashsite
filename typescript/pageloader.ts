@@ -1,41 +1,28 @@
-let currentStage = null;
-let currentPage = null;
-let currentLoader = null;
-let pageLoadToken = 0;
-const pageSoundsRegistered = {};
+import { Microsite } from "./microsite.js";
+import type { Lib } from "./types.js";
 
-function registerPageSound(src, id) {
+let currentStage: Lib | null = null;
+let currentPage: string | null = null;
+let currentLoader: Lib | null = null;
+let pageLoadToken = 0;
+const pageSoundsRegistered: Record<string, boolean> = {};
+
+function registerPageSound(src: string, id: string): void {
   if (!createjs.Sound || pageSoundsRegistered[id]) return;
   pageSoundsRegistered[id] = true;
   createjs.Sound.registerSound(src, id);
 }
 
-function resolvePageAssetPath(src) {
-  return new URL(
-    `assets/swf/pages/${src}`,
-    window.location.href,
-  ).pathname.replace(/^\//, "");
+export function resolvePageAssetPath(src: string): string {
+  return new URL(`assets/swf/pages/${src}`, window.location.href).href;
 }
 
-function loadPage(color) {
+function loadPage(color: string): void {
   if (typeof createjs === "undefined") return;
 
-  // whitelist pages for security --thorns
-  const validPages = [
-    "red",
-    "orange",
-    "yellow",
-    "lime",
-    "green",
-    "cyan",
-    "blue",
-    "purple",
-    "pink",
-  ];
+  const validPages = ["red", "orange", "yellow", "lime", "green", "cyan", "blue", "purple", "pink"];
   if (!validPages.includes(color)) {
-    console.error(
-      `security: blocked attempt to load invalid page: ${color} --thorns`,
-    );
+    console.error(`security: blocked attempt to load invalid page: ${color} --thorns`);
     return;
   }
 
@@ -45,10 +32,7 @@ function loadPage(color) {
   const flashContent = document.getElementById("flashContent");
 
   if (currentStage) {
-    createjs.Ticker.removeEventListener(
-      "tick",
-      currentStage._throttledTick || currentStage,
-    );
+    createjs.Ticker.removeEventListener("tick", currentStage._throttledTick || currentStage);
     currentStage = null;
   }
 
@@ -61,6 +45,7 @@ function loadPage(color) {
   const oldScript = document.getElementById("page-script");
   if (oldScript) oldScript.remove();
 
+  if (!flashContent) return;
   flashContent.innerHTML = "";
   currentPage = color;
 
@@ -76,22 +61,21 @@ function loadPage(color) {
   script.id = "page-script";
   script.src = `assets/swf/pages/${color}.js`;
   script.onload = () => {
-    if (currentPage === color && pageLoadToken === token)
-      initPage(color, token);
+    if (currentPage === color && pageLoadToken === token) initPage(color, token);
   };
   document.body.appendChild(script);
 }
 
-function initPage(color, token) {
-  const canvas = document.getElementById("canvas");
-  const anim_container = document.getElementById("animation_container");
+function initPage(color: string, token: number): void {
+  const canvas = document.getElementById("canvas") as HTMLCanvasElement | null;
+  const anim_container = document.getElementById("animation_container") as HTMLElement | null;
   if (!canvas || !anim_container) return;
 
   const comp = AdobeAn.getComposition("B325F180281AD548AF0E7778EAE237A2");
   const lib = comp.getLibrary();
-  const manifest = [];
+  const manifest: Lib[] = [];
 
-  lib.properties.manifest.forEach((item) => {
+  lib.properties.manifest.forEach((item: Lib) => {
     const cleanSrc = item.src.replace(/\?.*$/, "");
     const fullSrc = resolvePageAssetPath(cleanSrc);
     if (/\.(mp3|wav|ogg)$/i.test(cleanSrc)) {
@@ -103,12 +87,12 @@ function initPage(color, token) {
 
   const loader = new createjs.LoadQueue(false);
   currentLoader = loader;
-  loader.addEventListener("fileload", (evt) => {
+  loader.addEventListener("fileload", (evt: Lib) => {
     if (token === pageLoadToken && loader === currentLoader) {
       if (evt.item.type === "image") comp.getImages()[evt.item.id] = evt.result;
     }
   });
-  loader.addEventListener("complete", (evt) => {
+  loader.addEventListener("complete", (evt: Lib) => {
     if (token === pageLoadToken && loader === currentLoader) {
       currentLoader = null;
       handlePageComplete(evt, comp, color);
@@ -117,52 +101,43 @@ function initPage(color, token) {
   loader.loadManifest(manifest);
 }
 
-function handlePageComplete(evt, comp, color) {
+function handlePageComplete(evt: Lib, comp: Lib, color: string): void {
   const lib = comp.getLibrary();
   const ss = comp.getSpriteSheet();
   const { ssMetadata } = lib;
 
-  ssMetadata.forEach((meta) => {
-    ss[meta.name] = new createjs.SpriteSheet({
-      images: [evt.target.getResult(meta.name)],
-      frames: meta.frames,
-    });
+  ssMetadata.forEach((meta: Lib) => {
+    ss[meta.name] = new createjs.SpriteSheet({ images: [evt.target.getResult(meta.name)], frames: meta.frames });
   });
 
   const exportRoot = new lib[color]();
   exportRoot.addEventListener("tick", AdobeAn.handleFilterCache);
-  const canvas = document.getElementById("canvas");
+  const canvas = document.getElementById("canvas") as HTMLCanvasElement | null;
   currentStage = new lib.Stage(canvas);
   currentStage.enableMouseOver();
   currentStage.addChild(exportRoot);
 
-  // use throttled tick for authentic flash speed --thorns
-  const throttledTick = Microsite.ticker.createThrottledTick(
-    currentStage,
-    lib.properties.fps,
-  );
+  const throttledTick = Microsite.ticker.createThrottledTick(currentStage, lib.properties.fps);
   createjs.Ticker.addEventListener("tick", throttledTick);
-  currentStage._throttledTick = throttledTick; // store for removal --thorns
+  currentStage._throttledTick = throttledTick;
 
   AdobeAn.compositionLoaded(lib.properties.id);
   fitPage();
 }
 
-function fitPage() {
-  const container = document.getElementById("animation_container");
-  const cvs = document.getElementById("canvas");
+function fitPage(): void {
+  const container = document.getElementById("animation_container") as HTMLElement | null;
+  const cvs = document.getElementById("canvas") as HTMLCanvasElement | null;
   if (!container || !cvs) return;
-  const fit = Math.min(
-    container.clientWidth / 460,
-    container.clientHeight / 352,
-  );
+  const fit = Math.min(container.clientWidth / 460, container.clientHeight / 352);
   const scale = fit + (1 - fit) * 0.5;
   cvs.width = Math.round(460 * scale);
   cvs.height = Math.round(352 * scale);
 }
+
 window.addEventListener("resize", fitPage);
 
-function scaleSite() {
+function scaleSite(): void {
   const site = document.getElementById("site");
   if (!site || site.clientWidth === 0) return;
   const scale = site.clientWidth / 760;
@@ -171,11 +146,11 @@ function scaleSite() {
   if (siteInner) siteInner.style.transform = `scale(${scale})`;
   if (logoLayer) logoLayer.style.transform = `scale(${scale})`;
 }
+
 window.addEventListener("resize", scaleSite);
 scaleSite();
 
-// Start with default page or deep link --thorns
-(function () {
+(() => {
   const params = new URLSearchParams(window.location.search);
   const page = params.get("page") || "orange";
 
@@ -185,3 +160,5 @@ scaleSite();
     loadPage(page);
   }
 })();
+
+export { loadPage };

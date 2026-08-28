@@ -1,7 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const fs = require('node:fs');
-const path = require('node:path');
+const path = require('path');
 
 // Mock window and other browser globals
 const window = {
@@ -21,10 +20,10 @@ const window = {
 global.window = window;
 global.createjs = window.createjs;
 
-// Load the api.js file
-const apiPath = path.resolve(__dirname, '../assets/js/api.js');
-const apiCode = fs.readFileSync(apiPath, 'utf8');
-eval(apiCode);
+// Load the compiled Microsite namespace module
+test.before(async () => {
+    await import(path.resolve(__dirname, '../assets/ts/microsite.js'));
+});
 
 test('API-01: ticker.shouldUpdate returns true only when interval elapsed', () => {
     const fps = 24;

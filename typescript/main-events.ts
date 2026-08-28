@@ -1,43 +1,34 @@
+import { Microsite } from "./microsite.js";
+import { loadPage } from "./pageloader.js";
+
 document.addEventListener("DOMContentLoaded", () => {
-  // logo click handler
   const logoIdleWrap = document.getElementById("logo-idle-wrap");
   let logoClickCount = 0;
-  let logoClickTimeout = null;
+  let logoClickTimeout: number | null = null;
 
   if (logoIdleWrap) {
     logoIdleWrap.addEventListener("click", () => {
-      // 5% chance to trigger maze
+      logoClickCount++;
+      if (logoClickTimeout) clearTimeout(logoClickTimeout);
+      logoClickTimeout = window.setTimeout(() => (logoClickCount = 0), 1000);
+
       if (Math.random() < 0.05) {
-        if (window.Microsite && window.Microsite.maze) {
-          // Load deferred maze assets before starting --thorns
-          if (window.Microsite.assets && window.Microsite.assets.loadDeferred) {
-            window.Microsite.assets.loadDeferred().then(() => {
-              window.Microsite.maze.init();
-            });
+        if (Microsite.maze) {
+          if (Microsite.assets && Microsite.assets.loadDeferred) {
+            Microsite.assets.loadDeferred().then(() => Microsite.maze!.init());
           } else {
-            window.Microsite.maze.init();
+            Microsite.maze.init();
           }
-          return; // stop further execution
+          return;
         }
       }
-      
+
       loadPage("orange");
     });
   }
 
-  // button handlers
   const buttons = document.querySelectorAll("#buttons .btn");
-  const validColors = [
-    "red",
-    "orange",
-    "yellow",
-    "lime",
-    "green",
-    "cyan",
-    "blue",
-    "purple",
-    "pink",
-  ];
+  const validColors = ["red", "orange", "yellow", "lime", "green", "cyan", "blue", "purple", "pink"];
 
   buttons.forEach((btn) => {
     const color = [...btn.classList].find((c) => validColors.includes(c));
