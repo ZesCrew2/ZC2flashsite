@@ -1,4 +1,4 @@
-import { Microsite } from './microsite.js';
+import { Microsite } from '../microsite.js';
 
 function init(): void {
   const logo = document.getElementById('logo');

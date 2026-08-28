@@ -1,9 +1,9 @@
-import { Microsite } from './microsite.js';
+import { Microsite } from '../microsite.js';
 import type {
   PerformanceManager as IPerformanceManager,
   PerformanceSettings,
   Lib,
-} from './types.js';
+} from '../types.js';
 
 export class PerformanceManager implements IPerformanceManager {
   TIER = 1;

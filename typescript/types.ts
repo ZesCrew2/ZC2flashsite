@@ -1,5 +1,8 @@
 export type Lib = any;
 
+/** WebGL2 rendering context (real type for the 3D engine). */
+export type Gl = WebGL2RenderingContext;
+
 export interface PlaylistTrack {
   path: string;
   name: string;
@@ -139,16 +142,16 @@ export interface PerformanceManager {
 }
 
 export interface EngineInstance {
-  gl: Lib | null;
-  uniforms: Record<string, Lib>;
+  gl: Gl | null;
+  uniforms: Record<string, WebGLUniformLocation | null>;
   currentRes: { w: number; h: number };
   pool: {
-    getVec3(): Lib;
-    getMat4(): Lib;
-    recycle(obj: Lib): void;
+    getVec3(): Float32Array;
+    getMat4(): Float32Array;
+    recycle(obj: Float32Array): void;
   };
-  init(canvas: HTMLCanvasElement): Lib | null;
-  createCube(): { vao: Lib; count: number };
+  init(canvas: HTMLCanvasElement): Gl | null;
+  createCube(): { vao: WebGLVertexArrayObject; count: number };
   applyQuality(): void;
   setupFramebuffer(w: number, h: number): void;
   startFrame(): void;
@@ -160,6 +163,7 @@ export interface EngineInstance {
     screenW: number,
     screenH: number,
   ): void;
+  createTextureFromImage(img: HTMLImageElement, nearest?: boolean): WebGLTexture;
 }
 
 export interface PlayerInstance {

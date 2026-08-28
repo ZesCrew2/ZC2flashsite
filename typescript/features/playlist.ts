@@ -1,4 +1,4 @@
-import type { PlaylistTrack, Lib } from './types.js';
+import type { PlaylistTrack, Lib } from '../types.js';
 
 window.musicPlaylist = [
   { path: 'assets/music/gleeble.mp3', name: 'Lily (ZesCrew2) - Gleeble' },

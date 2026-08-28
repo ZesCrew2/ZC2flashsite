@@ -1,5 +1,5 @@
-import { Microsite } from './microsite.js';
-import type { Lib } from './types.js';
+import { Microsite } from '../microsite.js';
+import type { Lib } from '../types.js';
 
 document.addEventListener('MicrositeReady', () => initBanner());
 

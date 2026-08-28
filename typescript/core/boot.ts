@@ -1,5 +1,5 @@
-import { Microsite } from './microsite.js';
-import type { BootManagerInstance } from './types.js';
+import { Microsite } from '../microsite.js';
+import type { BootManagerInstance } from '../types.js';
 
 export class BootManager implements BootManagerInstance {
   preloader: HTMLElement | null;

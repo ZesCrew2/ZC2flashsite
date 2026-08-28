@@ -1,4 +1,4 @@
-import { Microsite } from './microsite.js';
+import { Microsite } from '../microsite.js';
 import { loadPage } from './pageloader.js';
 
 document.addEventListener('DOMContentLoaded', () => {

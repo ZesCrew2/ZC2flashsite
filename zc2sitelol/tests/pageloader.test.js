@@ -72,7 +72,7 @@ global.document = {
 
 // Load the compiled pageloader module and expose its entry points
 test.before(async () => {
-    const pl = await import(path.resolve(__dirname, '../assets/ts/pageloader.js'));
+    const pl = await import(path.resolve(__dirname, '../assets/ts/features/pageloader.js'));
     global.loadPage = pl.loadPage;
     global.resolvePageAssetPath = pl.resolvePageAssetPath;
 });

@@ -1,10 +1,10 @@
-import { Microsite } from './microsite.js';
+import { Microsite } from '../microsite.js';
 import type {
   AssetManager as IAssetManager,
   AssetManagerManifestItem,
   AssetManagerStatic,
   Lib,
-} from './types.js';
+} from '../types.js';
 
 export class AssetManager implements IAssetManager {
   queue: Lib;

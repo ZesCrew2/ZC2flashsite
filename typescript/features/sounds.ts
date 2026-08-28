@@ -1,5 +1,5 @@
-import { Microsite } from './microsite.js';
-import type { Lib } from './types.js';
+import { Microsite } from '../microsite.js';
+import type { Lib } from '../types.js';
 
 const init = (): void => {
   if (typeof window.playSound !== 'function') {

@@ -1,5 +1,5 @@
-import { Microsite } from './microsite.js';
-import type { MazeInstance, Lib } from './types.js';
+import { Microsite } from '../microsite.js';
+import type { MazeInstance, EngineInstance, PlayerInstance, Gl, Lib } from '../types.js';
 
 interface ButtonEntity {
   x: number;
@@ -19,9 +19,15 @@ interface DoorEntity {
 }
 
 interface MaterialSet {
-  diffuse: Lib;
-  normal: Lib;
-  roughness: Lib;
+  diffuse: WebGLTexture | null;
+  normal: WebGLTexture | null;
+  roughness: WebGLTexture | null;
+}
+
+interface RenderMaterial {
+  diffuse: WebGLTexture | null;
+  normal?: WebGLTexture | null;
+  roughness?: WebGLTexture | null;
 }
 
 function requestPointerLock(el: HTMLElement): void {
@@ -39,8 +45,8 @@ function requestPointerLock(el: HTMLElement): void {
 
 export class Maze implements MazeInstance {
   canvas: HTMLCanvasElement | null = null;
-  gl: Lib | null = null;
-  engine: Lib | null = null;
+  gl: Gl | null = null;
+  engine: EngineInstance | null = null;
   isActive = false;
   fadeOverlay: HTMLDivElement | null = null;
   lastTime = 0;
@@ -49,13 +55,13 @@ export class Maze implements MazeInstance {
   audioCtx: AudioContext | null = null;
   audioBuffers: Record<string, Lib> = {};
 
-  cube: { vao: Lib; count: number } | null = null;
+  cube: { vao: WebGLVertexArrayObject | null; count: number } | null = null;
   materials: {
     wall: MaterialSet;
     floor: MaterialSet;
-    buttonClosed: Lib;
-    buttonOpened: Lib;
-    skybox?: { diffuse: Lib };
+    buttonClosed: WebGLTexture | null;
+    buttonOpened: WebGLTexture | null;
+    skybox?: RenderMaterial;
   } = {
     wall: { diffuse: null, normal: null, roughness: null },
     floor: { diffuse: null, normal: null, roughness: null },
@@ -115,7 +121,7 @@ export class Maze implements MazeInstance {
   hudElement: HTMLDivElement | null = null;
   allowJumpscares = true;
 
-  player: Lib = null;
+  player: PlayerInstance | null = null;
   keys: Record<string, boolean> = {};
   mouseSensitivity = 0.0015;
   tickCount = 0;
@@ -602,7 +608,12 @@ export class Maze implements MazeInstance {
     gl.uniform1f(engine.uniforms.wiggleFreq, 8.0);
     gl.uniform1f(engine.uniforms.wiggleAmp, 0.02);
 
-    const drawMesh = (modelMat: Lib, material: Lib, isEntity = 0.0, isSky = 0.0): void => {
+    const drawMesh = (
+      modelMat: Float32Array,
+      material: RenderMaterial,
+      isEntity = 0.0,
+      isSky = 0.0,
+    ): void => {
       const mvpMatrix = engine.pool.getMat4();
       mat4.multiply(mvpMatrix, projectionMatrix, viewMatrix);
       mat4.multiply(mvpMatrix, mvpMatrix, modelMat);
@@ -631,10 +642,10 @@ export class Maze implements MazeInstance {
         } else if (cell === 2) {
           const btn = this.buttons.find((b) => b.x === x && b.y === y);
           let px = x + 0.5;
-          let py = 0.5;
+          const py = 0.5;
           let pz = y + 0.5;
           let sx = 0.3;
-          let sy = 0.3;
+          const sy = 0.3;
           let sz = 0.3;
           if (this.map[y][x - 1] === 1) {
             px -= 0.52;
@@ -673,7 +684,7 @@ export class Maze implements MazeInstance {
     mat4.scale(floorModel, floorModel, [20, 0.1, 20]);
     drawMesh(floorModel, this.materials.floor, 0.0);
 
-    let ceilModel: Lib | null = null;
+    let ceilModel: Float32Array | null = null;
     if (perfSettings.skybox) {
       ceilModel = engine.pool.getMat4();
       mat4.translate(ceilModel, ceilModel, [10, 1.01, 10]);

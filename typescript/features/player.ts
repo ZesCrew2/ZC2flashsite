@@ -1,5 +1,5 @@
-import { Microsite } from './microsite.js';
-import type { PlayerInstance, Lib } from './types.js';
+import { Microsite } from '../microsite.js';
+import type { PlayerInstance, Lib } from '../types.js';
 
 export class Player implements PlayerInstance {
   x = 1.5;
