@@ -1,14 +1,14 @@
-const canvas = document.createElement("canvas");
-canvas.id = "checker-bg";
-canvas.style.position = "fixed";
-canvas.style.top = "0";
-canvas.style.left = "0";
-canvas.style.width = "100%";
-canvas.style.height = "100%";
-canvas.style.zIndex = "-1";
+const canvas = document.createElement('canvas');
+canvas.id = 'checker-bg';
+canvas.style.position = 'fixed';
+canvas.style.top = '0';
+canvas.style.left = '0';
+canvas.style.width = '100%';
+canvas.style.height = '100%';
+canvas.style.zIndex = '-1';
 document.body.insertBefore(canvas, document.body.firstChild);
 
-const gl = canvas.getContext("webgl");
+const gl = canvas.getContext('webgl');
 if (gl) {
   const vs = `
     attribute vec2 position;
@@ -53,12 +53,12 @@ if (gl) {
     gl.STATIC_DRAW,
   );
 
-  const posLoc = gl.getAttribLocation(program, "position");
+  const posLoc = gl.getAttribLocation(program, 'position');
   gl.enableVertexAttribArray(posLoc);
   gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
-  const timeLoc = gl.getUniformLocation(program, "uTime");
-  const resLoc = gl.getUniformLocation(program, "uResolution");
+  const timeLoc = gl.getUniformLocation(program, 'uTime');
+  const resLoc = gl.getUniformLocation(program, 'uResolution');
 
   function render(time: number): void {
     canvas.width = window.innerWidth;

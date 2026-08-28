@@ -1,5 +1,5 @@
-import { Microsite } from "./microsite.js";
-import type { PlayerInstance, Lib } from "./types.js";
+import { Microsite } from './microsite.js';
+import type { PlayerInstance, Lib } from './types.js';
 
 export class Player implements PlayerInstance {
   x = 1.5;
@@ -36,19 +36,19 @@ export class Player implements PlayerInstance {
     const moveCos = Math.cos(this.dir);
     const moveSin = Math.sin(this.dir);
 
-    if (keys["w"] || keys["arrowup"]) {
+    if (keys['w'] || keys['arrowup']) {
       moveX += moveSin;
       moveY -= moveCos;
     }
-    if (keys["s"] || keys["arrowdown"]) {
+    if (keys['s'] || keys['arrowdown']) {
       moveX -= moveSin;
       moveY += moveCos;
     }
-    if (keys["a"] || keys["arrowleft"]) {
+    if (keys['a'] || keys['arrowleft']) {
       moveX -= moveCos;
       moveY -= moveSin;
     }
-    if (keys["d"] || keys["arrowright"]) {
+    if (keys['d'] || keys['arrowright']) {
       moveX += moveCos;
       moveY += moveSin;
     }
@@ -59,7 +59,7 @@ export class Player implements PlayerInstance {
       moveY /= mag;
     }
 
-    const isSprinting = keys["shift"];
+    const isSprinting = keys['shift'];
     const currentAccel = isSprinting ? this.accel * 2.2 : this.accel;
     this.velX += moveX * currentAccel * dt;
     this.velY += moveY * currentAccel * dt;
@@ -112,7 +112,8 @@ export class Player implements PlayerInstance {
       this.bobTimer += bobFreq * dt * this.stateWeight;
 
       this.bobY = Math.sin(this.bobTimer) * (0.02 + this.sprintWeight * 0.03) * this.stateWeight;
-      this.bobX = Math.cos(this.bobTimer * 0.5) * (0.03 + this.sprintWeight * 0.04) * this.stateWeight;
+      this.bobX =
+        Math.cos(this.bobTimer * 0.5) * (0.03 + this.sprintWeight * 0.04) * this.stateWeight;
 
       this.jitterTimer += dt * 75.0;
       const jitterIntensity = 0.001 + this.sprintWeight * 0.002;
@@ -120,7 +121,11 @@ export class Player implements PlayerInstance {
 
       const leanIntensity = 0.8;
       const targetRoll = (this.dir - this.targetDir) * leanIntensity;
-      this.roll = mix(this.roll, targetRoll + Math.sin(this.bobTimer * 0.5) * (0.02 + this.sprintWeight * 0.04), 0.1);
+      this.roll = mix(
+        this.roll,
+        targetRoll + Math.sin(this.bobTimer * 0.5) * (0.02 + this.sprintWeight * 0.04),
+        0.1,
+      );
     } else {
       this.bobX *= 0.9;
       this.bobY *= 0.9;
@@ -143,12 +148,12 @@ export class Player implements PlayerInstance {
   bindMouse(canvas: HTMLCanvasElement, sensitivity: number): void {
     this.canvas = canvas;
     this._mouseMoveHandler = (e: MouseEvent) => this.handleMouseMove(e, canvas, sensitivity);
-    document.addEventListener("mousemove", this._mouseMoveHandler);
+    document.addEventListener('mousemove', this._mouseMoveHandler);
   }
 
   unbindMouse(): void {
     if (this._mouseMoveHandler) {
-      document.removeEventListener("mousemove", this._mouseMoveHandler);
+      document.removeEventListener('mousemove', this._mouseMoveHandler);
       this._mouseMoveHandler = undefined;
     }
   }

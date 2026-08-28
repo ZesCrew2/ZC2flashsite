@@ -1,4 +1,4 @@
-let titleText = "Welcome to ZC2!! - ";
+let titleText = 'Welcome to ZC2!! - ';
 
 function updateTitle(): void {
   titleText = titleText.substring(1) + titleText[0];

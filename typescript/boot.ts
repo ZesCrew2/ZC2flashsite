@@ -1,5 +1,5 @@
-import { Microsite } from "./microsite.js";
-import type { BootManagerInstance } from "./types.js";
+import { Microsite } from './microsite.js';
+import type { BootManagerInstance } from './types.js';
 
 export class BootManager implements BootManagerInstance {
   preloader: HTMLElement | null;
@@ -9,17 +9,17 @@ export class BootManager implements BootManagerInstance {
   swirl: HTMLElement | null;
 
   constructor() {
-    this.preloader = document.getElementById("preloader");
-    this.progressFill = document.getElementById("progress-fill");
-    this.progressStatus = document.getElementById("progress-status");
-    this.site = document.getElementById("site");
-    this.swirl = document.getElementById("swirl");
+    this.preloader = document.getElementById('preloader');
+    this.progressFill = document.getElementById('progress-fill');
+    this.progressStatus = document.getElementById('progress-status');
+    this.site = document.getElementById('site');
+    this.swirl = document.getElementById('swirl');
   }
 
   async init(): Promise<void> {
     if (!Microsite.assets) {
-      console.error("BootManager: AssetManager not found!");
-      if (this.progressStatus) this.progressStatus.textContent = "Error: AssetManager not found!";
+      console.error('BootManager: AssetManager not found!');
+      if (this.progressStatus) this.progressStatus.textContent = 'Error: AssetManager not found!';
       return;
     }
 
@@ -29,50 +29,51 @@ export class BootManager implements BootManagerInstance {
     assetMgr.onProgress = (progress: number) => {
       const percent = Math.floor(progress * 100);
       if (self.progressFill) {
-        self.progressFill.style.width = percent + "%";
+        self.progressFill.style.width = percent + '%';
         const container = self.progressFill.parentElement;
-        if (container && container.getAttribute("role") === "progressbar") {
-          container.setAttribute("aria-valuenow", String(percent));
+        if (container && container.getAttribute('role') === 'progressbar') {
+          container.setAttribute('aria-valuenow', String(percent));
         }
       }
-      if (self.progressStatus) self.progressStatus.textContent = "Loading Assets... " + percent + "%";
+      if (self.progressStatus)
+        self.progressStatus.textContent = 'Loading Assets... ' + percent + '%';
     };
 
     try {
       await assetMgr.load();
-      if (this.progressStatus) this.progressStatus.textContent = "Complete!";
+      if (this.progressStatus) this.progressStatus.textContent = 'Complete!';
       setTimeout(() => self.revealSite(), 500);
     } catch (err) {
-      console.error("BootManager: Loading failed", err);
-      if (this.progressStatus) this.progressStatus.textContent = "Error loading assets.";
+      console.error('BootManager: Loading failed', err);
+      if (this.progressStatus) this.progressStatus.textContent = 'Error loading assets.';
     }
   }
 
   revealSite(): void {
     const self = this;
     if (this.preloader) {
-      this.preloader.style.opacity = "0";
+      this.preloader.style.opacity = '0';
       setTimeout(() => {
-        if (self.preloader) self.preloader.style.display = "none";
+        if (self.preloader) self.preloader.style.display = 'none';
       }, 500);
     }
 
-    if (this.site) this.site.style.display = "block";
-    if (this.swirl) this.swirl.style.display = "block";
+    if (this.site) this.site.style.display = 'block';
+    if (this.swirl) this.swirl.style.display = 'block';
 
-    window.dispatchEvent(new Event("resize"));
+    window.dispatchEvent(new Event('resize'));
     this.dispatchReadyEvent();
   }
 
   dispatchReadyEvent(): void {
-    const event = new CustomEvent("MicrositeReady", {
+    const event = new CustomEvent('MicrositeReady', {
       detail: { timestamp: Date.now(), assets: Microsite.assets },
     });
     document.dispatchEvent(event);
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   const boot = new BootManager();
   Microsite.boot = boot;
   boot.init();

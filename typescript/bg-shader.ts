@@ -1,5 +1,5 @@
-import { Microsite } from "./microsite.js";
-import type { Lib } from "./types.js";
+import { Microsite } from './microsite.js';
+import type { Lib } from './types.js';
 
 const FilterBase = createjs.Filter as new () => Lib;
 
@@ -12,7 +12,13 @@ class WiggleFilter extends FilterBase {
   FRAG_SHADER_BODY: string;
   private _locations: Lib | null;
 
-  constructor(shaderSource: string, effectType = 4, speed = 2.0, frequency = 10.0, amplitude = 0.015) {
+  constructor(
+    shaderSource: string,
+    effectType = 4,
+    speed = 2.0,
+    frequency = 10.0,
+    amplitude = 0.015,
+  ) {
     super();
     this.effectType = effectType;
     this.speed = speed;
@@ -26,11 +32,11 @@ class WiggleFilter extends FilterBase {
   shaderParamSetup(gl: WebGLRenderingContext, _stage: Lib, shaderProgram: Lib): void {
     if (!this._locations) {
       this._locations = {
-        uTime: gl.getUniformLocation(shaderProgram, "uTime"),
-        uEffectType: gl.getUniformLocation(shaderProgram, "uEffectType"),
-        uSpeed: gl.getUniformLocation(shaderProgram, "uSpeed"),
-        uFrequency: gl.getUniformLocation(shaderProgram, "uFrequency"),
-        uWaveAmplitude: gl.getUniformLocation(shaderProgram, "uWaveAmplitude"),
+        uTime: gl.getUniformLocation(shaderProgram, 'uTime'),
+        uEffectType: gl.getUniformLocation(shaderProgram, 'uEffectType'),
+        uSpeed: gl.getUniformLocation(shaderProgram, 'uSpeed'),
+        uFrequency: gl.getUniformLocation(shaderProgram, 'uFrequency'),
+        uWaveAmplitude: gl.getUniformLocation(shaderProgram, 'uWaveAmplitude'),
       };
     }
     gl.uniform1f(this._locations.uTime, this.time);
@@ -41,13 +47,19 @@ class WiggleFilter extends FilterBase {
   }
 
   clone(): WiggleFilter {
-    return new WiggleFilter(this.FRAG_SHADER_BODY, this.effectType, this.speed, this.frequency, this.amplitude);
+    return new WiggleFilter(
+      this.FRAG_SHADER_BODY,
+      this.effectType,
+      this.speed,
+      this.frequency,
+      this.amplitude,
+    );
   }
 }
 
 createjs.WiggleFilter = WiggleFilter;
 
-async function initBackgroundShader(shaderPath = "assets/shaders/wiggle.glsl"): Promise<void> {
+async function initBackgroundShader(shaderPath = 'assets/shaders/wiggle.glsl'): Promise<void> {
   try {
     const response = await fetch(shaderPath);
     const shaderCode = await response.text();
@@ -58,30 +70,34 @@ async function initBackgroundShader(shaderPath = "assets/shaders/wiggle.glsl"): 
 }
 
 function setupBackground(shaderCode: string): void {
-  let canvas: HTMLCanvasElement | null = document.getElementById("bg-canvas") as HTMLCanvasElement | null;
+  let canvas: HTMLCanvasElement | null = document.getElementById(
+    'bg-canvas',
+  ) as HTMLCanvasElement | null;
   if (!canvas) {
-    canvas = document.createElement("canvas");
-    canvas.id = "bg-canvas";
+    canvas = document.createElement('canvas');
+    canvas.id = 'bg-canvas';
     document.body.insertBefore(canvas, document.body.firstChild);
   }
 
   Object.assign(canvas.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "100%",
-    height: "100%",
-    zIndex: "-1",
-    pointerEvents: "none",
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    zIndex: '-1',
+    pointerEvents: 'none',
   });
 
   const stage = new createjs.StageGL(canvas, { transparent: false, antialias: true });
 
   const img = new Image();
-  img.crossOrigin = "Anonymous";
-  img.src = "assets/img/bg.png";
+  img.crossOrigin = 'Anonymous';
+  img.src = 'assets/img/bg.png';
   img.onload = () => {
-    const settings = Microsite.perf ? Microsite.perf.getSettings() : { fps: 60, logicThrottle: 1, postProcessing: true };
+    const settings = Microsite.perf
+      ? Microsite.perf.getSettings()
+      : { fps: 60, logicThrottle: 1, postProcessing: true };
 
     const bitmap = new createjs.Bitmap(img);
     stage.addChild(bitmap);
@@ -101,7 +117,7 @@ function setupBackground(shaderCode: string): void {
         }
       };
 
-      bitmap.cache(0, 0, img.width, img.height, 1, { useGL: "stage" });
+      bitmap.cache(0, 0, img.width, img.height, 1, { useGL: 'stage' });
     }
 
     const resize = () => {
@@ -114,14 +130,14 @@ function setupBackground(shaderCode: string): void {
       bitmap.y = (canvas!.height - img.height * scale) / 2;
       if (bitmap.cacheCanvas) bitmap.updateCache();
     };
-    window.addEventListener("resize", resize);
+    window.addEventListener('resize', resize);
     resize();
 
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.framerate = settings.fps;
 
     let tickCount = 0;
-    createjs.Ticker.addEventListener("tick", (event: Lib) => {
+    createjs.Ticker.addEventListener('tick', (event: Lib) => {
       if (event.paused) return;
 
       tickCount++;
@@ -143,8 +159,8 @@ function setupBackground(shaderCode: string): void {
 
 window.initBackgroundShader = initBackgroundShader;
 
-if (document.readyState === "complete") {
+if (document.readyState === 'complete') {
   initBackgroundShader();
 } else {
-  window.addEventListener("load", () => initBackgroundShader());
+  window.addEventListener('load', () => initBackgroundShader());
 }

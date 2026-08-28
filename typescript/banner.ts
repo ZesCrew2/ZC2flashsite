@@ -1,16 +1,16 @@
-import { Microsite } from "./microsite.js";
-import type { Lib } from "./types.js";
+import { Microsite } from './microsite.js';
+import type { Lib } from './types.js';
 
-document.addEventListener("MicrositeReady", () => initBanner());
+document.addEventListener('MicrositeReady', () => initBanner());
 
 function initBanner(): void {
-  const canvas = document.getElementById("banner-canvas") as HTMLCanvasElement | null;
+  const canvas = document.getElementById('banner-canvas') as HTMLCanvasElement | null;
   if (!canvas) return;
 
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
   if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const comp = AdobeAn.getComposition("AA04CCBF99E11C4EA814ED2A172A239E");
+  const comp = AdobeAn.getComposition('AA04CCBF99E11C4EA814ED2A172A239E');
   if (!comp) return;
 
   const lib = comp.getLibrary();
@@ -39,7 +39,7 @@ function initBanner(): void {
   stage.autoClear = true;
 
   const throttledTick = Microsite.ticker.createThrottledTick(stage, 24);
-  createjs.Ticker.addEventListener("tick", throttledTick);
+  createjs.Ticker.addEventListener('tick', throttledTick);
 
   AdobeAn.compositionLoaded(lib.properties.id);
   stage.addChild(exportRoot);

@@ -11,9 +11,9 @@ declare global {
   const quat: any;
 
   interface Window {
-    Microsite: import("./types.js").Microsite;
-    musicPlaylist?: import("./types.js").PlaylistTrack[];
-    siteAudio?: import("./types.js").SiteAudio;
+    Microsite: import('./types.js').Microsite;
+    musicPlaylist?: import('./types.js').PlaylistTrack[];
+    siteAudio?: import('./types.js').SiteAudio;
     playSound?: (id: string, loop?: number, offset?: number) => unknown;
     initBackgroundShader?: (path?: string) => Promise<void>;
     glMatrix?: any;
