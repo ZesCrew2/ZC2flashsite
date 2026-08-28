@@ -24,6 +24,19 @@ interface MaterialSet {
   roughness: Lib;
 }
 
+function requestPointerLock(el: HTMLElement): void {
+  const req = (el as Lib).requestPointerLock({ unadjustedMovement: true });
+  if (req && typeof req.catch === "function") {
+    req.catch(() => {
+      try {
+        (el as Lib).requestPointerLock();
+      } catch (_) {
+        /* ignore */
+      }
+    });
+  }
+}
+
 export class Maze implements MazeInstance {
   canvas: HTMLCanvasElement | null = null;
   gl: Lib | null = null;
@@ -239,7 +252,7 @@ export class Maze implements MazeInstance {
         }, 200);
 
         this.fadeOverlay!.style.opacity = "0";
-        this.canvas!.requestPointerLock({ unadjustedMovement: true });
+        if (this.canvas) requestPointerLock(this.canvas);
 
         if (this.audioCtx!.state === "suspended") this.audioCtx!.resume();
 
@@ -268,7 +281,7 @@ export class Maze implements MazeInstance {
 
         window.addEventListener("click", () => {
           if (this.isActive && document.pointerLockElement !== this.canvas) {
-            this.canvas!.requestPointerLock({ unadjustedMovement: true });
+            if (this.canvas) requestPointerLock(this.canvas);
           } else if (this.isActive) {
             this.interact();
           }
