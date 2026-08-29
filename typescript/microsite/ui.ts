@@ -1,6 +1,7 @@
 import { audio } from './audio.js';
 import { PreviewOverlay } from './preview-overlay.js';
 import { Gallery } from './gallery.js';
+import { createGalleryPage } from './gallery-page.js';
 import type { Lib, GalleryItem, GalleryCardOptions, GalleryLayout, UiApi } from '../types.js';
 
 const galleryDimensions = {
@@ -166,4 +167,5 @@ export const ui: UiApi = {
   PreviewOverlay,
   createButton,
   Gallery,
+  createGalleryPage,
 };

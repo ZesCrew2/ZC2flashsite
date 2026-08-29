@@ -1349,194 +1349,23 @@
       this._downloadsReady = true;
 
       var root = this;
-      var galleryY = 104;
-      var galleryHeight = 190;
-      var centerX = 230;
-      var centerY = 183;
-      var navY = 314;
-      var navScale = 0.28;
-      var cardsLayer = new cjs.Container();
-      var uiLayer = new cjs.Container();
 
-      var maskShape = new cjs.Shape();
-      maskShape.graphics
-        .f("#000000")
-        .drawRect(0, galleryY, lib.properties.width, galleryHeight);
-      cardsLayer.mask = maskShape;
-
-      root.addChild(uiLayer);
-      root.addChild(cardsLayer);
-
-      var fallbackItems = [
-        {
-          filename: "MMDpreview.png",
-          displayName: "Angel Lily MMD 2026",
-          link: "https://github.com/ZesCrew2/ZC2flashsite/releases/download/sitedownloads/AngelLilyMMD2026.zip",
-        },
-      ];
-
-      function buildGallery(items) {
-        var downloadItems = Microsite.ui.normalizeItems(
-          items,
-          fallbackItems,
-          "widescreen",
-        );
-        var imgQueue = new cjs.LoadQueue(false);
-        imgQueue.setMaxConnections(8);
-        imgQueue.loadManifest([
-          { id: "btn_left", src: "assets/img/green/left.png" },
-          { id: "btn_right", src: "assets/img/green/right.png" },
-          { id: "shine_square", src: "assets/img/shine/shine_square.png" },
-          { id: "shine_standard", src: "assets/img/shine/shine_standard.png" },
-          {
-            id: "shine_widescreen",
-            src: "assets/img/shine/shine_widescreen.png",
-          },
-        ]);
-
-        for (var i = 0; i < downloadItems.length; i++) {
-          imgQueue.loadFile({
-            id: "item_" + i,
-            src: encodeURI("assets/img/green/art/" + downloadItems[i].filename),
-          });
-        }
-
-        function renderCards() {
-          var cards = [];
-          var preview = new Microsite.ui.PreviewOverlay(root, {
-            width: lib.properties.width,
-            height: lib.properties.height,
-            centerX: centerX,
-            centerY: centerY,
-            onOpen: function () {
-              uiLayer.visible = cardsLayer.visible = false;
-              gallery.updateOverlays(true, imgQueue, "item_");
-            },
-            onClose: function () {
-              uiLayer.visible = cardsLayer.visible = true;
-              gallery.updateOverlays(false, imgQueue, "item_");
-            },
-          });
-
-          for (var j = 0; j < downloadItems.length; j++) {
-            (function (index) {
-              var itemEntry = downloadItems[index];
-              var imageObj = imgQueue.getResult("item_" + index);
-
-              var card = Microsite.ui.createGalleryCard(imageObj, {
-                ratio: itemEntry.ratio,
-                displayName: itemEntry.displayName,
-                shineImage: imgQueue.getResult("shine_" + itemEntry.ratio),
-                shadowColor: "rgba(0,60,0,0.35)",
-                textColor: "#004D00",
-              });
-              if (card.artBmp) card.artBmp.y += 4;
-              card.entry = itemEntry;
-
-              if (card.entry.link && card.entry.link.trim() !== "") {
-                card.cursor = "pointer";
-                card.on("mouseover", function () {
-                  Microsite.audio.play("hoverwav");
-                });
-                card.on("click", function (evt) {
-                  Microsite.audio.play("clickywav");
-                  var win = window.open(evt.currentTarget.entry.link, "_blank");
-                  if (win) win.opener = null;
-                });
-              } else {
-                card.cursor = "zoom-in";
-                card.on("click", function () {
-                  if (
-                    Math.abs(gallery.distanceFromCenter(cards.indexOf(card))) >
-                    0.1
-                  )
-                    return;
-                  preview.show(card.entry, imageObj, "assets/img/green/art/");
-                });
-              }
-
-              cardsLayer.addChild(card);
-              cards.push(card);
-            })(j);
-          }
-
-          if (!cards.length) {
-            var noItemsText = new cjs.Text(
-              "No downloads found",
-              "20px Trebuchet MS",
-              "#004D00",
-            );
-            noItemsText.textAlign = "center";
-            noItemsText.x = centerX;
-            noItemsText.y = centerY - 10;
-            uiLayer.addChild(noItemsText);
-            return;
-          }
-
-          var gallery = new Microsite.ui.Gallery(cards, {
-            centerX: centerX,
-            centerY: centerY,
-            spacing: 120,
-            onTweenUpdate: function (card, offset) {
-              if (card.artBmp) {
-                card.artBmp.visible = !(
-                  Math.abs(offset) < 0.1 &&
-                  card.entry.filename.toLowerCase().endsWith(".gif")
-                );
-              }
-              gallery.updateOverlays(preview.isOpen, imgQueue, "item_");
-            },
-          });
-
-          gallery.setupDOMOverlays("assets/img/green/art/");
-
-          var lb = Microsite.ui.createButton(imgQueue.getResult("btn_left"), {
-            scale: navScale,
-            regX: 128,
-            regY: 128,
-            onClick: function () {
-              gallery.move(-1);
-            },
-          });
-          lb.x = 48;
-          lb.y = navY;
-          lb.shadow = new cjs.Shadow("rgba(0,106,0,0.55)", 0, 2, 6);
-          uiLayer.addChild(lb);
-
-          var rb = Microsite.ui.createButton(imgQueue.getResult("btn_right"), {
-            scale: navScale,
-            regX: 128,
-            regY: 128,
-            onClick: function () {
-              gallery.move(1);
-            },
-          });
-          rb.x = 412;
-          rb.y = navY;
-          rb.shadow = new cjs.Shadow("rgba(0,106,0,0.55)", 0, 2, 6);
-          uiLayer.addChild(rb);
-
-          gallery.update(false);
-          gallery.updateOverlays(false, imgQueue, "item_");
-        }
-
-        imgQueue.on("complete", renderCards);
-        imgQueue.load();
-      }
-
-      var configQueue = new cjs.LoadQueue(true);
-      configQueue.on("complete", function () {
-        var config = configQueue.getResult("downloadsConfig");
-        buildGallery(config ? config.items : fallbackItems);
+      Microsite.ui.createGalleryPage({
+        root: root,
+        assetPath: "assets/img/green/art/",
+        imagePrefix: "item_",
+        defaultRatio: "widescreen",
+        leftButtonSrc: "assets/img/green/left.png",
+        rightButtonSrc: "assets/img/green/right.png",
+        cardShadowColor: "rgba(0,60,0,0.35)",
+        cardTextColor: "#004D00",
+        navButtonShadow: "rgba(0,106,0,0.55)",
+        cardYOffset: 4,
+        configUrl: "assets/img/green/downloads-config.json",
+        stageWidth: lib.properties.width,
+        stageHeight: lib.properties.height,
       });
-      configQueue.on("error", function () {
-        buildGallery(fallbackItems);
-      });
-      configQueue.loadFile({
-        id: "downloadsConfig",
-        src: "assets/img/green/downloads-config.json",
-        type: "json",
-      });
+
     };
 
     // timeline functions:
