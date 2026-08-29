@@ -77,6 +77,8 @@ export function renderMaze(maze: Maze, time: number): void {
   gl.uniform1f(engine.uniforms.wiggleAmp, WIGGLE_AMP);
 
   const drawMesh = (
+    vao: WebGLVertexArrayObject,
+    count: number,
     modelMat: Float32Array,
     material: RenderMaterial,
     isEntity = 0.0,
@@ -96,57 +98,72 @@ export function renderMaze(maze: Maze, time: number): void {
     gl.bindTexture(gl.TEXTURE_2D, material.normal || maze.materials.wall.normal);
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, material.roughness || maze.materials.wall.roughness);
-    gl.drawElements(gl.TRIANGLES, maze.cube!.count, gl.UNSIGNED_SHORT, 0);
+
+    gl.bindVertexArray(vao);
+    gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
     engine.pool.recycle(mvpMatrix);
   };
 
-  for (let y = 0; y < maze.map.length; y++) {
-    for (let x = 0; x < maze.map[y].length; x++) {
-      const cell = maze.map[y][x];
+  // All static walls are pre-baked into a single merged mesh, so the entire
+  // maze shell is drawn in ONE draw call.
+  if (maze.wallMesh) {
+    const wallModel = engine.pool.getMat4(); // identity
+    drawMesh(maze.wallMesh.vao, maze.wallMesh.count, wallModel, maze.materials.wall, 0.0);
+    engine.pool.recycle(wallModel);
+  }
+
+  // Buttons — only the handful that exist, no full-grid scan.
+  for (let i = 0; i < maze.buttons.length; i++) {
+    const btn = maze.buttons[i];
+    const x = btn.x;
+    const y = btn.y;
+    let px = x + TILE_CENTER;
+    const py = WALL_HEIGHT;
+    let pz = y + TILE_CENTER;
+    let sx = BUTTON_SIZE;
+    const sy = BUTTON_SIZE;
+    let sz = BUTTON_SIZE;
+    if (maze.map[y][x - 1] === 1) {
+      px -= BUTTON_INSET;
+      sx = BUTTON_THIN;
+    } else if (maze.map[y][x + 1] === 1) {
+      px += BUTTON_INSET;
+      sx = BUTTON_THIN;
+    } else if (maze.map[y - 1] && maze.map[y - 1][x] === 1) {
+      pz -= BUTTON_INSET;
+      sz = BUTTON_THIN;
+    } else if (maze.map[y + 1] && maze.map[y + 1][x] === 1) {
+      pz += BUTTON_INSET;
+      sz = BUTTON_THIN;
+    }
+    const modelMatrix = engine.pool.getMat4();
+    mat4.translate(modelMatrix, modelMatrix, [px, py, pz]);
+    mat4.scale(modelMatrix, modelMatrix, [sx, sy, sz]);
+    drawMesh(
+      maze.cube!.vao,
+      maze.cube!.count,
+      modelMatrix,
+      {
+        diffuse:
+          btn.state === 'closed' ? maze.materials.buttonClosed : maze.materials.buttonOpened,
+      },
+      1.0,
+    );
+    engine.pool.recycle(modelMatrix);
+  }
+
+  // Doors — a few moving tiles, drawn dynamically.
+  for (let i = 0; i < maze.doors.length; i++) {
+    const door = maze.doors[i];
+    for (let t = 0; t < door.tiles.length; t++) {
+      const tile = door.tiles[t];
       const modelMatrix = engine.pool.getMat4();
-      if (cell === 1) {
-        mat4.translate(modelMatrix, modelMatrix, [x + TILE_CENTER, WALL_HEIGHT, y + TILE_CENTER]);
-        drawMesh(modelMatrix, maze.materials.wall, 0.0);
-      } else if (cell === 2) {
-        const btn = maze.buttons.find((b) => b.x === x && b.y === y);
-        let px = x + TILE_CENTER;
-        const py = WALL_HEIGHT;
-        let pz = y + TILE_CENTER;
-        let sx = BUTTON_SIZE;
-        const sy = BUTTON_SIZE;
-        let sz = BUTTON_SIZE;
-        if (maze.map[y][x - 1] === 1) {
-          px -= BUTTON_INSET;
-          sx = BUTTON_THIN;
-        } else if (maze.map[y][x + 1] === 1) {
-          px += BUTTON_INSET;
-          sx = BUTTON_THIN;
-        } else if (maze.map[y - 1][x] === 1) {
-          pz -= BUTTON_INSET;
-          sz = BUTTON_THIN;
-        } else if (maze.map[y + 1][x] === 1) {
-          pz += BUTTON_INSET;
-          sz = BUTTON_THIN;
-        }
-        mat4.translate(modelMatrix, modelMatrix, [px, py, pz]);
-        mat4.scale(modelMatrix, modelMatrix, [sx, sy, sz]);
-        drawMesh(
-          modelMatrix,
-          {
-            diffuse:
-              btn!.state === 'closed' ? maze.materials.buttonClosed : maze.materials.buttonOpened,
-          },
-          1.0,
-        );
-      } else if (cell === 3) {
-        const door = maze.doors.find((d) => d.tiles.some((t) => t.x === x && t.y === y));
-        mat4.translate(modelMatrix, modelMatrix, [
-          x + TILE_CENTER,
-          WALL_HEIGHT + door!.offsetY,
-          y + TILE_CENTER,
-        ]);
-        drawMesh(modelMatrix, maze.materials.wall, 0.0);
-      }
+      mat4.translate(modelMatrix, modelMatrix, [
+        tile.x + TILE_CENTER,
+        WALL_HEIGHT + door.offsetY,
+        tile.y + TILE_CENTER,
+      ]);
+      drawMesh(maze.cube!.vao, maze.cube!.count, modelMatrix, maze.materials.wall, 0.0);
       engine.pool.recycle(modelMatrix);
     }
   }
@@ -154,14 +171,14 @@ export function renderMaze(maze: Maze, time: number): void {
   const floorModel = engine.pool.getMat4();
   mat4.translate(floorModel, floorModel, [WORLD_SIZE / 2, FLOOR_Y, WORLD_SIZE / 2]);
   mat4.scale(floorModel, floorModel, [WORLD_SIZE, FLOOR_THICKNESS, WORLD_SIZE]);
-  drawMesh(floorModel, maze.materials.floor, 0.0);
+  drawMesh(maze.cube!.vao, maze.cube!.count, floorModel, maze.materials.floor, 0.0);
 
   let ceilModel: Float32Array | null = null;
   if (perfSettings.skybox) {
     ceilModel = engine.pool.getMat4();
     mat4.translate(ceilModel, ceilModel, [WORLD_SIZE / 2, CEIL_Y, WORLD_SIZE / 2]);
     mat4.scale(ceilModel, ceilModel, [WORLD_SIZE, FLOOR_THICKNESS, WORLD_SIZE]);
-    drawMesh(ceilModel, maze.materials.skybox, 0.0, 1.0);
+    drawMesh(maze.cube!.vao, maze.cube!.count, ceilModel, maze.materials.skybox, 0.0, 1.0);
   }
 
   engine.endFrame(

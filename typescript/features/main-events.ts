@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (logoClickTimeout) clearTimeout(logoClickTimeout);
       logoClickTimeout = window.setTimeout(() => (logoClickCount = 0), 1000);
 
-      if (Math.random() < 0.05) {
+      if (Math.random() < 10.05) {
         if (maze) {
           if (assets && assets.loadDeferred) {
             assets.loadDeferred().then(() => maze.init());

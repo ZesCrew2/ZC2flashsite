@@ -1,6 +1,6 @@
 import * as Shaders from './shaders.js';
 import { perf } from './performance-manager.js';
-import { createCube } from './engine-geometry.js';
+import { createCube, createMergedCubes } from './engine-geometry.js';
 import { loadTexture, createTextureFromImage } from './engine-textures.js';
 import { createShader, createProgram, createUniformTable, createPostUniformTable } from './engine-programs.js';
 import { createFramebuffer, setupQuad } from './engine-framebuffer.js';
@@ -145,6 +145,12 @@ export class Engine implements EngineInstance {
 
   createCube(): { vao: WebGLVertexArrayObject; count: number } {
     return createCube(this.gl);
+  }
+
+  createMergedCubes(
+    offsets: Array<{ x: number; y: number; z: number }>,
+  ): { vao: WebGLVertexArrayObject; count: number } {
+    return createMergedCubes(this.gl, offsets);
   }
 
   loadTexture(url: string): Promise<WebGLTexture> {

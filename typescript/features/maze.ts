@@ -85,6 +85,7 @@ export class Maze implements MazeInstance {
   audioBuffers: Record<string, Lib> = {};
 
   cube: { vao: WebGLVertexArrayObject | null; count: number } | null = null;
+  wallMesh: { vao: WebGLVertexArrayObject; count: number } | null = null;
   materials: {
     wall: MaterialSet;
     floor: MaterialSet;
@@ -111,6 +112,8 @@ export class Maze implements MazeInstance {
   keys: Record<string, boolean> = {};
   mouseSensitivity = MOUSE_SENSITIVITY;
   tickCount = 0;
+  started = false;
+  lastRenderTime = 0;
   private _settingsScreen: HTMLElement | null = null;
 
   async init(): Promise<void> {
@@ -207,6 +210,7 @@ export class Maze implements MazeInstance {
       pointerEvents: 'none',
       textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
       opacity: '0',
+      whiteSpace: 'pre',
       transition: HUD_FADE_TRANSITION,
     });
     document.body.appendChild(this.hudElement);
@@ -214,6 +218,20 @@ export class Maze implements MazeInstance {
     this.engine = engine;
     this.gl = this.engine.init(this.canvas);
     this.cube = this.engine.createCube();
+
+    // Bake all static wall tiles (map cell === 1) into a single merged mesh so
+    // the entire maze geometry is drawn in one draw call instead of one per
+    // tile. This is the primary fix for the lag/freezes.
+    const wallOffsets: Array<{ x: number; y: number; z: number }> = [];
+    for (let y = 0; y < this.map.length; y++) {
+      const row = this.map[y];
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] === 1) {
+          wallOffsets.push({ x: x + TILE_CENTER, y: WALL_HEIGHT, z: y + TILE_CENTER });
+        }
+      }
+    }
+    this.wallMesh = this.engine.createMergedCubes(wallOffsets);
 
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
@@ -294,6 +312,9 @@ export class Maze implements MazeInstance {
         }
         this.engine.applyQuality();
 
+        this.started = true;
+        this.lastRenderTime = performance.now();
+
         setTimeout(() => {
           if (this._settingsScreen) {
             this._settingsScreen.remove();
@@ -348,13 +369,12 @@ export class Maze implements MazeInstance {
     const msg = this.messages[this.messageIndex];
     this.hudElement!.innerText = '';
     this.hudElement!.style.opacity = '1';
+    let current = '';
     for (let i = 0; i < msg.length; i++) {
       if (!this.isActive) return;
-      if (msg[i] === ' ') this.hudElement!.innerHTML += '&nbsp;';
-      else {
-        this.hudElement!.innerText += msg[i];
-        if (createjs && createjs.Sound) createjs.Sound.play(SOUND_MAZE_TEXTBOX, { volume: 0.1 });
-      }
+      current += msg[i];
+      this.hudElement!.textContent = current;
+      if (createjs && createjs.Sound) createjs.Sound.play(SOUND_MAZE_TEXTBOX, { volume: 0.1 });
       await new Promise((r) => setTimeout(r, TEXT_CHAR_BASE_DELAY_MS + Math.random() * TEXT_CHAR_JITTER_MS));
     }
     await new Promise((r) => setTimeout(r, HUD_MESSAGE_HOLD_MS));
@@ -513,13 +533,24 @@ export class Maze implements MazeInstance {
     const dt = Math.min(MAX_FRAME_DT, (currentTime - this.lastTime) / FRAME_TIME_MS);
     this.lastTime = currentTime;
 
-    const settings = perf.getSettings();
-    this.tickCount++;
+    // Don't run game logic or rendering until the player has chosen a quality
+    // tier (the maze is hidden behind a black overlay before then anyway).
+    if (this.started) {
+      const settings = perf.getSettings();
+      this.tickCount++;
 
-    this.update(dt);
+      this.update(dt);
 
-    if (this.tickCount % settings.logicThrottle === 0) {
-      this.render(currentTime);
+      // Cap rendering to the target FPS so we don't burn the GPU on
+      // high-refresh displays (e.g. 144Hz) where rAF fires much faster.
+      const frameInterval = 1000 / settings.fps;
+      if (
+        this.tickCount % settings.logicThrottle === 0 &&
+        currentTime - this.lastRenderTime >= frameInterval
+      ) {
+        this.render(currentTime);
+        this.lastRenderTime = currentTime;
+      }
     }
 
     requestAnimationFrame((t) => this.loop(t));
