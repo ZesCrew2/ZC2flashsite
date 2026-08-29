@@ -1,4 +1,5 @@
 import { assets } from './asset-manager.js';
+import { initBackgroundShader } from './bg-shader.js';
 import type { BootManagerInstance } from '../types.js';
 
 export class BootManager implements BootManagerInstance {
@@ -40,6 +41,17 @@ export class BootManager implements BootManagerInstance {
     try {
       await assetMgr.load();
       if (this.progressStatus) this.progressStatus.textContent = 'Complete!';
+
+      // Progress bar is complete — now preload audio + glsl in the
+      // background. This must NOT block the reveal of the site.
+      if (assets && assets.loadAudio) {
+        assets
+          .loadAudio()
+          .catch((err) => console.error('BootManager: audio preload failed', err));
+      }
+      initBackgroundShader()
+        .catch((err) => console.error('BootManager: shader preload failed', err));
+
       setTimeout(() => self.revealSite(), 500);
     } catch (err) {
       console.error('BootManager: Loading failed', err);

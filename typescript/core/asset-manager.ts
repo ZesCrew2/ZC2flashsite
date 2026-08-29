@@ -13,6 +13,12 @@ export class AssetManager implements IAssetManager {
   private _deferredLoaded = false;
   private _deferredLoading: Promise<void> | null = null;
 
+  // Audio preload (runs after the progress bar completes, non-blocking).
+  private _audioQueue: Lib | null = null;
+  private _audioResults: Record<string, Lib> = {};
+  private _audioLoaded = false;
+  private _audioLoading: Promise<void> | null = null;
+
   constructor() {
     this.queue = new createjs.LoadQueue(true);
 
@@ -47,10 +53,50 @@ export class AssetManager implements IAssetManager {
     if (!result && AssetManager.ALIASES[id]) {
       result = this.queue.getResult(AssetManager.ALIASES[id]);
     }
+    if (!result && this._audioResults[id]) {
+      result = this._audioResults[id];
+    }
     if (!result && this._deferredResults && this._deferredResults[id]) {
       result = this._deferredResults[id];
     }
     return result;
+  }
+
+  /**
+   * Preload the audio manifest. Intended to run *after* the progress bar has
+   * finished — it is intentionally non-blocking and simply warms the
+   * createjs.Sound registry (and the asset results map) in the background.
+   */
+  loadAudio(): Promise<void> {
+    if (this._audioLoaded) return Promise.resolve();
+    if (this._audioLoading) return this._audioLoading;
+
+    this._audioResults = {};
+    this._audioLoading = new Promise<void>((resolve) => {
+      const audioQueue = new createjs.LoadQueue(true);
+      if (createjs && createjs.Sound) {
+        audioQueue.installPlugin(createjs.Sound);
+      }
+      audioQueue.on('fileload', (evt: Lib) => {
+        this._audioResults[evt.item.id] = evt.result;
+      });
+      audioQueue.on('complete', () => {
+        this._audioLoaded = true;
+        this._audioLoading = null;
+        resolve();
+      });
+      audioQueue.on('error', (evt: Lib) => {
+        console.error('AssetManager: audio file failed to load', evt);
+        // Don't reject the preload — the site must still work without sound.
+        if (!this._audioLoaded) {
+          this._audioLoaded = true;
+          this._audioLoading = null;
+          resolve();
+        }
+      });
+      audioQueue.loadManifest(AssetManager.AUDIO_MANIFEST);
+    });
+    return this._audioLoading;
   }
 
   loadDeferred(): Promise<void> {
@@ -91,6 +137,9 @@ export class AssetManager implements IAssetManager {
     if (this._onError) this._onError(event);
   }
 
+  // Blocking manifest — loaded while the progress bar is active.
+  // Audio + glsl are intentionally excluded so they don't stall the bar;
+  // see AUDIO_MANIFEST and the bg-shader preload kicked off by BootManager.
   static MANIFEST: AssetManagerManifestItem[] = [
     { id: 'site_logo', src: 'assets/img/zc2aeroorb.png' },
     { id: 'site_speaker', src: 'assets/img/speaker.png' },
@@ -99,6 +148,12 @@ export class AssetManager implements IAssetManager {
     { id: 'zc2banner_atlas_1', src: 'assets/swf/banner/images/zc2banner_atlas_1.png' },
     { id: 'zc2banner_atlas_2', src: 'assets/swf/banner/images/zc2banner_atlas_2.png' },
     { id: 'zc2banner_atlas_3', src: 'assets/swf/banner/images/zc2banner_atlas_3.png' },
+  ];
+
+  // Audio is preloaded *after* the progress bar completes (non-blocking) so
+  // the load screen is never blocked by sound downloads. Sound is still
+  // registered via the createjs.Sound plugin, so playSound() works once ready.
+  static AUDIO_MANIFEST: AssetManagerManifestItem[] = [
     { id: 'clickywav', src: 'assets/sounds/clicky.wav' },
     { id: 'hoverwav', src: 'assets/sounds/hover.wav' },
     { id: 'site_notif', src: 'assets/sounds/click.webm' },

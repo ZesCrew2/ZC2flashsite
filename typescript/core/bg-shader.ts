@@ -60,7 +60,9 @@ class WiggleFilter extends FilterBase {
 
 createjs.WiggleFilter = WiggleFilter;
 
-async function initBackgroundShader(shaderPath = 'assets/shaders/wiggle.glsl'): Promise<void> {
+export async function initBackgroundShader(
+  shaderPath = 'assets/shaders/wiggle.glsl',
+): Promise<void> {
   try {
     const response = await fetch(shaderPath);
     const shaderCode = await response.text();
@@ -158,8 +160,6 @@ function setupBackground(shaderCode: string): void {
 
 window.initBackgroundShader = initBackgroundShader;
 
-if (document.readyState === 'complete') {
-  initBackgroundShader();
-} else {
-  window.addEventListener('load', () => initBackgroundShader());
-}
+// NOTE: The shader is no longer auto-loaded on `window.load`. BootManager
+// triggers it (non-blocking) only AFTER the progress bar has completed, so the
+// glsl fetch never blocks or races the loading screen.

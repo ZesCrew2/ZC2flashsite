@@ -109,6 +109,7 @@ export interface AssetManagerManifestItem {
 export interface AssetManager {
   getAsset(id: string): Lib | null;
   load(manifest?: AssetManagerManifestItem[]): Promise<Lib>;
+  loadAudio(): Promise<void>;
   loadDeferred(): Promise<void>;
   onProgress: ((progress: number) => void) | null;
 }
