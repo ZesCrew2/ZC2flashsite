@@ -75,6 +75,31 @@ export interface UiApi {
   PreviewOverlay: new (root: Lib, options?: PreviewOverlayOptions) => Lib;
   createButton(imageObj: Lib, options?: GalleryCardOptions): Lib;
   Gallery: new (cards: Lib[], options?: GalleryOptions) => Lib;
+  createGalleryPage(options: GalleryPageOptions): void;
+}
+
+export interface GalleryPageOptions {
+  root: Lib;
+  assetPath: string;
+  imagePrefix: string;
+  leftButtonSrc: string;
+  rightButtonSrc: string;
+  defaultRatio?: string;
+  centerX?: number;
+  centerY?: number;
+  navY?: number;
+  navScale?: number;
+  spacing?: number;
+  galleryY?: number;
+  galleryHeight?: number;
+  cardShadowColor?: string;
+  cardTextColor?: string;
+  cardYOffset?: number;
+  navButtonShadow?: string;
+  configUrl?: string;
+  configKey?: string;
+  stageWidth?: number;
+  stageHeight?: number;
 }
 
 export interface PreviewOverlayOptions {
