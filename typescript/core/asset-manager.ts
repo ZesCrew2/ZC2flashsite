@@ -13,7 +13,6 @@ export class AssetManager implements IAssetManager {
   private _deferredLoaded = false;
   private _deferredLoading: Promise<void> | null = null;
 
-  // Audio preload (runs after the progress bar completes, non-blocking).
   private _audioQueue: Lib | null = null;
   private _audioResults: Record<string, Lib> = {};
   private _audioLoaded = false;
@@ -62,11 +61,6 @@ export class AssetManager implements IAssetManager {
     return result;
   }
 
-  /**
-   * Preload the audio manifest. Intended to run *after* the progress bar has
-   * finished — it is intentionally non-blocking and simply warms the
-   * createjs.Sound registry (and the asset results map) in the background.
-   */
   loadAudio(): Promise<void> {
     if (this._audioLoaded) return Promise.resolve();
     if (this._audioLoading) return this._audioLoading;
@@ -87,7 +81,6 @@ export class AssetManager implements IAssetManager {
       });
       audioQueue.on('error', (evt: Lib) => {
         console.error('AssetManager: audio file failed to load', evt);
-        // Don't reject the preload — the site must still work without sound.
         if (!this._audioLoaded) {
           this._audioLoaded = true;
           this._audioLoading = null;
@@ -137,12 +130,6 @@ export class AssetManager implements IAssetManager {
     if (this._onError) this._onError(event);
   }
 
-  // Blocking manifest — loaded while the progress bar is active.
-  // Audio + glsl are intentionally excluded so they don't stall the bar;
-  // see AUDIO_MANIFEST and the bg-shader preload kicked off by BootManager.
-  // bg.png IS included here because the background shader needs it the moment
-  // the site is revealed, and we don't want a flash of unstyled background
-  // waiting for it to download after the bar finishes.
   static MANIFEST: AssetManagerManifestItem[] = [
     { id: 'site_bg', src: 'assets/img/bg.png' },
     { id: 'site_logo', src: 'assets/img/zc2aeroorb.png' },
@@ -154,9 +141,6 @@ export class AssetManager implements IAssetManager {
     { id: 'zc2banner_atlas_3', src: 'assets/swf/banner/images/zc2banner_atlas_3.png' },
   ];
 
-  // Audio is preloaded *after* the progress bar completes (non-blocking) so
-  // the load screen is never blocked by sound downloads. Sound is still
-  // registered via the createjs.Sound plugin, so playSound() works once ready.
   static AUDIO_MANIFEST: AssetManagerManifestItem[] = [
     { id: 'clickywav', src: 'assets/sounds/clicky.wav' },
     { id: 'hoverwav', src: 'assets/sounds/hover.wav' },

@@ -30,19 +30,11 @@ export const CUBE_INDICES: Uint16Array = new Uint16Array([
   18, 19, 20, 21, 22, 20, 22, 23,
 ]);
 
-/**
- * Builds a single merged mesh containing many unit cubes translated to the
- * given offsets. This collapses N separate draw calls into one, which is the
- * key optimization for the maze (hundreds of static wall tiles).
- *
- * Vertex attribute layout matches createCube() exactly (position=0, uv=1,
- * normal=2, tangent=3) so the same shader/program can be reused.
- */
 export function createMergedCubes(
   gl: Gl,
   offsets: Array<{ x: number; y: number; z: number }>,
 ): { vao: WebGLVertexArrayObject; count: number } {
-  const perVerts = CUBE_POSITIONS.length / 3; // 24 vertices per cube
+  const perVerts = CUBE_POSITIONS.length / 3;
   const vertCount = perVerts * offsets.length;
   const positions = new Float32Array(vertCount * 3);
   const normals = new Float32Array(vertCount * 3);

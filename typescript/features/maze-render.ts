@@ -42,9 +42,6 @@ export function renderMaze(maze: Maze, time: number): void {
   const yOffset = (window.innerHeight - viewHeight) / 2;
 
   engine.startFrame();
-  // Render the world double-sided. The walls are solid cubes, but when the
-  // camera hugs a wall its near face can clip the near plane; without this the
-  // back face would be culled and you'd see straight through the wall.
   gl.disable(gl.CULL_FACE);
   gl.viewport(0, 0, engine.currentRes.w, engine.currentRes.h);
 
@@ -108,15 +105,12 @@ export function renderMaze(maze: Maze, time: number): void {
     engine.pool.recycle(mvpMatrix);
   };
 
-  // All static walls are pre-baked into a single merged mesh, so the entire
-  // maze shell is drawn in ONE draw call.
   if (maze.wallMesh) {
-    const wallModel = engine.pool.getMat4(); // identity
+    const wallModel = engine.pool.getMat4();
     drawMesh(maze.wallMesh.vao, maze.wallMesh.count, wallModel, maze.materials.wall, 0.0);
     engine.pool.recycle(wallModel);
   }
 
-  // Buttons — only the handful that exist, no full-grid scan.
   for (let i = 0; i < maze.buttons.length; i++) {
     const btn = maze.buttons[i];
     const x = btn.x;
@@ -156,7 +150,6 @@ export function renderMaze(maze: Maze, time: number): void {
     engine.pool.recycle(modelMatrix);
   }
 
-  // Doors — a few moving tiles, drawn dynamically.
   for (let i = 0; i < maze.doors.length; i++) {
     const door = maze.doors[i];
     for (let t = 0; t < door.tiles.length; t++) {

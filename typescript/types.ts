@@ -1,6 +1,5 @@
 export type Lib = any;
 
-/** WebGL2 rendering context (real type for the 3D engine). */
 export type Gl = WebGL2RenderingContext;
 
 export interface PlaylistTrack {

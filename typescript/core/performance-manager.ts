@@ -44,7 +44,6 @@ export class PerformanceManager implements IPerformanceManager {
         }
       }
     } catch (e) {
-      /* ignore */
     }
 
     const gpu = this.capabilities.gpu.toLowerCase();

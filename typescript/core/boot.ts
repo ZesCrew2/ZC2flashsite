@@ -42,17 +42,11 @@ export class BootManager implements BootManagerInstance {
       await assetMgr.load();
       if (this.progressStatus) this.progressStatus.textContent = 'Complete!';
 
-      // Progress bar is complete — now preload audio + glsl in the
-      // background. This must NOT block the reveal of the site.
       if (assets && assets.loadAudio) {
         assets
           .loadAudio()
           .catch((err) => console.error('BootManager: audio preload failed', err));
       }
-      // Likewise defer-load the maze assets (textures, maze sounds, etc.) in
-      // the background so they're already cached when the maze is launched
-      // (e.g. via the logo click), instead of blocking the first frame of the
-      // maze on a download. Mirrors the audio/shader preload above.
       if (assets && assets.loadDeferred) {
         assets
           .loadDeferred()
@@ -72,11 +66,6 @@ export class BootManager implements BootManagerInstance {
     const self = this;
     const finish = () => {
       if (self.preloader) self.preloader.style.display = 'none';
-      // The progress bar is now gone — lazily load the Windows Media Player
-      // (and, via wmplayer.js itself, its stylesheets) in the background. This
-      // mirrors how audio is preloaded *after* the loading screen completes, so
-      // the player never competes with the initial load. It must not block the
-      // reveal of the site.
       self.loadWmPlayer();
     };
 
@@ -94,14 +83,6 @@ export class BootManager implements BootManagerInstance {
     this.dispatchReadyEvent();
   }
 
-  /**
-   * Inject the Windows Media Player scripts into the page sequentially, after
-   * the progress bar has been removed. wmplayer.js also loads its own
-   * stylesheets (via absolute URLs resolved from its own src), so this covers
-   * all of the player's assets. Once every script has executed, a
-   * `wmplayer:ready` event is dispatched so dependent code (e.g. the playlist
-   * wiring) can run.
-   */
   loadWmPlayer(): void {
     if (window.wmplayerReady) return;
 

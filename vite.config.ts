@@ -6,10 +6,6 @@ const autoloaderSource = fileURLToPath(
 );
 const BUNDLE_SRC = 'assets/ts/microsite.bundle.js';
 
-// In dev (`vite` serve), rewrite the built-bundle <script> to point at the
-// TypeScript source so Vite can transform it on the fly and provide HMR.
-// The production build keeps the static bundle reference and bundles
-// `autoloader.ts` into the single file via rollupOptions.input below.
 const devSourcePlugin = {
   name: 'dev-source-rewrite',
   apply: 'serve' as const,
@@ -22,7 +18,6 @@ export default defineConfig(({ mode }) => ({
   root: 'zc2sitelol',
   plugins: [devSourcePlugin],
   server: {
-    // Allow Vite to serve the TS sources, which live outside the `root`.
     fs: {
       allow: [fileURLToPath(new URL('.', import.meta.url))],
     },

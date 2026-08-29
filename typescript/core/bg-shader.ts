@@ -95,11 +95,6 @@ function setupBackground(shaderCode: string): void {
 
   const stage = new createjs.StageGL(canvas, { transparent: false, antialias: true });
 
-  // Prefer the asset that was already preloaded during the progress bar.
-  // BootManager guarantees the MANIFEST (which now contains bg.png) finishes
-  // before this runs, so it should be present and decoded. Fall back to a
-  // direct load only if it somehow isn't (e.g. cache eviction), keeping the
-  // crossOrigin behaviour the WebGL shader needs.
   const preloaded = assets.getAsset('site_bg') as HTMLImageElement | null;
 
   const useImage = (image: HTMLImageElement) => {
@@ -162,8 +157,6 @@ function setupBackground(shaderCode: string): void {
     });
   };
 
-  // Use the preloaded asset when it's already available. createjs loads images
-  // with crossOrigin handled, so the WebGL texture stays untainted.
   if (preloaded && preloaded.complete && preloaded.naturalWidth > 0) {
     useImage(preloaded);
   } else if (preloaded) {
@@ -182,6 +175,3 @@ function setupBackground(shaderCode: string): void {
 
 window.initBackgroundShader = initBackgroundShader;
 
-// NOTE: The shader is no longer auto-loaded on `window.load`. BootManager
-// triggers it (non-blocking) only AFTER the progress bar has completed, so the
-// glsl fetch never blocks or races the loading screen.

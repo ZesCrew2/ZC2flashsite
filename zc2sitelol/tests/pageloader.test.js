@@ -53,8 +53,6 @@ global.createjs = window.createjs;
 global.AdobeAn = window.AdobeAn;
 global.Microsite = window.Microsite;
 
-// Additional browser globals referenced during module initialization of the
-// expanded microsite import graph (asset-manager / performance-manager / engine).
 global.localStorage = {
     getItem: () => null,
     setItem: () => {}
@@ -90,8 +88,6 @@ global.quat = {
     create: () => new Float32Array(4)
 };
 
-// Comprehensive document mock supporting engine/boot (getContext) and pageloader
-// (appendChild / innerHTML / onload) code paths exercised during module load.
 const mockEl = () => ({
     style: {},
     appendChild: () => {},

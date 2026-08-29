@@ -38,7 +38,6 @@ const window = {
 global.window = window;
 global.createjs = window.createjs;
 
-// Additional browser globals referenced during module initialization.
 global.localStorage = {
     getItem: () => null,
     setItem: () => {}
@@ -63,9 +62,6 @@ global.CustomEvent =
         }
     };
 
-// gl-matrix globals are loaded as classic scripts before the module bundle in
-// the real page; the test provides minimal stubs so the engine singleton can be
-// constructed (its object pool references these at module load).
 global.vec3 = {
     create: () => new Float32Array(3),
     set: () => {}
