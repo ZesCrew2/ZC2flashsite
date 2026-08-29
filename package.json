@@ -6,12 +6,13 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --mode development",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p typescript/tsconfig.json --noEmit",
     "format": "prettier --write \"typescript/**/*.ts\"",
     "lint": "eslint \"typescript/**/*.ts\""
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
+    "@types/node": "^26.4.0",
     "eslint": "^9.9.0",
     "prettier": "^3.3.0",
     "typescript": "^5.5.0",
