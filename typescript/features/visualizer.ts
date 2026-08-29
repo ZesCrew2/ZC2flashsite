@@ -63,17 +63,15 @@ export const initVisualizer = (player: Lib): void => {
   video.addEventListener('playing', ensureAudio);
   video.addEventListener('play', ensureAudio);
 
+  let plasmaCanvas: HTMLCanvasElement | null = null;
+  let plasmaCtx: CanvasRenderingContext2D | null = null;
+  let plasmaImg: ImageData | null = null;
+
   const draw = () => {
     requestAnimationFrame(draw);
 
     const w = canvas!.width;
     const h = canvas!.height;
-
-    const bg = ctx2d!.createLinearGradient(0, 0, 0, h);
-    bg.addColorStop(0, '#050507');
-    bg.addColorStop(1, '#0c0c12');
-    ctx2d!.fillStyle = bg;
-    ctx2d!.fillRect(0, 0, w, h);
 
     const playing = !video.paused && !video.ended && video.currentTime > 0;
 
@@ -83,41 +81,108 @@ export const initVisualizer = (player: Lib): void => {
       bins = Array.from(data);
     }
 
-    const bars = 64;
-    const binCount = bins ? bins.length : bars;
-    const step = Math.max(1, Math.floor(binCount / bars));
-    const gap = Math.max(1, Math.floor((w / bars) * 0.18));
-    const barW = (w - gap * (bars - 1)) / bars;
     const t = performance.now() / 1000;
 
-    for (let i = 0; i < bars; i++) {
-      let v: number;
-      if (bins) {
-        let sum = 0;
-        for (let j = 0; j < step; j++) sum += bins[i * step + j];
-        v = sum / step / 255;
-      } else if (playing) {
-        const beat = 0.6 + 0.4 * Math.abs(Math.sin(t * 2.2));
-        v =
-          (0.18 +
-            0.4 * (0.5 + 0.5 * Math.sin(t * 3.1 + i * 0.35)) *
-              (0.5 + 0.5 * Math.sin(t * 1.7 + i * 0.12))) *
-          beat;
-      } else {
-        v = 0;
+    const NB = 8;
+    const bands = new Array<number>(NB);
+    let energy = 0;
+    if (bins) {
+      const usable = Math.max(1, Math.floor(bins.length * 0.7));
+      for (let k = 0; k < NB; k++) {
+        const a = Math.floor((k / NB) * usable);
+        const b = Math.max(a + 1, Math.floor(((k + 1) / NB) * usable));
+        let s = 0;
+        for (let i = a; i < b; i++) s += bins[i];
+        const e = s / ((b - a) * 255);
+        bands[k] = e;
+        energy += e;
       }
-
-      const barH = Math.max(2, v * h * 0.92);
-      const x = i * (barW + gap);
-      const y = h - barH;
-
-      const grad = ctx2d!.createLinearGradient(0, h, 0, y);
-      grad.addColorStop(0, '#00e676');
-      grad.addColorStop(0.55, '#ffea00');
-      grad.addColorStop(1, '#ff1744');
-      ctx2d!.fillStyle = grad;
-      ctx2d!.fillRect(x, y, barW, barH);
+      energy /= NB;
+    } else if (playing) {
+      for (let k = 0; k < NB; k++) {
+        const e = 0.15 + 0.22 * Math.abs(Math.sin(t * (1.4 + k * 0.4) + k));
+        bands[k] = e;
+        energy += e;
+      }
+      energy /= NB;
+    } else {
+      for (let k = 0; k < NB; k++) bands[k] = 0;
+      energy = 0;
     }
+
+    const ang: number[] = [];
+    const fk: number[] = [];
+    const spd: number[] = [];
+    for (let k = 0; k < NB; k++) {
+      ang.push(k * 2.39996323);
+      fk.push(1 + k * 0.85);
+      spd.push(0.7 + k * 0.35);
+    }
+
+    const PW = 200;
+    const PH = Math.max(2, Math.round((PW * h) / w));
+    if (!plasmaCanvas || plasmaCanvas.width !== PW || plasmaCanvas.height !== PH) {
+      plasmaCanvas = document.createElement('canvas');
+      plasmaCanvas.width = PW;
+      plasmaCanvas.height = PH;
+      plasmaCtx = plasmaCanvas.getContext('2d');
+      plasmaImg = plasmaCtx ? plasmaCtx.createImageData(PW, PH) : null;
+    }
+    const pctx = plasmaCtx;
+    const pimg = plasmaImg;
+    if (!pctx || !pimg) return;
+
+    const img = pimg.data;
+    const TAU = Math.PI * 2;
+    const hueShift = t * 0.12 + energy * 1.4 + bands[2] * 0.8;
+    const scale = 2.2 + energy * 2.2;
+    const bri = 0.5 + 0.75 * energy;
+    const warp = 0.1 + energy * 0.35 + bands[0] * 0.2;
+    const treble = bands[NB - 1];
+
+    for (let y = 0; y < PH; y++) {
+      const v = y / PH;
+      for (let x = 0; x < PW; x++) {
+        const u = x / PW;
+
+        const uu = u + warp * Math.sin(v * scale * 1.7 + t * 1.6 + bands[1] * 4);
+        const vv = v + warp * Math.cos(u * scale * 1.7 + t * 1.2 + bands[3] * 4);
+
+        let val = 0;
+        let amp = 0;
+        for (let k = 0; k < NB; k++) {
+          const cx = Math.cos(ang[k]);
+          const cy = Math.sin(ang[k]);
+          const ph =
+            (uu * cx + vv * cy) * scale * fk[k] + t * spd[k] + bands[k] * t * 2.0;
+          const a = 0.3 + bands[k] * 1.6;
+          val += a * Math.sin(ph);
+          amp += a;
+        }
+        val += 0.5 * treble * Math.sin((uu + vv) * scale * 3.0 + t * 4.0 + bands[NB - 2] * 6);
+        amp += 0.5 * treble;
+        val = val / amp;
+        val = val * 0.5 + 0.5;
+
+        const r = 0.5 + 0.5 * Math.cos(TAU * val + hueShift);
+        const g = 0.5 + 0.5 * Math.cos(TAU * val + hueShift + 2.094);
+        const b = 0.5 + 0.5 * Math.cos(TAU * val + hueShift + 4.188);
+        const i = (y * PW + x) * 4;
+        const rr = r * 255 * bri;
+        const gg = g * 255 * bri;
+        const bb = b * 255 * bri;
+        img[i] = rr > 255 ? 255 : rr;
+        img[i + 1] = gg > 255 ? 255 : gg;
+        img[i + 2] = bb > 255 ? 255 : bb;
+        img[i + 3] = 255;
+      }
+    }
+
+    pctx.putImageData(pimg, 0, 0);
+
+    ctx2d!.globalCompositeOperation = 'source-over';
+    ctx2d!.imageSmoothingEnabled = true;
+    ctx2d!.drawImage(plasmaCanvas, 0, 0, w, h);
   };
   draw();
 };
