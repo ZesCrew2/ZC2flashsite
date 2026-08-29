@@ -6,7 +6,6 @@ import type {
   GalleryItem,
   GalleryCardOptions,
   GalleryLayout,
-  GalleryOptions,
   UiApi,
 } from '../types.js';
 

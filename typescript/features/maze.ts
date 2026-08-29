@@ -65,7 +65,7 @@ function requestPointerLock(el: HTMLElement): void {
     req.catch(() => {
       try {
         (el as Lib).requestPointerLock();
-      } catch (_) {
+      } catch {
         /* ignore */
       }
     });

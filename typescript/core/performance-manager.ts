@@ -43,7 +43,8 @@ export class PerformanceManager implements IPerformanceManager {
           this.capabilities.gpu = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
         }
       }
-    } catch (e) {
+    } catch {
+      // ignore
     }
 
     const gpu = this.capabilities.gpu.toLowerCase();
