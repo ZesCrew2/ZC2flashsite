@@ -49,6 +49,15 @@ export class BootManager implements BootManagerInstance {
           .loadAudio()
           .catch((err) => console.error('BootManager: audio preload failed', err));
       }
+      // Likewise defer-load the maze assets (textures, maze sounds, etc.) in
+      // the background so they're already cached when the maze is launched
+      // (e.g. via the logo click), instead of blocking the first frame of the
+      // maze on a download. Mirrors the audio/shader preload above.
+      if (assets && assets.loadDeferred) {
+        assets
+          .loadDeferred()
+          .catch((err) => console.error('BootManager: maze asset preload failed', err));
+      }
       initBackgroundShader()
         .catch((err) => console.error('BootManager: shader preload failed', err));
 
