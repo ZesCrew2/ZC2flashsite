@@ -1,4 +1,5 @@
-import { Microsite } from '../microsite.js';
+import { assets } from '../core/asset-manager.js';
+import { ticker } from '../microsite/ticker.js';
 import type { Lib } from '../types.js';
 
 document.addEventListener('MicrositeReady', () => initBanner());
@@ -14,7 +15,7 @@ function initBanner(): void {
   if (!comp) return;
 
   const lib = comp.getLibrary();
-  const assetMgr = Microsite.assets;
+  const assetMgr = assets;
   if (!assetMgr) return;
 
   const images = comp.getImages();
@@ -38,7 +39,7 @@ function initBanner(): void {
   stage.enableMouseOver();
   stage.autoClear = true;
 
-  const throttledTick = Microsite.ticker.createThrottledTick(stage, 24);
+  const throttledTick = ticker.createThrottledTick(stage, 24);
   createjs.Ticker.addEventListener('tick', throttledTick);
 
   AdobeAn.compositionLoaded(lib.properties.id);

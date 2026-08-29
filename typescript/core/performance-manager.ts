@@ -1,4 +1,3 @@
-import { Microsite } from '../microsite.js';
 import type {
   PerformanceManager as IPerformanceManager,
   PerformanceSettings,
@@ -23,7 +22,6 @@ export class PerformanceManager implements IPerformanceManager {
 
     console.log(`Performance Tier active: ${this.TIER}`, this.capabilities);
 
-    Microsite.perf = this;
     window.dispatchEvent(new CustomEvent('perf-tier-set', { detail: { tier: this.TIER } }));
   }
 
@@ -115,5 +113,5 @@ export class PerformanceManager implements IPerformanceManager {
   }
 }
 
-const perf = new PerformanceManager();
+export const perf = new PerformanceManager();
 perf.init();

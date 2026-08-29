@@ -1,4 +1,4 @@
-import { Microsite } from '../microsite.js';
+import { ticker } from '../microsite/ticker.js';
 import type { Lib } from '../types.js';
 
 let currentStage: Lib | null = null;
@@ -120,7 +120,7 @@ function handlePageComplete(evt: Lib, comp: Lib, color: string): void {
   currentStage.enableMouseOver();
   currentStage.addChild(exportRoot);
 
-  const throttledTick = Microsite.ticker.createThrottledTick(currentStage, lib.properties.fps);
+  const throttledTick = ticker.createThrottledTick(currentStage, lib.properties.fps);
   createjs.Ticker.addEventListener('tick', throttledTick);
   currentStage._throttledTick = throttledTick;
 

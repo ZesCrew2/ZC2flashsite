@@ -1,4 +1,5 @@
-import { Microsite } from '../microsite.js';
+import { AssetManager } from '../core/asset-manager.js';
+import { audio } from '../microsite/audio.js';
 import type { Lib } from '../types.js';
 
 const init = (): void => {
@@ -7,8 +8,8 @@ const init = (): void => {
       if (window.siteAudio && window.siteAudio.isMuted) return null;
 
       let resolvedId = id;
-      if (Microsite.AssetManager && Microsite.AssetManager.ALIASES) {
-        resolvedId = Microsite.AssetManager.ALIASES[id] || id;
+      if (AssetManager && AssetManager.ALIASES) {
+        resolvedId = AssetManager.ALIASES[id] || id;
       }
 
       return createjs.Sound.play(resolvedId, {
@@ -21,24 +22,24 @@ const init = (): void => {
 
   document.addEventListener('mouseover', (e: MouseEvent) => {
     if ((e.target as Lib).classList.contains('btn')) {
-      Microsite.audio.play('hoverwav');
+      audio.play('hoverwav');
     }
   });
 
   document.addEventListener('mousedown', (e: MouseEvent) => {
     if ((e.target as Lib).classList.contains('btn')) {
-      Microsite.audio.play('clickywav');
+      audio.play('clickywav');
     }
   });
 
   const speaker = document.getElementById('speaker');
   if (speaker) {
-    speaker.addEventListener('mouseover', () => Microsite.audio.play('hoverwav'));
+    speaker.addEventListener('mouseover', () => audio.play('hoverwav'));
   }
 
   const saptarshi = document.querySelector('.saptarshi-text');
   if (saptarshi) {
-    saptarshi.addEventListener('click', () => Microsite.audio.play('site_notif'));
+    saptarshi.addEventListener('click', () => audio.play('site_notif'));
   }
 
   const thorns = document.querySelector('.thorns-text');
@@ -46,7 +47,7 @@ const init = (): void => {
   if (thorns) {
     thorns.addEventListener('click', () => {
       const randomId = luigiIds[Math.floor(Math.random() * luigiIds.length)];
-      Microsite.audio.play(randomId);
+      audio.play(randomId);
     });
   }
 };

@@ -3,6 +3,18 @@ const assert = require('node:assert');
 const path = require('path');
 
 // Mock window and other browser globals
+class MockLoadQueue {
+    constructor() {}
+    installPlugin() {}
+    on() {}
+    loadManifest() {}
+    getResult() {
+        return null;
+    }
+    close() {}
+    removeAllEventListeners() {}
+}
+
 const window = {
     createjs: {
         Ticker: {
@@ -13,12 +25,58 @@ const window = {
         },
         Ease: {
             quadOut: {}
+        },
+        Sound: {},
+        LoadQueue: MockLoadQueue,
+        Types: {
+            BINARY: 'binary'
         }
     },
-    console: console
+    console: console,
+    dispatchEvent: () => {}
 };
 global.window = window;
 global.createjs = window.createjs;
+
+// Additional browser globals referenced during module initialization.
+global.localStorage = {
+    getItem: () => null,
+    setItem: () => {}
+};
+global.navigator = {
+    deviceMemory: 4,
+    hardwareConcurrency: 4,
+    userAgent: 'node'
+};
+global.document = {
+    createElement: () => ({ getContext: () => null }),
+    getElementById: () => null,
+    addEventListener: () => {},
+    body: { appendChild: () => {} }
+};
+global.CustomEvent =
+    global.CustomEvent ||
+    class {
+        constructor(type, opts) {
+            this.type = type;
+            this.detail = opts && opts.detail;
+        }
+    };
+
+// gl-matrix globals are loaded as classic scripts before the module bundle in
+// the real page; the test provides minimal stubs so the engine singleton can be
+// constructed (its object pool references these at module load).
+global.vec3 = {
+    create: () => new Float32Array(3),
+    set: () => {}
+};
+global.mat4 = {
+    create: () => new Float32Array(16),
+    identity: () => {}
+};
+global.quat = {
+    create: () => new Float32Array(4)
+};
 
 // Load the compiled Microsite namespace module
 test.before(async () => {

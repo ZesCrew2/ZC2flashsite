@@ -1,4 +1,4 @@
-import { Microsite } from '../microsite.js';
+import { audio } from '../microsite/audio.js';
 import type { Lib } from '../types.js';
 
 window.siteAudio = { isMuted: true };
@@ -30,7 +30,7 @@ const init = (): void => {
         wmp.currentPlaylistIndex = Math.floor(Math.random() * window.musicPlaylist!.length);
       }
       wmp.play();
-      Microsite.audio.play('clickywav');
+      audio.play('clickywav');
     }
   });
 

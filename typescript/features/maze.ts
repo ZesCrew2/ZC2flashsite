@@ -1,34 +1,63 @@
-import { Microsite } from '../microsite.js';
+import { assets as assetManager } from '../core/asset-manager.js';
+import { perf } from '../core/performance-manager.js';
+import { engine } from '../core/engine-core.js';
+import { Player } from './player.js';
+import {
+  MOUSE_SENSITIVITY,
+  DOOR_SPEED_FACTOR,
+  DOOR_OPEN_OFFSET,
+  DOOR_CLOSED_OFFSET,
+  DOOR_END_TRIGGER_OFFSET,
+  WALL_STOP_VOLUME,
+  TILE_CENTER,
+  WALL_HEIGHT,
+  INTERACT_RADIUS,
+  MAX_FRAME_DT,
+  FRAME_TIME_MS,
+  SETTINGS_DELAY_MS,
+  SETTING_REMOVE_DELAY_MS,
+  TEXT_CHAR_BASE_DELAY_MS,
+  TEXT_CHAR_JITTER_MS,
+  HUD_MESSAGE_HOLD_MS,
+  HUD_CYCLE_MIN_DELAY_MS,
+  HUD_CYCLE_JITTER_MS,
+  MUSIC_FADE_DURATION_MS,
+  MUSIC_FADE_INTERVAL_MS,
+  MUSIC_FADE_TARGET_VOLUME,
+  END_RELOAD_DELAY_MS,
+  FADE_OVERLAY_TRANSITION,
+  HUD_FADE_TRANSITION,
+  ASSET_MESSAGES,
+  ASSET_WALL_DIFF,
+  ASSET_WALL_NOR,
+  ASSET_WALL_ROUGH,
+  ASSET_FLOOR_DIFF,
+  ASSET_FLOOR_NOR,
+  ASSET_FLOOR_ROUGH,
+  ASSET_BTN_CLOSED,
+  ASSET_BTN_OPENED,
+  ASSET_SKYBOX,
+  ASSET_WALL_MOVE,
+  ASSET_WALL_STOP,
+  ASSET_MAZE_END_IMG,
+  SOUND_MAZE_SELECT,
+  SOUND_MAZE_TEXTBOX,
+  SOUND_MAZE_SWITCH,
+  SOUND_MAZE_END_SFX,
+  SOUND_MAZE_MUSIC,
+} from './maze-config.js';
+import {
+  ButtonEntity,
+  DoorEntity,
+  MaterialSet,
+  RenderMaterial,
+  createMazeMap,
+  createMazeButtons,
+  createMazeDoors,
+} from './maze-data.js';
+import { playWebAudioSpatial, startDoorMoveSound } from './maze-audio.js';
+import { renderMaze } from './maze-render.js';
 import type { MazeInstance, EngineInstance, PlayerInstance, Gl, Lib } from '../types.js';
-
-interface ButtonEntity {
-  x: number;
-  y: number;
-  state: string;
-  targetId: string;
-}
-
-interface DoorEntity {
-  id: string;
-  tiles: { x: number; y: number }[];
-  offsetY: number;
-  state: string;
-  moveSource: Lib | null;
-  movePanner: Lib | null;
-  moveGain?: Lib;
-}
-
-interface MaterialSet {
-  diffuse: WebGLTexture | null;
-  normal: WebGLTexture | null;
-  roughness: WebGLTexture | null;
-}
-
-interface RenderMaterial {
-  diffuse: WebGLTexture | null;
-  normal?: WebGLTexture | null;
-  roughness?: WebGLTexture | null;
-}
 
 function requestPointerLock(el: HTMLElement): void {
   const req = (el as Lib).requestPointerLock({ unadjustedMovement: true });
@@ -69,52 +98,9 @@ export class Maze implements MazeInstance {
     buttonOpened: null,
   };
 
-  map: number[][] = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 2, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1],
-    [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-    [1, 2, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
-    [1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3],
-    [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
-    [1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1],
-    [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
-    [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  ];
-
-  buttons: ButtonEntity[] = [
-    { x: 1, y: 5, state: 'closed', targetId: 'ent_10_9' },
-    { x: 15, y: 1, state: 'closed', targetId: 'ent_19_9' },
-  ];
-
-  doors: DoorEntity[] = [
-    {
-      id: 'ent_10_9',
-      tiles: [{ x: 10, y: 9 }],
-      offsetY: 0.0,
-      state: 'closed',
-      moveSource: null,
-      movePanner: null,
-    },
-    {
-      id: 'ent_19_9',
-      tiles: [{ x: 19, y: 9 }],
-      offsetY: 0.0,
-      state: 'closed',
-      moveSource: null,
-      movePanner: null,
-    },
-  ];
+  map: number[][] = createMazeMap();
+  buttons: ButtonEntity[] = createMazeButtons();
+  doors: DoorEntity[] = createMazeDoors();
 
   messages: string[] = [];
   messageIndex = 0;
@@ -123,7 +109,7 @@ export class Maze implements MazeInstance {
 
   player: PlayerInstance | null = null;
   keys: Record<string, boolean> = {};
-  mouseSensitivity = 0.0015;
+  mouseSensitivity = MOUSE_SENSITIVITY;
   tickCount = 0;
   private _settingsScreen: HTMLElement | null = null;
 
@@ -131,12 +117,12 @@ export class Maze implements MazeInstance {
     if (this.isActive) return;
     this.isActive = true;
 
-    const assets = Microsite.assets!;
-    this.player = new Microsite.Player!();
+    const assets = assetManager;
+    this.player = new Player();
 
     this.audioCtx = new (window.AudioContext || (window as Lib).webkitAudioContext)();
 
-    this.messages = assets.getAsset('maze_messages') || ['...'];
+    this.messages = assets.getAsset(ASSET_MESSAGES) || ['...'];
 
     document.body.classList.add('maze-active');
     const wmp = document.getElementById('wmp') as Lib | null;
@@ -152,7 +138,7 @@ export class Maze implements MazeInstance {
       height: '100vh',
       backgroundColor: 'black',
       zIndex: '20000',
-      transition: 'opacity 4s ease',
+      transition: FADE_OVERLAY_TRANSITION,
       pointerEvents: 'none',
     });
     document.body.appendChild(this.fadeOverlay);
@@ -176,7 +162,7 @@ export class Maze implements MazeInstance {
         fontFamily: 'PetscopHand, monospace',
       });
       const currentTierName = (): string => {
-        const t = Microsite.perf?.TIER;
+        const t = perf.TIER;
         return t === 1 ? 'HIGH' : t === 2 ? 'MEDIUM' : 'LOW';
       };
       settingsScreen.innerHTML = `
@@ -190,9 +176,9 @@ export class Maze implements MazeInstance {
       `;
       document.body.appendChild(settingsScreen);
 
-      if (createjs && createjs.Sound) createjs.Sound.play('maze_select');
+      if (createjs && createjs.Sound) createjs.Sound.play(SOUND_MAZE_SELECT);
       this._settingsScreen = settingsScreen;
-    }, 3000);
+    }, SETTINGS_DELAY_MS);
 
     this.canvas = document.createElement('canvas');
     this.canvas.id = 'maze-canvas';
@@ -221,11 +207,11 @@ export class Maze implements MazeInstance {
       pointerEvents: 'none',
       textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
       opacity: '0',
-      transition: 'opacity 2s ease',
+      transition: HUD_FADE_TRANSITION,
     });
     document.body.appendChild(this.hudElement);
 
-    this.engine = Microsite.engine!;
+    this.engine = engine;
     this.gl = this.engine.init(this.canvas);
     this.cube = this.engine.createCube();
 
@@ -246,28 +232,28 @@ export class Maze implements MazeInstance {
     window.addEventListener('resize', () => {
       this.canvas!.width = window.innerWidth;
       this.canvas!.height = window.innerHeight;
-      const res = Microsite.perf?.getSettings().res || { w: 800, h: 600 };
+      const res = perf.getSettings().res;
       this.engine.setupFramebuffer(res.w, res.h);
     });
 
     this.materials.wall = {
-      diffuse: this.engine.createTextureFromImage(assets.getAsset('wall_diff')),
-      normal: this.engine.createTextureFromImage(assets.getAsset('wall_nor')),
-      roughness: this.engine.createTextureFromImage(assets.getAsset('wall_rough')),
+      diffuse: this.engine.createTextureFromImage(assets.getAsset(ASSET_WALL_DIFF)),
+      normal: this.engine.createTextureFromImage(assets.getAsset(ASSET_WALL_NOR)),
+      roughness: this.engine.createTextureFromImage(assets.getAsset(ASSET_WALL_ROUGH)),
     };
     this.materials.floor = {
-      diffuse: this.engine.createTextureFromImage(assets.getAsset('floor_diff')),
-      normal: this.engine.createTextureFromImage(assets.getAsset('floor_nor')),
-      roughness: this.engine.createTextureFromImage(assets.getAsset('floor_rough')),
+      diffuse: this.engine.createTextureFromImage(assets.getAsset(ASSET_FLOOR_DIFF)),
+      normal: this.engine.createTextureFromImage(assets.getAsset(ASSET_FLOOR_NOR)),
+      roughness: this.engine.createTextureFromImage(assets.getAsset(ASSET_FLOOR_ROUGH)),
     };
-    this.materials.buttonClosed = this.engine.createTextureFromImage(assets.getAsset('btn_closed'));
-    this.materials.buttonOpened = this.engine.createTextureFromImage(assets.getAsset('btn_opened'));
+    this.materials.buttonClosed = this.engine.createTextureFromImage(assets.getAsset(ASSET_BTN_CLOSED));
+    this.materials.buttonOpened = this.engine.createTextureFromImage(assets.getAsset(ASSET_BTN_OPENED));
     this.materials.skybox = {
-      diffuse: this.engine.createTextureFromImage(assets.getAsset('skybox'), true),
+      diffuse: this.engine.createTextureFromImage(assets.getAsset(ASSET_SKYBOX), true),
     };
 
-    const wallMoveAsset = assets.getAsset('wall_move');
-    const wallStopAsset = assets.getAsset('wall_stop');
+    const wallMoveAsset = assets.getAsset(ASSET_WALL_MOVE);
+    const wallStopAsset = assets.getAsset(ASSET_WALL_STOP);
 
     if (window.AudioBuffer && wallMoveAsset instanceof AudioBuffer) {
       this.audioBuffers.wallMove = wallMoveAsset;
@@ -300,8 +286,8 @@ export class Maze implements MazeInstance {
         if (!target.classList.contains('maze-set-btn')) return;
 
         const selectedTier = parseInt(target.dataset.tier ?? '0', 10);
-        if (Microsite.perf) {
-          Microsite.perf.setTier(selectedTier);
+        if (perf) {
+          perf.setTier(selectedTier);
           const label = document.getElementById('maze-tier-label');
           if (label)
             label.innerText = `(Selected: ${selectedTier === 1 ? 'HIGH' : selectedTier === 2 ? 'MEDIUM' : 'LOW'})`;
@@ -313,7 +299,7 @@ export class Maze implements MazeInstance {
             this._settingsScreen.remove();
             this._settingsScreen = null;
           }
-        }, 200);
+        }, SETTING_REMOVE_DELAY_MS);
 
         this.fadeOverlay!.style.opacity = '0';
         if (this.canvas) requestPointerLock(this.canvas);
@@ -323,18 +309,18 @@ export class Maze implements MazeInstance {
         this.cycleHUD();
 
         let vol = 0;
-        const duration = 5000;
-        const interval = 100;
-        const step = 0.7 / (duration / interval);
+        const duration = MUSIC_FADE_DURATION_MS;
+        const interval = MUSIC_FADE_INTERVAL_MS;
+        const step = MUSIC_FADE_TARGET_VOLUME / (duration / interval);
 
         if (createjs && createjs.Sound) {
-          this.audio = createjs.Sound.play('maze_music', { loop: -1, volume: 0 });
+          this.audio = createjs.Sound.play(SOUND_MAZE_MUSIC, { loop: -1, volume: 0 });
         }
 
         const fadeIn = setInterval(() => {
           vol += step;
-          if (vol >= 0.7) {
-            if (this.audio) this.audio.volume = 0.7;
+          if (vol >= MUSIC_FADE_TARGET_VOLUME) {
+            if (this.audio) this.audio.volume = MUSIC_FADE_TARGET_VOLUME;
             clearInterval(fadeIn);
           } else {
             if (this.audio) this.audio.volume = vol;
@@ -367,14 +353,14 @@ export class Maze implements MazeInstance {
       if (msg[i] === ' ') this.hudElement!.innerHTML += '&nbsp;';
       else {
         this.hudElement!.innerText += msg[i];
-        if (createjs && createjs.Sound) createjs.Sound.play('maze_textbox', { volume: 0.1 });
+        if (createjs && createjs.Sound) createjs.Sound.play(SOUND_MAZE_TEXTBOX, { volume: 0.1 });
       }
-      await new Promise((r) => setTimeout(r, 50 + Math.random() * 50));
+      await new Promise((r) => setTimeout(r, TEXT_CHAR_BASE_DELAY_MS + Math.random() * TEXT_CHAR_JITTER_MS));
     }
-    await new Promise((r) => setTimeout(r, 5000));
+    await new Promise((r) => setTimeout(r, HUD_MESSAGE_HOLD_MS));
     if (!this.isActive) return;
     this.hudElement!.style.opacity = '0';
-    await new Promise((r) => setTimeout(r, 5000 + Math.random() * 10000));
+    await new Promise((r) => setTimeout(r, HUD_CYCLE_MIN_DELAY_MS + Math.random() * HUD_CYCLE_JITTER_MS));
     this.messageIndex = (this.messageIndex + 1) % this.messages.length;
     this.cycleHUD();
   }
@@ -384,9 +370,9 @@ export class Maze implements MazeInstance {
       const dx = this.player.x - (btn.x + 0.5);
       const dy = this.player.y - (btn.y + 0.5);
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 1.2) {
+      if (dist < INTERACT_RADIUS) {
         btn.state = btn.state === 'closed' ? 'opened' : 'closed';
-        if (createjs && createjs.Sound) createjs.Sound.play('maze_switch');
+        if (createjs && createjs.Sound) createjs.Sound.play(SOUND_MAZE_SWITCH);
 
         const door = this.doors.find((d) => d.id === btn.targetId);
         if (door) {
@@ -400,32 +386,16 @@ export class Maze implements MazeInstance {
             door.moveSource = null;
           }
 
-          const source = this.audioCtx!.createBufferSource();
-          source.buffer = this.audioBuffers.wallMove;
-          source.loop = true;
-
-          const panner = this.audioCtx!.createPanner();
-          panner.panningModel = 'HRTF';
-          panner.distanceModel = 'inverse';
-          panner.refDistance = 0.5;
-          panner.maxDistance = 20;
-          panner.rolloffFactor = 1.5;
-
-          panner.positionX.value = midX + 0.5;
-          panner.positionY.value = 0.5 + door.offsetY;
-          panner.positionZ.value = midY + 0.5;
-
-          const gainNode = this.audioCtx!.createGain();
-          gainNode.gain.value = 4.0;
-
-          source.connect(panner);
-          panner.connect(gainNode);
-          gainNode.connect(this.audioCtx!.destination);
-
+          const { source, panner, gainNode } = startDoorMoveSound(
+            this.audioCtx!,
+            this.audioBuffers,
+            midX,
+            midY,
+            door.offsetY,
+          );
           door.moveSource = source;
           door.movePanner = panner;
           door.moveGain = gainNode;
-          source.start(0);
         }
       }
     });
@@ -469,37 +439,37 @@ export class Maze implements MazeInstance {
     player.velY *= player.friction;
 
     this.doors.forEach((door) => {
-      const speed = 0.01 * dt;
+      const speed = DOOR_SPEED_FACTOR * dt;
       const midX = door.tiles.reduce((sum, t) => sum + t.x, 0) / door.tiles.length;
       const midY = door.tiles.reduce((sum, t) => sum + t.y, 0) / door.tiles.length;
 
       if (door.state === 'opening') {
         door.offsetY += speed;
-        if (door.offsetY >= 1.1) {
-          door.offsetY = 1.1;
+        if (door.offsetY >= DOOR_OPEN_OFFSET) {
+          door.offsetY = DOOR_OPEN_OFFSET;
           door.state = 'opened';
           if (door.moveSource) {
             door.moveSource.stop();
             door.moveSource = null;
           }
-          this.playWebAudioSpatial('wallStop', midX, midY, 5.0);
+          playWebAudioSpatial(this.audioCtx!, this.audioBuffers, 'wallStop', midX, midY, WALL_STOP_VOLUME);
         }
       } else if (door.state === 'closing') {
         door.offsetY -= speed;
-        if (door.offsetY <= 0.0) {
-          door.offsetY = 0.0;
+        if (door.offsetY <= DOOR_CLOSED_OFFSET) {
+          door.offsetY = DOOR_CLOSED_OFFSET;
           door.state = 'closed';
           if (door.moveSource) {
             door.moveSource.stop();
             door.moveSource = null;
           }
-          this.playWebAudioSpatial('wallStop', midX, midY, 5.0);
+          playWebAudioSpatial(this.audioCtx!, this.audioBuffers, 'wallStop', midX, midY, WALL_STOP_VOLUME);
         }
       }
       if (door.movePanner) {
-        door.movePanner.positionX.value = midX + 0.5;
-        door.movePanner.positionY.value = 0.5 + door.offsetY;
-        door.movePanner.positionZ.value = midY + 0.5;
+        door.movePanner.positionX.value = midX + TILE_CENTER;
+        door.movePanner.positionY.value = WALL_HEIGHT + door.offsetY;
+        door.movePanner.positionZ.value = midY + TILE_CENTER;
       }
     });
 
@@ -512,7 +482,7 @@ export class Maze implements MazeInstance {
 
       if (listener.positionX !== undefined) {
         listener.positionX.value = player.x;
-        listener.positionY.value = 0.5 + player.bobY;
+        listener.positionY.value = WALL_HEIGHT + player.bobY;
         listener.positionZ.value = player.y;
         listener.forwardX.value = cosP * sinD;
         listener.forwardY.value = sinP;
@@ -521,7 +491,7 @@ export class Maze implements MazeInstance {
         listener.upY.value = cosP;
         listener.upZ.value = sinP * cosD;
       } else {
-        listener.setPosition(player.x, 0.5 + player.bobY, player.y);
+        listener.setPosition(player.x, WALL_HEIGHT + player.bobY, player.y);
         listener.setOrientation(cosP * sinD, sinP, -cosP * cosD, -sinP * sinD, cosP, sinP * cosD);
       }
     }
@@ -530,196 +500,20 @@ export class Maze implements MazeInstance {
 
     if (Math.floor(player.x) === 19 && Math.floor(player.y) === 9) {
       const finalDoor = this.doors.find((d) => d.id === 'ent_19_9');
-      if (finalDoor && finalDoor.offsetY > 0.8) this.triggerEndSequence();
+      if (finalDoor && finalDoor.offsetY > DOOR_END_TRIGGER_OFFSET) this.triggerEndSequence();
     }
-  }
-
-  playWebAudioSpatial(bufferKey: string, x: number, y: number, volume = 1.0): void {
-    const source = this.audioCtx!.createBufferSource();
-    source.buffer = this.audioBuffers[bufferKey];
-
-    const panner = this.audioCtx!.createPanner();
-    panner.panningModel = 'HRTF';
-    panner.distanceModel = 'inverse';
-    panner.refDistance = 0.5;
-    panner.maxDistance = 20;
-    panner.rolloffFactor = 1.5;
-
-    const door = this.doors.find((d) => d.tiles.some((t) => t.x === x && t.y === y));
-
-    panner.positionX.value = x + 0.5;
-    panner.positionY.value = 0.5 + (door ? door.offsetY : 0);
-    panner.positionZ.value = y + 0.5;
-
-    const gainNode = this.audioCtx!.createGain();
-    gainNode.gain.value = volume;
-
-    source.connect(panner);
-    panner.connect(gainNode);
-    gainNode.connect(this.audioCtx!.destination);
-    source.start(0);
   }
 
   render(time: number): void {
-    const gl = this.gl;
-    const engine = this.engine;
-    const perfSettings = Microsite.perf?.getSettings() || { skybox: true };
-    const targetAspect = 4 / 3;
-    let viewWidth = window.innerWidth;
-    let viewHeight = window.innerHeight;
-    const currentAspect = viewWidth / viewHeight;
-    if (currentAspect > targetAspect) viewWidth = viewHeight * targetAspect;
-    else viewHeight = viewWidth / targetAspect;
-    const xOffset = (window.innerWidth - viewWidth) / 2;
-    const yOffset = (window.innerHeight - viewHeight) / 2;
-
-    engine.startFrame();
-    gl.viewport(0, 0, engine.currentRes.w, engine.currentRes.h);
-
-    if (perfSettings.skybox) gl.clearColor(0.01, 0, 0, 1);
-    else gl.clearColor(0, 0, 0, 1);
-
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    const projectionMatrix = engine.pool.getMat4();
-    mat4.perspective(projectionMatrix, this.player.fov, targetAspect, 0.1, 100.0);
-
-    const viewMatrix = engine.pool.getMat4();
-
-    const eyePos = engine.pool.getVec3();
-    const pos = this.player.getEyePosition();
-    vec3.set(eyePos, pos[0], pos[1], pos[2]);
-
-    const q = quat.create();
-    quat.rotateY(q, q, -this.player.dir);
-    quat.rotateX(q, q, this.player.pitch);
-    quat.rotateZ(q, q, this.player.roll + this.player.lean);
-    mat4.fromRotationTranslation(viewMatrix, q, eyePos);
-    mat4.invert(viewMatrix, viewMatrix);
-
-    gl.bindVertexArray(this.cube!.vao);
-    gl.uniform3fv(engine.uniforms.viewPos, eyePos);
-    gl.uniform1f(engine.uniforms.fogNear, 1.0);
-    gl.uniform1f(engine.uniforms.fogFar, 12.0);
-    gl.uniform4fv(engine.uniforms.fogColor, [0.02, 0, 0, 1]);
-    gl.uniform1f(engine.uniforms.time, (time - this.startTime) * 0.001);
-
-    gl.uniform1f(engine.uniforms.wiggleSpeed, 2.0);
-    gl.uniform1f(engine.uniforms.wiggleFreq, 8.0);
-    gl.uniform1f(engine.uniforms.wiggleAmp, 0.02);
-
-    const drawMesh = (
-      modelMat: Float32Array,
-      material: RenderMaterial,
-      isEntity = 0.0,
-      isSky = 0.0,
-    ): void => {
-      const mvpMatrix = engine.pool.getMat4();
-      mat4.multiply(mvpMatrix, projectionMatrix, viewMatrix);
-      mat4.multiply(mvpMatrix, mvpMatrix, modelMat);
-      gl.uniformMatrix4fv(engine.uniforms.matrix, false, mvpMatrix);
-      gl.uniformMatrix4fv(engine.uniforms.model, false, modelMat);
-      gl.uniform1f(engine.uniforms.isEntity, isEntity);
-      gl.uniform1f(engine.uniforms.isSky, isSky);
-
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, material.diffuse);
-      gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, material.normal || this.materials.wall.normal);
-      gl.activeTexture(gl.TEXTURE2);
-      gl.bindTexture(gl.TEXTURE_2D, material.roughness || this.materials.wall.roughness);
-      gl.drawElements(gl.TRIANGLES, this.cube!.count, gl.UNSIGNED_SHORT, 0);
-      engine.pool.recycle(mvpMatrix);
-    };
-
-    for (let y = 0; y < this.map.length; y++) {
-      for (let x = 0; x < this.map[y].length; x++) {
-        const cell = this.map[y][x];
-        const modelMatrix = engine.pool.getMat4();
-        if (cell === 1) {
-          mat4.translate(modelMatrix, modelMatrix, [x + 0.5, 0.5, y + 0.5]);
-          drawMesh(modelMatrix, this.materials.wall, 0.0);
-        } else if (cell === 2) {
-          const btn = this.buttons.find((b) => b.x === x && b.y === y);
-          let px = x + 0.5;
-          const py = 0.5;
-          let pz = y + 0.5;
-          let sx = 0.3;
-          const sy = 0.3;
-          let sz = 0.3;
-          if (this.map[y][x - 1] === 1) {
-            px -= 0.52;
-            sx = 0.05;
-          } else if (this.map[y][x + 1] === 1) {
-            px += 0.52;
-            sx = 0.05;
-          } else if (this.map[y - 1][x] === 1) {
-            pz -= 0.52;
-            sz = 0.05;
-          } else if (this.map[y + 1][x] === 1) {
-            pz += 0.52;
-            sz = 0.05;
-          }
-          mat4.translate(modelMatrix, modelMatrix, [px, py, pz]);
-          mat4.scale(modelMatrix, modelMatrix, [sx, sy, sz]);
-          drawMesh(
-            modelMatrix,
-            {
-              diffuse:
-                btn!.state === 'closed' ? this.materials.buttonClosed : this.materials.buttonOpened,
-            },
-            1.0,
-          );
-        } else if (cell === 3) {
-          const door = this.doors.find((d) => d.tiles.some((t) => t.x === x && t.y === y));
-          mat4.translate(modelMatrix, modelMatrix, [x + 0.5, 0.5 + door!.offsetY, y + 0.5]);
-          drawMesh(modelMatrix, this.materials.wall, 0.0);
-        }
-        engine.pool.recycle(modelMatrix);
-      }
-    }
-
-    const floorModel = engine.pool.getMat4();
-    mat4.translate(floorModel, floorModel, [10, -0.01, 10]);
-    mat4.scale(floorModel, floorModel, [20, 0.1, 20]);
-    drawMesh(floorModel, this.materials.floor, 0.0);
-
-    let ceilModel: Float32Array | null = null;
-    if (perfSettings.skybox) {
-      ceilModel = engine.pool.getMat4();
-      mat4.translate(ceilModel, ceilModel, [10, 1.01, 10]);
-      mat4.scale(ceilModel, ceilModel, [20, 0.1, 20]);
-      drawMesh(ceilModel, this.materials.skybox, 0.0, 1.0);
-    }
-
-    engine.endFrame(
-      engine.currentRes.w,
-      engine.currentRes.h,
-      xOffset,
-      yOffset,
-      viewWidth,
-      viewHeight,
-    );
-
-    engine.pool.recycle(projectionMatrix);
-    engine.pool.recycle(viewMatrix);
-    engine.pool.recycle(eyePos);
-    engine.pool.recycle(floorModel);
-    if (ceilModel) engine.pool.recycle(ceilModel);
-
-    if (this.hudElement) {
-      this.hudElement.style.left = xOffset + 30 + 'px';
-      this.hudElement.style.top = yOffset + 30 + 'px';
-      this.hudElement.style.maxWidth = viewWidth - 60 + 'px';
-    }
+    renderMaze(this, time);
   }
 
   loop(currentTime: number): void {
     if (!this.isActive) return;
-    const dt = Math.min(1.2, (currentTime - this.lastTime) / 16.6);
+    const dt = Math.min(MAX_FRAME_DT, (currentTime - this.lastTime) / FRAME_TIME_MS);
     this.lastTime = currentTime;
 
-    const settings = Microsite.perf?.getSettings() || { logicThrottle: 1 };
+    const settings = perf.getSettings();
     this.tickCount++;
 
     this.update(dt);
@@ -734,7 +528,7 @@ export class Maze implements MazeInstance {
   triggerEndSequence(): void {
     if (!this.isActive) return;
     this.isActive = false;
-    const assets = Microsite.assets!;
+    const assets = assetManager;
     if (this.audio) {
       this.audio.stop();
       this.audio = null;
@@ -753,7 +547,7 @@ export class Maze implements MazeInstance {
 
     this.player.unbindMouse();
 
-    const img = assets.getAsset('maze_end_img');
+    const img = assets.getAsset(ASSET_MAZE_END_IMG);
     Object.assign(img.style, {
       position: 'fixed',
       top: '0',
@@ -766,11 +560,11 @@ export class Maze implements MazeInstance {
     });
     document.body.appendChild(img);
 
-    if (createjs && createjs.Sound) createjs.Sound.play('maze_end_sfx');
+    if (createjs && createjs.Sound) createjs.Sound.play(SOUND_MAZE_END_SFX);
     setTimeout(() => {
       location.reload();
-    }, 1500);
+    }, END_RELOAD_DELAY_MS);
   }
 }
 
-Microsite.maze = new Maze();
+export const maze = new Maze();

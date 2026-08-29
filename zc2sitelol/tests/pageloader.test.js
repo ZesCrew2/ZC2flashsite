@@ -3,6 +3,18 @@ const assert = require('node:assert');
 const path = require('node:path');
 
 // Mock window and other browser globals
+class MockLoadQueue {
+    constructor() {
+        this.addEventListener = () => {};
+        this.on = () => {};
+        this.loadManifest = () => {};
+        this.removeAllEventListeners = () => {};
+        this.close = () => {};
+        this.installPlugin = () => {};
+        this.getResult = () => null;
+    }
+}
+
 const window = {
     createjs: {
         Ticker: {
@@ -13,11 +25,9 @@ const window = {
             registerSound: () => {},
             play: () => {}
         },
-        LoadQueue: function() {
-            this.addEventListener = () => {};
-            this.loadManifest = () => {};
-            this.removeAllEventListeners = () => {};
-            this.close = () => {};
+        LoadQueue: MockLoadQueue,
+        Types: {
+            BINARY: 'binary'
         }
     },
     AdobeAn: {
@@ -34,6 +44,7 @@ const window = {
         }
     },
     addEventListener: () => {},
+    dispatchEvent: () => {},
     location: { search: '', href: 'http://localhost/' }
 };
 
@@ -41,6 +52,64 @@ global.window = window;
 global.createjs = window.createjs;
 global.AdobeAn = window.AdobeAn;
 global.Microsite = window.Microsite;
+
+// Additional browser globals referenced during module initialization of the
+// expanded microsite import graph (asset-manager / performance-manager / engine).
+global.localStorage = {
+    getItem: () => null,
+    setItem: () => {}
+};
+global.navigator = {
+    deviceMemory: 4,
+    hardwareConcurrency: 4,
+    userAgent: 'node'
+};
+global.document = {
+    createElement: () => ({ getContext: () => null }),
+    getElementById: (id) => (id === 'flashContent' ? { innerHTML: '' } : { clientWidth: 760 }),
+    addEventListener: () => {},
+    body: { appendChild: () => {} }
+};
+global.CustomEvent =
+    global.CustomEvent ||
+    class {
+        constructor(type, opts) {
+            this.type = type;
+            this.detail = opts && opts.detail;
+        }
+    };
+global.vec3 = {
+    create: () => new Float32Array(3),
+    set: () => {}
+};
+global.mat4 = {
+    create: () => new Float32Array(16),
+    identity: () => {}
+};
+global.quat = {
+    create: () => new Float32Array(4)
+};
+
+// Comprehensive document mock supporting engine/boot (getContext) and pageloader
+// (appendChild / innerHTML / onload) code paths exercised during module load.
+const mockEl = () => ({
+    style: {},
+    appendChild: () => {},
+    remove: () => {},
+    innerHTML: '',
+    id: '',
+    src: '',
+    onload: null,
+    addEventListener: () => {},
+    getContext: () => null,
+    clientWidth: 760
+});
+global.document = {
+    getElementById: (id) => (id === 'site' ? { clientWidth: 760 } : mockEl()),
+    createElement: () => mockEl(),
+    addEventListener: () => {},
+    body: { appendChild: () => {} }
+};
 
 // Mock console globally to catch errors
 const originalConsoleError = console.error;
@@ -58,15 +127,9 @@ const mockElement = {
 };
 
 global.document = {
-    getElementById: (id) => {
-        if (id === 'flashContent') return mockElement;
-        if (id === 'site') return { clientWidth: 760 };
-        return mockElement;
-    },
-    createElement: (tag) => {
-        if (tag === 'a') return { href: '', pathname: '' };
-        return { ...mockElement };
-    },
+    getElementById: (id) => (id === 'site' ? { clientWidth: 760 } : mockEl()),
+    createElement: () => mockEl(),
+    addEventListener: () => {},
     body: { appendChild: () => {} }
 };
 

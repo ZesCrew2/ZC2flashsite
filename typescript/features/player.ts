@@ -1,4 +1,3 @@
-import { Microsite } from '../microsite.js';
 import type { PlayerInstance, Lib } from '../types.js';
 
 export class Player implements PlayerInstance {
@@ -175,5 +174,3 @@ export class Player implements PlayerInstance {
     ];
   }
 }
-
-Microsite.Player = Player;

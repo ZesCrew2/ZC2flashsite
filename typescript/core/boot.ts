@@ -1,29 +1,27 @@
-import { Microsite } from '../microsite.js';
+import { assets } from './asset-manager.js';
 import type { BootManagerInstance } from '../types.js';
 
 export class BootManager implements BootManagerInstance {
-  preloader: HTMLElement | null;
-  progressFill: HTMLElement | null;
-  progressStatus: HTMLElement | null;
-  site: HTMLElement | null;
-  swirl: HTMLElement | null;
+  preloader: HTMLElement | null = null;
+  progressFill: HTMLElement | null = null;
+  progressStatus: HTMLElement | null = null;
+  site: HTMLElement | null = null;
+  swirl: HTMLElement | null = null;
 
-  constructor() {
+  async init(): Promise<void> {
     this.preloader = document.getElementById('preloader');
     this.progressFill = document.getElementById('progress-fill');
     this.progressStatus = document.getElementById('progress-status');
     this.site = document.getElementById('site');
     this.swirl = document.getElementById('swirl');
-  }
 
-  async init(): Promise<void> {
-    if (!Microsite.assets) {
+    if (!assets) {
       console.error('BootManager: AssetManager not found!');
       if (this.progressStatus) this.progressStatus.textContent = 'Error: AssetManager not found!';
       return;
     }
 
-    const assetMgr = Microsite.assets;
+    const assetMgr = assets;
     const self = this;
 
     assetMgr.onProgress = (progress: number) => {
@@ -67,14 +65,16 @@ export class BootManager implements BootManagerInstance {
 
   dispatchReadyEvent(): void {
     const event = new CustomEvent('MicrositeReady', {
-      detail: { timestamp: Date.now(), assets: Microsite.assets },
+      detail: { timestamp: Date.now(), assets },
     });
     document.dispatchEvent(event);
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const boot = new BootManager();
-  Microsite.boot = boot;
-  boot.init();
-});
+export const boot = new BootManager();
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    boot.init();
+  });
+}

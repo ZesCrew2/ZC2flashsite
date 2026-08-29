@@ -1,4 +1,4 @@
-import { Microsite } from '../microsite.js';
+import { audio } from '../microsite/audio.js';
 
 function init(): void {
   const logo = document.getElementById('logo');
@@ -6,7 +6,7 @@ function init(): void {
 
   logo.addEventListener('click', () => {
     if (window.siteAudio && !window.siteAudio.isMuted) {
-      Microsite.audio.play('site_medal');
+      audio.play('site_medal');
     }
 
     logo.classList.remove('logo-clicked');

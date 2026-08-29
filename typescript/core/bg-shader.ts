@@ -1,4 +1,5 @@
-import { Microsite } from '../microsite.js';
+import { perf } from './performance-manager.js';
+import { shader } from '../microsite/shader.js';
 import type { Lib } from '../types.js';
 
 const FilterBase = createjs.Filter as new () => Lib;
@@ -94,60 +95,58 @@ function setupBackground(shaderCode: string): void {
   const img = new Image();
   img.crossOrigin = 'Anonymous';
   img.src = 'assets/img/bg.png';
-  img.onload = () => {
-    const settings = Microsite.perf
-      ? Microsite.perf.getSettings()
-      : { fps: 60, logicThrottle: 1, postProcessing: true };
+    img.onload = () => {
+      const settings = perf.getSettings();
 
-    const bitmap = new createjs.Bitmap(img);
-    stage.addChild(bitmap);
+      const bitmap = new createjs.Bitmap(img);
+      stage.addChild(bitmap);
 
-    if (settings.fps > 24) {
-      const wiggle = new createjs.WiggleFilter(shaderCode, 4, 2.0, 10.0, 0.015);
-      bitmap.filters = [wiggle];
+      if (settings.fps > 24) {
+        const wiggle = new createjs.WiggleFilter(shaderCode, 4, 2.0, 10.0, 0.015);
+        bitmap.filters = [wiggle];
 
-      Microsite.shader.instance = wiggle;
-      Microsite.shader.loadShader = async (newPath: string) => {
-        try {
-          const response = await fetch(newPath);
-          wiggle.FRAG_SHADER_BODY = await response.text();
-          bitmap.updateCache();
-        } catch (err) {
-          console.error(`failed to load inner shader: ${err} --thorns`);
-        }
-      };
+        shader.instance = wiggle;
+        shader.loadShader = async (newPath: string) => {
+          try {
+            const response = await fetch(newPath);
+            wiggle.FRAG_SHADER_BODY = await response.text();
+            bitmap.updateCache();
+          } catch (err) {
+            console.error(`failed to load inner shader: ${err} --thorns`);
+          }
+        };
 
-      bitmap.cache(0, 0, img.width, img.height, 1, { useGL: 'stage' });
-    }
-
-    const resize = () => {
-      canvas!.width = window.innerWidth;
-      canvas!.height = window.innerHeight;
-      stage.updateViewport(canvas!.width, canvas!.height);
-      const scale = Math.max(canvas!.width / img.width, canvas!.height / img.height);
-      bitmap.scaleX = bitmap.scaleY = scale;
-      bitmap.x = (canvas!.width - img.width * scale) / 2;
-      bitmap.y = (canvas!.height - img.height * scale) / 2;
-      if (bitmap.cacheCanvas) bitmap.updateCache();
-    };
-    window.addEventListener('resize', resize);
-    resize();
-
-    createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
-    createjs.Ticker.framerate = settings.fps;
-
-    let tickCount = 0;
-    createjs.Ticker.addEventListener('tick', (event: Lib) => {
-      if (event.paused) return;
-
-      tickCount++;
-      if (tickCount % settings.logicThrottle !== 0) {
-        stage.update(event);
-        return;
+        bitmap.cache(0, 0, img.width, img.height, 1, { useGL: 'stage' });
       }
 
-      const instance = Microsite.shader.instance;
-      if (instance) {
+      const resize = () => {
+        canvas!.width = window.innerWidth;
+        canvas!.height = window.innerHeight;
+        stage.updateViewport(canvas!.width, canvas!.height);
+        const scale = Math.max(canvas!.width / img.width, canvas!.height / img.height);
+        bitmap.scaleX = bitmap.scaleY = scale;
+        bitmap.x = (canvas!.width - img.width * scale) / 2;
+        bitmap.y = (canvas!.height - img.height * scale) / 2;
+        if (bitmap.cacheCanvas) bitmap.updateCache();
+      };
+      window.addEventListener('resize', resize);
+      resize();
+
+      createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
+      createjs.Ticker.framerate = settings.fps;
+
+      let tickCount = 0;
+      createjs.Ticker.addEventListener('tick', (event: Lib) => {
+        if (event.paused) return;
+
+        tickCount++;
+        if (tickCount % settings.logicThrottle !== 0) {
+          stage.update(event);
+          return;
+        }
+
+        const instance = shader.instance;
+        if (instance) {
         instance.time += (event.delta * settings.logicThrottle) / 1000;
         if (bitmap.cacheCanvas) bitmap.updateCache();
       }

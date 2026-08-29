@@ -1,8 +1,6 @@
-import { Microsite } from '../microsite.js';
 import type {
   AssetManager as IAssetManager,
   AssetManagerManifestItem,
-  AssetManagerStatic,
   Lib,
 } from '../types.js';
 
@@ -162,5 +160,4 @@ export class AssetManager implements IAssetManager {
   ];
 }
 
-Microsite.AssetManager = AssetManager;
-Microsite.assets = new AssetManager();
+export const assets = new AssetManager();

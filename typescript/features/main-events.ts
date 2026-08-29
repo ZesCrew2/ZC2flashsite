@@ -1,4 +1,5 @@
-import { Microsite } from '../microsite.js';
+import { maze } from './maze.js';
+import { assets } from '../core/asset-manager.js';
 import { loadPage } from './pageloader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,11 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
       logoClickTimeout = window.setTimeout(() => (logoClickCount = 0), 1000);
 
       if (Math.random() < 0.05) {
-        if (Microsite.maze) {
-          if (Microsite.assets && Microsite.assets.loadDeferred) {
-            Microsite.assets.loadDeferred().then(() => Microsite.maze!.init());
+        if (maze) {
+          if (assets && assets.loadDeferred) {
+            assets.loadDeferred().then(() => maze.init());
           } else {
-            Microsite.maze.init();
+            maze.init();
           }
           return;
         }
