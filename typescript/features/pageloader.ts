@@ -146,8 +146,13 @@ function scaleSite(): void {
   const scale = site.clientWidth / 760;
   const siteInner = document.getElementById('site-inner');
   const logoLayer = document.getElementById('logo-layer');
+  const footer = document.getElementById('footer');
   if (siteInner) siteInner.style.transform = `scale(${scale})`;
   if (logoLayer) logoLayer.style.transform = `scale(${scale})`;
+  if (footer) {
+    footer.style.transform = `scale(${scale})`;
+    footer.style.bottom = `${25 * scale}px`;
+  }
 }
 
 window.addEventListener('resize', scaleSite);
