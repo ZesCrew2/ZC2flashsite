@@ -1,5 +1,5 @@
 import type { PlaylistTrack, Lib } from '../types.js';
-import { initVisualizer } from './visualizer.js';
+import { initFluidVisualizer } from './fluid.js';
 
 window.musicPlaylist = [
   { path: 'assets/music/gleeble.mp3', name: 'Lily (ZesCrew2) - Gleeble' },
@@ -129,6 +129,75 @@ window.musicPlaylist = [
 
     show();
     scheduleHide(3000);
+  };
+
+  const initVisualizer = (player: Lib): void => {
+    const shadow = player.shadowRoot;
+    if (!shadow) return;
+
+    const content = shadow.querySelector('.content') as HTMLElement | null;
+    const video = shadow.querySelector('video') as HTMLVideoElement | null;
+    if (!content || !video) return;
+
+    let canvas = shadow.querySelector('canvas.visualizer') as HTMLCanvasElement | null;
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.className = 'visualizer';
+      content.insertBefore(canvas, content.firstChild);
+    }
+
+    let audioCtx: AudioContext | null = null;
+    let analyser: AnalyserNode | null = null;
+    let data: Uint8Array | null = null;
+    let sourceConnected = false;
+
+    const ensureAudio = () => {
+      if (sourceConnected) {
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        return;
+      }
+      try {
+        const AC: typeof AudioContext =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (!AC) return;
+        audioCtx = new AC();
+        const src = audioCtx.createMediaElementSource(video);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 512;
+        analyser.smoothingTimeConstant = 0.8;
+        src.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        data = new Uint8Array(analyser.frequencyBinCount);
+        sourceConnected = true;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      } catch (err) {
+        console.warn('visualizer: could not build audio graph', err);
+      }
+    };
+
+    player.addEventListener('play', ensureAudio);
+    video.addEventListener('playing', ensureAudio);
+    video.addEventListener('play', ensureAudio);
+
+    const getAudio = (): Float32Array | null => {
+      if (!analyser || !data) return null;
+      const playing = !video.paused && !video.ended && video.currentTime > 0;
+      if (!playing) return null;
+      analyser.getByteFrequencyData(data as unknown as Uint8Array<ArrayBuffer>);
+      const out = new Float32Array(data.length);
+      for (let i = 0; i < data.length; i++) out[i] = data[i] / 255;
+      return out;
+    };
+
+    const setup = () => {
+      if (!player.shadowRoot || !canvas) {
+        requestAnimationFrame(setup);
+        return;
+      }
+      requestAnimationFrame(() => initFluidVisualizer(canvas, getAudio));
+    };
+    setup();
   };
 
   const start = () => {
