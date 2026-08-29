@@ -150,7 +150,7 @@ function scaleSite(): void {
   if (siteInner) siteInner.style.transform = `scale(${scale})`;
   if (logoLayer) logoLayer.style.transform = `scale(${scale})`;
   if (footer) {
-    footer.style.transform = `scale(${scale})`;
+    footer.style.transform = `translateX(-50%) scale(${scale})`;
     footer.style.bottom = `${25 * scale}px`;
   }
 }
