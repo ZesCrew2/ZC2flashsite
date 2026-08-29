@@ -42,6 +42,10 @@ export function renderMaze(maze: Maze, time: number): void {
   const yOffset = (window.innerHeight - viewHeight) / 2;
 
   engine.startFrame();
+  // Render the world double-sided. The walls are solid cubes, but when the
+  // camera hugs a wall its near face can clip the near plane; without this the
+  // back face would be culled and you'd see straight through the wall.
+  gl.disable(gl.CULL_FACE);
   gl.viewport(0, 0, engine.currentRes.w, engine.currentRes.h);
 
   if (perfSettings.skybox) gl.clearColor(...CLEAR_COLOR_SKYBOX);
