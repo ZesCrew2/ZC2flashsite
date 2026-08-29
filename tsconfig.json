@@ -2,17 +2,17 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "bundler",
-    "outDir": "../zc2sitelol/assets/ts",
-    "rootDir": ".",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": [],
     "strict": false,
     "noImplicitAny": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "removeComments": false,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "types": []
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
-  "include": ["*.ts"]
+  "include": ["vite.config.ts", "typescript/**/*.ts"]
 }
