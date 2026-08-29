@@ -457,7 +457,8 @@ body.maze-active {
 }
 
 #music-player .window-body {
-    padding: 4px;
+    padding: 0;
+    background: #000;
 }
 
 #music-player.show {

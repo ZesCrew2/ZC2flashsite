@@ -190,9 +190,9 @@ video::cue {
    text-align: right;
    
    font-family: "Segoe UI", Arial, sans-serif;
-   color: #000 !important;
-   -webkit-text-stroke: 0px !important;
-   text-shadow: none !important;
+    color: #fff !important;
+    -webkit-text-stroke: 0px !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
    opacity: 1 !important;
    visibility: visible !important;
    display: block !important;
@@ -614,9 +614,9 @@ video::cue {
       margin-right: calc(12px * var(--scale,1));
    }
    .current-time {
-      color: #000 !important;
-      -webkit-text-stroke: 0px !important;
-      text-shadow: none !important;
+       color: #fff !important;
+       -webkit-text-stroke: 0px !important;
+       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
       opacity: 1 !important;
       visibility: visible !important;
       display: block !important;
@@ -680,9 +680,9 @@ video::cue {
       --track-border-color-lower: #656e86;
    }
    .current-time {
-      color: #000 !important;
-      -webkit-text-stroke: 0px !important;
-      text-shadow: none !important;
+       color: #fff !important;
+       -webkit-text-stroke: 0px !important;
+       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
       opacity: 1 !important;
       visibility: visible !important;
       display: block !important;
@@ -707,20 +707,22 @@ video::cue {
 
 .title-overlay {
     position: absolute !important;
-    top: 48% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    background: transparent !important;
-    color: #000 !important;
-    text-shadow: none !important;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: calc(20px * var(--scale, 1));
+    top: 6px !important;
+    left: 8px !important;
+    transform: none !important;
+    color: #fff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+    font-family: "Segoe UI", "SegoeUI", "Noto Sans", sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 9pt !important;
+    line-height: 15px !important;
+    letter-spacing: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
     pointer-events: none;
     z-index: 999 !important;
-    max-width: 95%;
-    text-align: center;
+    max-width: calc(100% - 16px);
+    text-align: left !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -730,4 +732,62 @@ video::cue {
 
 .title-overlay:empty {
     display: none;
+}
+
+.content .visualizer {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: none !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    background: #000 !important;
+}
+.main:not(.video) .content .visualizer {
+    display: block !important;
+}
+.main:not(.video) .content > video {
+    visibility: hidden !important;
+}
+
+.content::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(0, 0, 0, 0) 30%,
+        rgba(0, 0, 0, 0) 70%,
+        rgba(0, 0, 0, 1) 100%
+    ) !important;
+}
+
+.controls,
+.seek,
+.gutter-left,
+.gutter-right {
+    position: relative;
+    z-index: 5;
+}
+
+.controls,
+.seek,
+.gutter-left,
+.gutter-right,
+.title-overlay {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s ease;
+}
+:host(:not(.hide-ui)) .controls,
+:host(:not(.hide-ui)) .seek,
+:host(:not(.hide-ui)) .gutter-left,
+:host(:not(.hide-ui)) .gutter-right,
+:host(:not(.hide-ui)) .title-overlay {
+    opacity: 1;
+    pointer-events: auto;
 }

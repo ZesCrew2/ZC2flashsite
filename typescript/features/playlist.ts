@@ -1,4 +1,5 @@
 import type { PlaylistTrack, Lib } from '../types.js';
+import { initVisualizer } from './visualizer.js';
 
 window.musicPlaylist = [
   { path: 'assets/music/gleeble.mp3', name: 'Lily (ZesCrew2) - Gleeble' },
@@ -94,6 +95,40 @@ window.musicPlaylist = [
       observer.observe(player.shadowRoot, { childList: true, subtree: true, characterData: true });
     };
     setupObserver();
+
+    initVisualizer(player);
+    initUiAutoHide(player);
+  };
+
+  const initUiAutoHide = (player: Lib) => {
+    let timer: number | null = null;
+
+    const show = () => {
+      player.classList.remove('hide-ui');
+      if (timer !== null) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
+    const scheduleHide = (delay: number) => {
+      if (timer !== null) clearTimeout(timer);
+      timer = window.setTimeout(() => player.classList.add('hide-ui'), delay);
+    };
+
+    player.addEventListener('mousemove', () => {
+      show();
+      scheduleHide(3000);
+    });
+    player.addEventListener('mouseenter', () => {
+      show();
+      scheduleHide(3000);
+    });
+    player.addEventListener('mouseleave', () => {
+      scheduleHide(1000);
+    });
+
+    show();
+    scheduleHide(3000);
   };
 
   const start = () => {
