@@ -190,8 +190,7 @@ export function createGalleryPage(options: GalleryPageOptions): void {
       onTweenUpdate: (card: Lib, offset: number) => {
         if (card.artBmp) {
           card.artBmp.visible = !(
-            Math.abs(offset) < 0.1 &&
-            card.entry.filename.toLowerCase().endsWith('.gif')
+            Math.abs(offset) < 0.1 && card.entry.filename.toLowerCase().endsWith('.gif')
           );
         }
         gallery.updateOverlays(preview.isOpen, imgQueue, imagePrefix);
