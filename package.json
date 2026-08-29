@@ -5,7 +5,7 @@
   "description": "ZC2 Microsite — TypeScript sources compiled to zc2sitelol/assets/ts (gitignored).",
   "scripts": {
     "build": "vite build",
-    "dev": "vite build --mode development && vite build --watch --mode development & vite",
+    "dev": "vite --mode development",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format": "prettier --write \"typescript/**/*.ts\"",
     "lint": "eslint \"typescript/**/*.ts\""

@@ -18,11 +18,11 @@ const init = (): void => {
     window.siteAudio!.isMuted = !window.siteAudio!.isMuted;
 
     if (window.siteAudio!.isMuted) {
-      musicPlayer.classList.remove('unmuted');
+      speaker.classList.remove('unmuted');
       musicPlayer.classList.remove('show');
       wmp.pause();
     } else {
-      musicPlayer.classList.add('unmuted');
+      speaker.classList.add('unmuted');
       musicPlayer.classList.add('show');
 
       if (!hasStarted) {
