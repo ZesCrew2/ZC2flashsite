@@ -4,7 +4,8 @@
   "private": true,
   "description": "ZC2 Microsite — TypeScript sources compiled to zc2sitelol/assets/ts (gitignored).",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && npm run build:rss",
+    "build:rss": "esbuild typescript/features/rss-bg.ts --bundle --format=iife --outfile=zc2sitelol/assets/ts/rss-bg.js --target=es2020 && esbuild typescript/features/metro-bg.ts --bundle --format=iife --outfile=zc2sitelol/assets/ts/metro-bg.js --target=es2020",
     "dev": "vite --mode development",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p typescript/tsconfig.json --noEmit",
     "format": "prettier --write \"typescript/**/*.ts\"",
