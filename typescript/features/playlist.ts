@@ -54,6 +54,14 @@ window.musicPlaylist = [
     const player = document.getElementById('wmp') as Lib | null;
     if (!player) return;
 
+    // Guard against a premature trigger: if the wmplayer scripts haven't
+    // finished executing yet, the <wm-player> element won't be upgraded and
+    // WMPlaylistItem won't exist. Bail and let a later event re-run us.
+    if (typeof WMPlaylistItem === 'undefined' || typeof player.addToPlaylist !== 'function') {
+      return;
+    }
+
+
     window.musicPlaylist!.forEach((track: PlaylistTrack) => {
       player.addToPlaylist(
         new WMPlaylistItem({
@@ -92,9 +100,20 @@ window.musicPlaylist = [
     setupObserver();
   };
 
+  // The Windows Media Player scripts are injected by BootManager *after* the
+  // progress bar is removed, so the playlist wiring must wait for the
+  // `wmplayer:ready` event (or a flag) instead of running at DOMContentLoaded.
+  const start = () => {
+    if (window.wmplayerReady) {
+      init();
+      return;
+    }
+    window.addEventListener('wmplayer:ready', init, { once: true });
+  };
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', start);
   } else {
-    init();
+    start();
   }
 })();

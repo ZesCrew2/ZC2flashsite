@@ -16,6 +16,7 @@ declare global {
     siteAudio?: import('./types.js').SiteAudio;
     playSound?: (id: string, loop?: number, offset?: number) => unknown;
     initBackgroundShader?: (path?: string) => Promise<void>;
+    wmplayerReady?: boolean;
     glMatrix?: any;
     createjs?: any;
     vec3?: any;

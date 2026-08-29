@@ -1,5 +1,6 @@
 import { perf } from './performance-manager.js';
 import { shader } from '../microsite/shader.js';
+import { assets } from './asset-manager.js';
 import type { Lib } from '../types.js';
 
 const FilterBase = createjs.Filter as new () => Lib;
@@ -94,13 +95,17 @@ function setupBackground(shaderCode: string): void {
 
   const stage = new createjs.StageGL(canvas, { transparent: false, antialias: true });
 
-  const img = new Image();
-  img.crossOrigin = 'Anonymous';
-  img.src = 'assets/img/bg.png';
-    img.onload = () => {
+  // Prefer the asset that was already preloaded during the progress bar.
+  // BootManager guarantees the MANIFEST (which now contains bg.png) finishes
+  // before this runs, so it should be present and decoded. Fall back to a
+  // direct load only if it somehow isn't (e.g. cache eviction), keeping the
+  // crossOrigin behaviour the WebGL shader needs.
+  const preloaded = assets.getAsset('site_bg') as HTMLImageElement | null;
+
+  const useImage = (image: HTMLImageElement) => {
       const settings = perf.getSettings();
 
-      const bitmap = new createjs.Bitmap(img);
+      const bitmap = new createjs.Bitmap(image);
       stage.addChild(bitmap);
 
       if (settings.fps > 24) {
@@ -118,17 +123,17 @@ function setupBackground(shaderCode: string): void {
           }
         };
 
-        bitmap.cache(0, 0, img.width, img.height, 1, { useGL: 'stage' });
+        bitmap.cache(0, 0, image.width, image.height, 1, { useGL: 'stage' });
       }
 
       const resize = () => {
         canvas!.width = window.innerWidth;
         canvas!.height = window.innerHeight;
         stage.updateViewport(canvas!.width, canvas!.height);
-        const scale = Math.max(canvas!.width / img.width, canvas!.height / img.height);
+        const scale = Math.max(canvas!.width / image.width, canvas!.height / image.height);
         bitmap.scaleX = bitmap.scaleY = scale;
-        bitmap.x = (canvas!.width - img.width * scale) / 2;
-        bitmap.y = (canvas!.height - img.height * scale) / 2;
+        bitmap.x = (canvas!.width - image.width * scale) / 2;
+        bitmap.y = (canvas!.height - image.height * scale) / 2;
         if (bitmap.cacheCanvas) bitmap.updateCache();
       };
       window.addEventListener('resize', resize);
@@ -156,6 +161,23 @@ function setupBackground(shaderCode: string): void {
       stage.update(event);
     });
   };
+
+  // Use the preloaded asset when it's already available. createjs loads images
+  // with crossOrigin handled, so the WebGL texture stays untainted.
+  if (preloaded && preloaded.complete && preloaded.naturalWidth > 0) {
+    useImage(preloaded);
+  } else if (preloaded) {
+    preloaded.onload = () => useImage(preloaded);
+    preloaded.onerror = () =>
+      console.error('BootManager: bg.png (preloaded) failed to decode');
+  } else {
+    const fallback = new Image();
+    fallback.crossOrigin = 'Anonymous';
+    fallback.src = 'assets/img/bg.png';
+    fallback.onload = () => useImage(fallback);
+    fallback.onerror = () =>
+      console.error('BootManager: bg.png failed to load');
+  }
 }
 
 window.initBackgroundShader = initBackgroundShader;

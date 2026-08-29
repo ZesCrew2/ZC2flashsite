@@ -61,11 +61,21 @@ export class BootManager implements BootManagerInstance {
 
   revealSite(): void {
     const self = this;
+    const finish = () => {
+      if (self.preloader) self.preloader.style.display = 'none';
+      // The progress bar is now gone — lazily load the Windows Media Player
+      // (and, via wmplayer.js itself, its stylesheets) in the background. This
+      // mirrors how audio is preloaded *after* the loading screen completes, so
+      // the player never competes with the initial load. It must not block the
+      // reveal of the site.
+      self.loadWmPlayer();
+    };
+
     if (this.preloader) {
       this.preloader.style.opacity = '0';
-      setTimeout(() => {
-        if (self.preloader) self.preloader.style.display = 'none';
-      }, 500);
+      setTimeout(finish, 500);
+    } else {
+      finish();
     }
 
     if (this.site) this.site.style.display = 'block';
@@ -73,6 +83,44 @@ export class BootManager implements BootManagerInstance {
 
     window.dispatchEvent(new Event('resize'));
     this.dispatchReadyEvent();
+  }
+
+  /**
+   * Inject the Windows Media Player scripts into the page sequentially, after
+   * the progress bar has been removed. wmplayer.js also loads its own
+   * stylesheets (via absolute URLs resolved from its own src), so this covers
+   * all of the player's assets. Once every script has executed, a
+   * `wmplayer:ready` event is dispatched so dependent code (e.g. the playlist
+   * wiring) can run.
+   */
+  loadWmPlayer(): void {
+    if (window.wmplayerReady) return;
+
+    const sources = [
+      'assets/wmp/wmplayer.playlist.js',
+      'assets/wmp/wmplayer.slider.js',
+      'assets/wmp/wmplayer.js',
+    ];
+    let index = 0;
+
+    const loadNext = () => {
+      if (index >= sources.length) {
+        window.wmplayerReady = true;
+        window.dispatchEvent(new Event('wmplayer:ready'));
+        return;
+      }
+      const src = sources[index++];
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = loadNext;
+      script.onerror = () => {
+        console.error('BootManager: failed to load wmplayer asset', src);
+        loadNext();
+      };
+      document.body.appendChild(script);
+    };
+
+    loadNext();
   }
 
   dispatchReadyEvent(): void {

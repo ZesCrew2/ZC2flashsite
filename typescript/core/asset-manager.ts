@@ -140,7 +140,11 @@ export class AssetManager implements IAssetManager {
   // Blocking manifest — loaded while the progress bar is active.
   // Audio + glsl are intentionally excluded so they don't stall the bar;
   // see AUDIO_MANIFEST and the bg-shader preload kicked off by BootManager.
+  // bg.png IS included here because the background shader needs it the moment
+  // the site is revealed, and we don't want a flash of unstyled background
+  // waiting for it to download after the bar finishes.
   static MANIFEST: AssetManagerManifestItem[] = [
+    { id: 'site_bg', src: 'assets/img/bg.png' },
     { id: 'site_logo', src: 'assets/img/zc2aeroorb.png' },
     { id: 'site_speaker', src: 'assets/img/speaker.png' },
     { id: 'site_banner', src: 'assets/img/banner/banner.png' },
