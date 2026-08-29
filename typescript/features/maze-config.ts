@@ -1,4 +1,3 @@
-
 export const MOUSE_SENSITIVITY = 0.0015;
 
 export const DOOR_SPEED_FACTOR = 0.01;

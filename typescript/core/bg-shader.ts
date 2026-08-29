@@ -98,57 +98,57 @@ function setupBackground(shaderCode: string): void {
   const preloaded = assets.getAsset('site_bg') as HTMLImageElement | null;
 
   const useImage = (image: HTMLImageElement) => {
-      const settings = perf.getSettings();
+    const settings = perf.getSettings();
 
-      const bitmap = new createjs.Bitmap(image);
-      stage.addChild(bitmap);
+    const bitmap = new createjs.Bitmap(image);
+    stage.addChild(bitmap);
 
-      if (settings.fps > 24) {
-        const wiggle = new createjs.WiggleFilter(shaderCode, 4, 2.0, 10.0, 0.015);
-        bitmap.filters = [wiggle];
+    if (settings.fps > 24) {
+      const wiggle = new createjs.WiggleFilter(shaderCode, 4, 2.0, 10.0, 0.015);
+      bitmap.filters = [wiggle];
 
-        shader.instance = wiggle;
-        shader.loadShader = async (newPath: string) => {
-          try {
-            const response = await fetch(newPath);
-            wiggle.FRAG_SHADER_BODY = await response.text();
-            bitmap.updateCache();
-          } catch (err) {
-            console.error(`failed to load inner shader: ${err} --thorns`);
-          }
-        };
+      shader.instance = wiggle;
+      shader.loadShader = async (newPath: string) => {
+        try {
+          const response = await fetch(newPath);
+          wiggle.FRAG_SHADER_BODY = await response.text();
+          bitmap.updateCache();
+        } catch (err) {
+          console.error(`failed to load inner shader: ${err} --thorns`);
+        }
+      };
 
-        bitmap.cache(0, 0, image.width, image.height, 1, { useGL: 'stage' });
+      bitmap.cache(0, 0, image.width, image.height, 1, { useGL: 'stage' });
+    }
+
+    const resize = () => {
+      canvas!.width = window.innerWidth;
+      canvas!.height = window.innerHeight;
+      stage.updateViewport(canvas!.width, canvas!.height);
+      const scale = Math.max(canvas!.width / image.width, canvas!.height / image.height);
+      bitmap.scaleX = bitmap.scaleY = scale;
+      bitmap.x = (canvas!.width - image.width * scale) / 2;
+      bitmap.y = (canvas!.height - image.height * scale) / 2;
+      if (bitmap.cacheCanvas) bitmap.updateCache();
+    };
+    window.addEventListener('resize', resize);
+    resize();
+
+    createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
+    createjs.Ticker.framerate = settings.fps;
+
+    let tickCount = 0;
+    createjs.Ticker.addEventListener('tick', (event: Lib) => {
+      if (event.paused) return;
+
+      tickCount++;
+      if (tickCount % settings.logicThrottle !== 0) {
+        stage.update(event);
+        return;
       }
 
-      const resize = () => {
-        canvas!.width = window.innerWidth;
-        canvas!.height = window.innerHeight;
-        stage.updateViewport(canvas!.width, canvas!.height);
-        const scale = Math.max(canvas!.width / image.width, canvas!.height / image.height);
-        bitmap.scaleX = bitmap.scaleY = scale;
-        bitmap.x = (canvas!.width - image.width * scale) / 2;
-        bitmap.y = (canvas!.height - image.height * scale) / 2;
-        if (bitmap.cacheCanvas) bitmap.updateCache();
-      };
-      window.addEventListener('resize', resize);
-      resize();
-
-      createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
-      createjs.Ticker.framerate = settings.fps;
-
-      let tickCount = 0;
-      createjs.Ticker.addEventListener('tick', (event: Lib) => {
-        if (event.paused) return;
-
-        tickCount++;
-        if (tickCount % settings.logicThrottle !== 0) {
-          stage.update(event);
-          return;
-        }
-
-        const instance = shader.instance;
-        if (instance) {
+      const instance = shader.instance;
+      if (instance) {
         instance.time += (event.delta * settings.logicThrottle) / 1000;
         if (bitmap.cacheCanvas) bitmap.updateCache();
       }
@@ -161,17 +161,14 @@ function setupBackground(shaderCode: string): void {
     useImage(preloaded);
   } else if (preloaded) {
     preloaded.onload = () => useImage(preloaded);
-    preloaded.onerror = () =>
-      console.error('BootManager: bg.png (preloaded) failed to decode');
+    preloaded.onerror = () => console.error('BootManager: bg.png (preloaded) failed to decode');
   } else {
     const fallback = new Image();
     fallback.crossOrigin = 'Anonymous';
     fallback.src = 'assets/img/bg.png';
     fallback.onload = () => useImage(fallback);
-    fallback.onerror = () =>
-      console.error('BootManager: bg.png failed to load');
+    fallback.onerror = () => console.error('BootManager: bg.png failed to load');
   }
 }
 
 window.initBackgroundShader = initBackgroundShader;
-

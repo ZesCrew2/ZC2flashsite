@@ -1,4 +1,3 @@
-
 export const FOG_NEAR = 1.0;
 export const FOG_FAR = 12.0;
 export const FOG_COLOR: [number, number, number, number] = [0.02, 0, 0, 1];

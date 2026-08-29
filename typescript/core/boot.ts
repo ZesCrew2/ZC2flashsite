@@ -43,17 +43,16 @@ export class BootManager implements BootManagerInstance {
       if (this.progressStatus) this.progressStatus.textContent = 'Complete!';
 
       if (assets && assets.loadAudio) {
-        assets
-          .loadAudio()
-          .catch((err) => console.error('BootManager: audio preload failed', err));
+        assets.loadAudio().catch((err) => console.error('BootManager: audio preload failed', err));
       }
       if (assets && assets.loadDeferred) {
         assets
           .loadDeferred()
           .catch((err) => console.error('BootManager: maze asset preload failed', err));
       }
-      initBackgroundShader()
-        .catch((err) => console.error('BootManager: shader preload failed', err));
+      initBackgroundShader().catch((err) =>
+        console.error('BootManager: shader preload failed', err),
+      );
 
       setTimeout(() => self.revealSite(), 500);
     } catch (err) {

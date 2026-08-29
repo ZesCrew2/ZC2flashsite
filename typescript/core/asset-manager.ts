@@ -1,8 +1,4 @@
-import type {
-  AssetManager as IAssetManager,
-  AssetManagerManifestItem,
-  Lib,
-} from '../types.js';
+import type { AssetManager as IAssetManager, AssetManagerManifestItem, Lib } from '../types.js';
 
 export class AssetManager implements IAssetManager {
   queue: Lib;

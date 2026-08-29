@@ -1,13 +1,7 @@
 import { audio } from './audio.js';
 import { PreviewOverlay } from './preview-overlay.js';
 import { Gallery } from './gallery.js';
-import type {
-  Lib,
-  GalleryItem,
-  GalleryCardOptions,
-  GalleryLayout,
-  UiApi,
-} from '../types.js';
+import type { Lib, GalleryItem, GalleryCardOptions, GalleryLayout, UiApi } from '../types.js';
 
 const galleryDimensions = {
   square: { w: 172, h: 172 },

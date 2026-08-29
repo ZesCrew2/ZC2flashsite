@@ -152,9 +152,10 @@ export interface EngineInstance {
   };
   init(canvas: HTMLCanvasElement): Gl | null;
   createCube(): { vao: WebGLVertexArrayObject; count: number };
-  createMergedCubes(
-    offsets: Array<{ x: number; y: number; z: number }>,
-  ): { vao: WebGLVertexArrayObject; count: number };
+  createMergedCubes(offsets: Array<{ x: number; y: number; z: number }>): {
+    vao: WebGLVertexArrayObject;
+    count: number;
+  };
   applyQuality(): void;
   setupFramebuffer(w: number, h: number): void;
   startFrame(): void;

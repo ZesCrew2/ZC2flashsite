@@ -58,7 +58,6 @@ window.musicPlaylist = [
       return;
     }
 
-
     window.musicPlaylist!.forEach((track: PlaylistTrack) => {
       player.addToPlaylist(
         new WMPlaylistItem({

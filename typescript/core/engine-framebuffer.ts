@@ -14,13 +14,7 @@ export function createFramebuffer(gl: Gl, w: number, h: number): FramebufferTarg
   gl.bindTexture(gl.TEXTURE_2D, renderTexture);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.framebufferTexture2D(
-    gl.FRAMEBUFFER,
-    gl.COLOR_ATTACHMENT0,
-    gl.TEXTURE_2D,
-    renderTexture,
-    0,
-  );
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, renderTexture, 0);
 
   const entityMaskTexture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, entityMaskTexture);

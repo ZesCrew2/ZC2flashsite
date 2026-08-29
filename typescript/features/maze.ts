@@ -264,8 +264,12 @@ export class Maze implements MazeInstance {
       normal: this.engine.createTextureFromImage(assets.getAsset(ASSET_FLOOR_NOR)),
       roughness: this.engine.createTextureFromImage(assets.getAsset(ASSET_FLOOR_ROUGH)),
     };
-    this.materials.buttonClosed = this.engine.createTextureFromImage(assets.getAsset(ASSET_BTN_CLOSED));
-    this.materials.buttonOpened = this.engine.createTextureFromImage(assets.getAsset(ASSET_BTN_OPENED));
+    this.materials.buttonClosed = this.engine.createTextureFromImage(
+      assets.getAsset(ASSET_BTN_CLOSED),
+    );
+    this.materials.buttonOpened = this.engine.createTextureFromImage(
+      assets.getAsset(ASSET_BTN_OPENED),
+    );
     this.materials.skybox = {
       diffuse: this.engine.createTextureFromImage(assets.getAsset(ASSET_SKYBOX), true),
     };
@@ -375,12 +379,16 @@ export class Maze implements MazeInstance {
       current += msg[i];
       this.hudElement!.textContent = current;
       if (createjs && createjs.Sound) createjs.Sound.play(SOUND_MAZE_TEXTBOX, { volume: 0.1 });
-      await new Promise((r) => setTimeout(r, TEXT_CHAR_BASE_DELAY_MS + Math.random() * TEXT_CHAR_JITTER_MS));
+      await new Promise((r) =>
+        setTimeout(r, TEXT_CHAR_BASE_DELAY_MS + Math.random() * TEXT_CHAR_JITTER_MS),
+      );
     }
     await new Promise((r) => setTimeout(r, HUD_MESSAGE_HOLD_MS));
     if (!this.isActive) return;
     this.hudElement!.style.opacity = '0';
-    await new Promise((r) => setTimeout(r, HUD_CYCLE_MIN_DELAY_MS + Math.random() * HUD_CYCLE_JITTER_MS));
+    await new Promise((r) =>
+      setTimeout(r, HUD_CYCLE_MIN_DELAY_MS + Math.random() * HUD_CYCLE_JITTER_MS),
+    );
     this.messageIndex = (this.messageIndex + 1) % this.messages.length;
     this.cycleHUD();
   }
@@ -472,7 +480,14 @@ export class Maze implements MazeInstance {
             door.moveSource.stop();
             door.moveSource = null;
           }
-          playWebAudioSpatial(this.audioCtx!, this.audioBuffers, 'wallStop', midX, midY, WALL_STOP_VOLUME);
+          playWebAudioSpatial(
+            this.audioCtx!,
+            this.audioBuffers,
+            'wallStop',
+            midX,
+            midY,
+            WALL_STOP_VOLUME,
+          );
         }
       } else if (door.state === 'closing') {
         door.offsetY -= speed;
@@ -483,7 +498,14 @@ export class Maze implements MazeInstance {
             door.moveSource.stop();
             door.moveSource = null;
           }
-          playWebAudioSpatial(this.audioCtx!, this.audioBuffers, 'wallStop', midX, midY, WALL_STOP_VOLUME);
+          playWebAudioSpatial(
+            this.audioCtx!,
+            this.audioBuffers,
+            'wallStop',
+            midX,
+            midY,
+            WALL_STOP_VOLUME,
+          );
         }
       }
       if (door.movePanner) {

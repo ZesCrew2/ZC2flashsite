@@ -51,7 +51,13 @@ export function renderMaze(maze: Maze, time: number): void {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   const projectionMatrix = engine.pool.getMat4();
-  mat4.perspective(projectionMatrix, maze.player.fov, TARGET_ASPECT, PROJECTION_NEAR, PROJECTION_FAR);
+  mat4.perspective(
+    projectionMatrix,
+    maze.player.fov,
+    TARGET_ASPECT,
+    PROJECTION_NEAR,
+    PROJECTION_FAR,
+  );
 
   const viewMatrix = engine.pool.getMat4();
 
@@ -142,8 +148,7 @@ export function renderMaze(maze: Maze, time: number): void {
       maze.cube!.count,
       modelMatrix,
       {
-        diffuse:
-          btn.state === 'closed' ? maze.materials.buttonClosed : maze.materials.buttonOpened,
+        diffuse: btn.state === 'closed' ? maze.materials.buttonClosed : maze.materials.buttonOpened,
       },
       1.0,
     );

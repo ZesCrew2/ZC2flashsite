@@ -2,7 +2,12 @@ import * as Shaders from './shaders.js';
 import { perf } from './performance-manager.js';
 import { createCube, createMergedCubes } from './engine-geometry.js';
 import { loadTexture, createTextureFromImage } from './engine-textures.js';
-import { createShader, createProgram, createUniformTable, createPostUniformTable } from './engine-programs.js';
+import {
+  createShader,
+  createProgram,
+  createUniformTable,
+  createPostUniformTable,
+} from './engine-programs.js';
 import { createFramebuffer, setupQuad } from './engine-framebuffer.js';
 import type { EngineInstance, Gl } from '../types.js';
 
@@ -41,8 +46,7 @@ export class Engine implements EngineInstance {
 
   vsSource = Shaders.vsSource;
 
-  fsSource = (tier = 1): string =>
-    Shaders.buildFragmentSource(tier, perf.getSettings().precision);
+  fsSource = (tier = 1): string => Shaders.buildFragmentSource(tier, perf.getSettings().precision);
 
   postVS = Shaders.postVertexSource;
 
@@ -147,9 +151,10 @@ export class Engine implements EngineInstance {
     return createCube(this.gl);
   }
 
-  createMergedCubes(
-    offsets: Array<{ x: number; y: number; z: number }>,
-  ): { vao: WebGLVertexArrayObject; count: number } {
+  createMergedCubes(offsets: Array<{ x: number; y: number; z: number }>): {
+    vao: WebGLVertexArrayObject;
+    count: number;
+  } {
     return createMergedCubes(this.gl, offsets);
   }
 
