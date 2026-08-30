@@ -43,4 +43,4 @@ Declared in `typescript/globals.d.ts`.
 
 ## License
 
-This project is open source. Note that the Windows Media Player custom element (`assets/wmp/`) is **not** licensed under this project's license. Windows Media Player assets are the intellectual property of Microsoft Corporation.
+This project is licensed under the GNU General Public License v3.0. Note that the Windows Media Player custom element (`assets/wmp/`) is **not** licensed under this project's license. Windows Media Player assets are the intellectual property of Microsoft Corporation.
