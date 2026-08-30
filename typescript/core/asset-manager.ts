@@ -140,7 +140,7 @@ export class AssetManager implements IAssetManager {
   static AUDIO_MANIFEST: AssetManagerManifestItem[] = [
     { id: 'clickywav', src: 'assets/sounds/clicky.wav' },
     { id: 'hoverwav', src: 'assets/sounds/hover.wav' },
-    { id: 'site_notif', src: 'assets/sounds/click.webm' },
+    { id: 'site_notif', src: 'assets/sounds/click.wav' },
     { id: 'site_medal', src: 'assets/sounds/mm_medal_click.wav' },
     { id: 'screamwav', src: 'assets/sounds/scream.wav' },
     { id: 'snd_badexplosion', src: 'assets/sounds/snd_badexplosion.wav' },
