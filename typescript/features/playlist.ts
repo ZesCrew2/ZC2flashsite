@@ -70,6 +70,8 @@ window.musicPlaylist = [
       );
     });
 
+    let lastTrackKey = '';
+
     const updateTitle = () => {
       if (!player.shadowRoot) return;
       const current = player.currentItem;
@@ -79,10 +81,17 @@ window.musicPlaylist = [
         if (overlay.textContent !== titleText) {
           overlay.textContent = titleText;
         }
+        const key = `${player.currentPlaylistIndex}:${titleText}`;
+        if (key !== lastTrackKey) {
+          lastTrackKey = key;
+          ui.show();
+          ui.scheduleHide(4000);
+        }
       }
     };
 
-    player.addEventListener('playlistitemchange', updateTitle);
+    const ui = initUiAutoHide(player);
+
     player.addEventListener('play', updateTitle);
     player.addEventListener('playing', updateTitle);
 
@@ -97,11 +106,41 @@ window.musicPlaylist = [
     setupObserver();
 
     initVisualizer(player);
-    initUiAutoHide(player);
   };
 
-  const initUiAutoHide = (player: Lib) => {
+  const initUiAutoHide = (
+    player: Lib,
+  ): { show: () => void; scheduleHide: (delay: number) => void } => {
     let timer: number | null = null;
+    let overPersist = false;
+    let mouseX = -1;
+    let mouseY = -1;
+
+    const persistSelectors = [
+      '.controls',
+      '.seek',
+      '.gutter-left',
+      '.gutter-right',
+      '.title-overlay',
+    ];
+
+    const getPersistElements = (): (HTMLElement | null)[] => {
+      if (!player.shadowRoot) return [];
+      return persistSelectors.map(
+        (sel) => player.shadowRoot!.querySelector(sel) as HTMLElement | null,
+      );
+    };
+
+    const isOverPersist = (): boolean => {
+      if (mouseX < 0 || mouseY < 0) return false;
+      return getPersistElements().some((el) => {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        return (
+          mouseX >= r.left && mouseX <= r.right && mouseY >= r.top && mouseY <= r.bottom
+        );
+      });
+    };
 
     const show = () => {
       player.classList.remove('hide-ui');
@@ -111,9 +150,27 @@ window.musicPlaylist = [
       }
     };
     const scheduleHide = (delay: number) => {
+      if (overPersist || isOverPersist()) return;
       if (timer !== null) clearTimeout(timer);
       timer = window.setTimeout(() => player.classList.add('hide-ui'), delay);
     };
+
+    const refresh = () => {
+      const nowOver = isOverPersist();
+      if (nowOver && !overPersist) {
+        overPersist = true;
+        show();
+      } else if (!nowOver && overPersist) {
+        overPersist = false;
+        scheduleHide(3000);
+      }
+    };
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      refresh();
+    });
 
     player.addEventListener('mousemove', () => {
       show();
@@ -129,6 +186,7 @@ window.musicPlaylist = [
 
     show();
     scheduleHide(3000);
+    return { show, scheduleHide };
   };
 
   const initVisualizer = (player: Lib): void => {

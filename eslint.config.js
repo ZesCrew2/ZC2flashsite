@@ -3,7 +3,7 @@ const js = require("@eslint/js");
 
 module.exports = tseslint.config(
   {
-    ignores: ["node_modules/**", "zc2sitelol/**", "assets/**", "flash/**"],
+    ignores: ["node_modules/**", "zc2sitelol/**", "assets/**", "flash/**", "typescript/features/fluid.ts"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

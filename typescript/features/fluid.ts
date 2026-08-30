@@ -31,9 +31,9 @@ null when audio is inactive (so idle "random splats" take over).
 
 export function initFluidVisualizer(
   canvas: HTMLCanvasElement,
-  getAudio: () => Float32Array | null
+  getAudio: () => Float32Array | null,
 ): void {
-  "use strict";
+  'use strict';
 
   let config = {
     SIM_RESOLUTION: 128,
@@ -71,7 +71,8 @@ export function initFluidVisualizer(
   var _runRandom = true;
   var _isSleep = false;
   function randomSplat() {
-    if (_runRandom == true && _isSleep == false && _randomSplats) splatStack.push(parseInt(Math.random() * 20) + 5);
+    if (_runRandom == true && _isSleep == false && _randomSplats)
+      splatStack.push(parseInt(Math.random() * 20) + 5);
   }
 
   let lastBass = 0;
@@ -98,7 +99,7 @@ export function initFluidVisualizer(
 
   let _randomSplats = false;
   let _audioReact = false;
-  let colorRange = ["#FF0000", "#FF0001"];
+  let colorRange = ['#FF0000', '#FF0001'];
   let colorConfig = null;
   let splatRadiusModulationEnabled = false;
   let baseRadius = config.SPLAT_RADIUS;
@@ -135,20 +136,27 @@ export function initFluidVisualizer(
   }
 
   function getWebGLContext(canvas) {
-    const params = { alpha: true, depth: false, stencil: false, antialias: false, preserveDrawingBuffer: false };
+    const params = {
+      alpha: true,
+      depth: false,
+      stencil: false,
+      antialias: false,
+      preserveDrawingBuffer: false,
+    };
 
-    let gl = canvas.getContext("webgl2", params);
+    let gl = canvas.getContext('webgl2', params);
     const isWebGL2 = !!gl;
-    if (!isWebGL2) gl = canvas.getContext("webgl", params) || canvas.getContext("experimental-webgl", params);
+    if (!isWebGL2)
+      gl = canvas.getContext('webgl', params) || canvas.getContext('experimental-webgl', params);
 
     let halfFloat;
     let supportLinearFiltering;
     if (isWebGL2) {
-      gl.getExtension("EXT_color_buffer_float");
-      supportLinearFiltering = gl.getExtension("OES_texture_float_linear");
+      gl.getExtension('EXT_color_buffer_float');
+      supportLinearFiltering = gl.getExtension('OES_texture_float_linear');
     } else {
-      halfFloat = gl.getExtension("OES_texture_half_float");
-      supportLinearFiltering = gl.getExtension("OES_texture_half_float_linear");
+      halfFloat = gl.getExtension('OES_texture_half_float');
+      supportLinearFiltering = gl.getExtension('OES_texture_half_float_linear');
     }
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -227,7 +235,7 @@ export function initFluidVisualizer(
       ext.formatRGBA.internalFormat,
       ext.formatRGBA.format,
       ext.halfFloatTexType,
-      gl.NEAREST
+      gl.NEAREST,
     );
     render(target);
 
@@ -236,7 +244,7 @@ export function initFluidVisualizer(
 
     let captureCanvas = textureToCanvas(texture, target.width, target.height);
     let datauri = captureCanvas.toDataURL();
-    downloadURI("fluid.png", datauri);
+    downloadURI('fluid.png', datauri);
     URL.revokeObjectURL(datauri);
   }
 
@@ -269,8 +277,8 @@ export function initFluidVisualizer(
   }
 
   function textureToCanvas(texture, width, height) {
-    let captureCanvas = document.createElement("canvas");
-    let ctx = captureCanvas.getContext("2d");
+    let captureCanvas = document.createElement('canvas');
+    let ctx = captureCanvas.getContext('2d');
     captureCanvas.width = width;
     captureCanvas.height = height;
 
@@ -282,7 +290,7 @@ export function initFluidVisualizer(
   }
 
   function downloadURI(filename, uri) {
-    let link = document.createElement("a");
+    let link = document.createElement('a');
     link.download = filename;
     link.href = uri;
     document.body.appendChild(link);
@@ -368,9 +376,9 @@ export function initFluidVisualizer(
 
   function addKeywords(source, keywords) {
     if (keywords == null) return source;
-    let keywordsString = "";
+    let keywordsString = '';
     keywords.forEach((keyword) => {
-      keywordsString += "#define " + keyword + "\n";
+      keywordsString += '#define ' + keyword + '\n';
     });
     return keywordsString + source;
   }
@@ -396,7 +404,7 @@ export function initFluidVisualizer(
         vB = vUv - vec2(0.0, texelSize.y);
         gl_Position = vec4(aPosition, 0.0, 1.0);
     }
-`
+`,
   );
 
   const blurVertexShader = compileShader(
@@ -417,7 +425,7 @@ export function initFluidVisualizer(
         vR = vUv + texelSize * offset;
         gl_Position = vec4(aPosition, 0.0, 1.0);
     }
-`
+`,
   );
 
   const blurShader = compileShader(
@@ -437,7 +445,7 @@ export function initFluidVisualizer(
         sum += texture2D(uTexture, vR) * 0.35294117;
         gl_FragColor = sum;
     }
-`
+`,
   );
 
   const copyShader = compileShader(
@@ -452,7 +460,7 @@ export function initFluidVisualizer(
     void main () {
         gl_FragColor = texture2D(uTexture, vUv);
     }
-`
+`,
   );
 
   const clearShader = compileShader(
@@ -468,7 +476,7 @@ export function initFluidVisualizer(
     void main () {
         gl_FragColor = value * texture2D(uTexture, vUv);
     }
-`
+`,
   );
 
   const colorShader = compileShader(
@@ -481,7 +489,7 @@ export function initFluidVisualizer(
     void main () {
         gl_FragColor = color;
     }
-`
+`,
   );
 
   const checkerboardShader = compileShader(
@@ -502,7 +510,7 @@ export function initFluidVisualizer(
         v = v * 0.1 + 0.8;
         gl_FragColor = vec4(vec3(v), 1.0);
     }
-`
+`,
   );
 
   const displayShaderSource = `
@@ -589,7 +597,7 @@ export function initFluidVisualizer(
         c *= max(rq, br - threshold) / max(br, 0.0001);
         gl_FragColor = vec4(c, 0.0);
     }
-`
+`,
   );
 
   const bloomBlurShader = compileShader(
@@ -613,7 +621,7 @@ export function initFluidVisualizer(
         sum *= 0.25;
         gl_FragColor = sum;
     }
-`
+`,
   );
 
   const bloomFinalShader = compileShader(
@@ -638,7 +646,7 @@ export function initFluidVisualizer(
         sum *= 0.25;
         gl_FragColor = sum * intensity;
     }
-`
+`,
   );
 
   const sunraysMaskShader = compileShader(
@@ -656,7 +664,7 @@ export function initFluidVisualizer(
         c.a = 1.0 - min(max(br * 20.0, 0.0), 0.8);
         gl_FragColor = c;
     }
-`
+`,
   );
 
   const sunraysShader = compileShader(
@@ -694,7 +702,7 @@ export function initFluidVisualizer(
 
         gl_FragColor = vec4(color * Exposure, 0.0, 0.0, 1.0);
     }
-`
+`,
   );
 
   const splatShader = compileShader(
@@ -717,7 +725,7 @@ export function initFluidVisualizer(
         vec3 base = texture2D(uTarget, vUv).xyz;
         gl_FragColor = vec4(base + splat, 1.0);
     }
-`
+`,
   );
 
   const advectionShader = compileShader(
@@ -759,7 +767,7 @@ export function initFluidVisualizer(
         float decay = 1.0 + dissipation * dt;
         gl_FragColor = result / decay;
     }`,
-    ext.supportLinearFiltering ? null : ["MANUAL_FILTERING"]
+    ext.supportLinearFiltering ? null : ['MANUAL_FILTERING'],
   );
 
   const divergenceShader = compileShader(
@@ -790,7 +798,7 @@ export function initFluidVisualizer(
         float div = 0.5 * (R - L + T - B);
         gl_FragColor = vec4(div, 0.0, 0.0, 1.0);
     }
-`
+`,
   );
 
   const curlShader = compileShader(
@@ -814,7 +822,7 @@ export function initFluidVisualizer(
         float vorticity = R - L - T + B;
         gl_FragColor = vec4(0.5 * vorticity, 0.0, 0.0, 1.0);
     }
-`
+`,
   );
 
   const vorticityShader = compileShader(
@@ -848,7 +856,7 @@ export function initFluidVisualizer(
         vec2 vel = texture2D(uVelocity, vUv).xy;
         gl_FragColor = vec4(vel + force * dt, 0.0, 1.0);
     }
-`
+`,
   );
 
   const pressureShader = compileShader(
@@ -875,7 +883,7 @@ export function initFluidVisualizer(
         float pressure = (L + R + B + T - divergence) * 0.25;
         gl_FragColor = vec4(pressure, 0.0, 0.0, 1.0);
     }
-`
+`,
   );
 
   const gradientSubtractShader = compileShader(
@@ -901,7 +909,7 @@ export function initFluidVisualizer(
         velocity.xy -= vec2(R - L, T - B);
         gl_FragColor = vec4(velocity, 0.0, 1.0);
     }
-`
+`,
   );
 
   const blit = (() => {
@@ -929,7 +937,7 @@ export function initFluidVisualizer(
   let sunraysTemp;
 
   let ditheringTexture = createTextureAsync(
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMCAQDJ/PWBAAAAAElFTkSuQmCC"
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMCAQDJ/PWBAAAAAElFTkSuQmCC',
   );
 
   const blurProgram = new Program(blurVertexShader, blurShader);
@@ -963,17 +971,62 @@ export function initFluidVisualizer(
     const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
 
     if (dye == null)
-      dye = createDoubleFBO(dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, filtering);
-    else dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, filtering);
+      dye = createDoubleFBO(
+        dyeRes.width,
+        dyeRes.height,
+        rgba.internalFormat,
+        rgba.format,
+        texType,
+        filtering,
+      );
+    else
+      dye = resizeDoubleFBO(
+        dye,
+        dyeRes.width,
+        dyeRes.height,
+        rgba.internalFormat,
+        rgba.format,
+        texType,
+        filtering,
+      );
 
     if (velocity == null)
-      velocity = createDoubleFBO(simRes.width, simRes.height, rg.internalFormat, rg.format, texType, filtering);
+      velocity = createDoubleFBO(
+        simRes.width,
+        simRes.height,
+        rg.internalFormat,
+        rg.format,
+        texType,
+        filtering,
+      );
     else
-      velocity = resizeDoubleFBO(velocity, simRes.width, simRes.height, rg.internalFormat, rg.format, texType, filtering);
+      velocity = resizeDoubleFBO(
+        velocity,
+        simRes.width,
+        simRes.height,
+        rg.internalFormat,
+        rg.format,
+        texType,
+        filtering,
+      );
 
-    divergence = createFBO(simRes.width, simRes.height, r.internalFormat, r.format, texType, gl.NEAREST);
+    divergence = createFBO(
+      simRes.width,
+      simRes.height,
+      r.internalFormat,
+      r.format,
+      texType,
+      gl.NEAREST,
+    );
     curl = createFBO(simRes.width, simRes.height, r.internalFormat, r.format, texType, gl.NEAREST);
-    pressure = createDoubleFBO(simRes.width, simRes.height, r.internalFormat, r.format, texType, gl.NEAREST);
+    pressure = createDoubleFBO(
+      simRes.width,
+      simRes.height,
+      r.internalFormat,
+      r.format,
+      texType,
+      gl.NEAREST,
+    );
 
     initBloomFramebuffers();
     initSunraysFramebuffers();
@@ -1100,7 +1153,17 @@ export function initFluidVisualizer(
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255]));
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGB,
+      1,
+      1,
+      0,
+      gl.RGB,
+      gl.UNSIGNED_BYTE,
+      new Uint8Array([255, 255, 255]),
+    );
 
     let obj = {
       texture,
@@ -1127,9 +1190,9 @@ export function initFluidVisualizer(
 
   function updateKeywords() {
     let displayKeywords = [];
-    if (config.SHADING) displayKeywords.push("SHADING");
-    if (config.BLOOM) displayKeywords.push("BLOOM");
-    if (config.SUNRAYS) displayKeywords.push("SUNRAYS");
+    if (config.SHADING) displayKeywords.push('SHADING');
+    if (config.BLOOM) displayKeywords.push('BLOOM');
+    if (config.SUNRAYS) displayKeywords.push('SUNRAYS');
     displayMaterial.setKeywords(displayKeywords);
   }
 
@@ -1234,7 +1297,11 @@ export function initFluidVisualizer(
     }
 
     gradienSubtractProgram.bind();
-    gl.uniform2f(gradienSubtractProgram.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
+    gl.uniform2f(
+      gradienSubtractProgram.uniforms.texelSize,
+      velocity.texelSizeX,
+      velocity.texelSizeY,
+    );
     gl.uniform1i(gradienSubtractProgram.uniforms.uPressure, pressure.read.attach(0));
     gl.uniform1i(gradienSubtractProgram.uniforms.uVelocity, velocity.read.attach(1));
     blit(velocity.write.fbo);
@@ -1243,7 +1310,11 @@ export function initFluidVisualizer(
     advectionProgram.bind();
     gl.uniform2f(advectionProgram.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
     if (!ext.supportLinearFiltering)
-      gl.uniform2f(advectionProgram.uniforms.dyeTexelSize, velocity.texelSizeX, velocity.texelSizeY);
+      gl.uniform2f(
+        advectionProgram.uniforms.dyeTexelSize,
+        velocity.texelSizeX,
+        velocity.texelSizeY,
+      );
     let velocityId = velocity.read.attach(0);
     gl.uniform1i(advectionProgram.uniforms.uVelocity, velocityId);
     gl.uniform1i(advectionProgram.uniforms.uSource, velocityId);
@@ -1254,7 +1325,8 @@ export function initFluidVisualizer(
 
     gl.viewport(0, 0, dye.width, dye.height);
 
-    if (!ext.supportLinearFiltering) gl.uniform2f(advectionProgram.uniforms.dyeTexelSize, dye.texelSizeX, dye.texelSizeY);
+    if (!ext.supportLinearFiltering)
+      gl.uniform2f(advectionProgram.uniforms.dyeTexelSize, dye.texelSizeX, dye.texelSizeY);
     gl.uniform1i(advectionProgram.uniforms.uVelocity, velocity.read.attach(0));
     gl.uniform1i(advectionProgram.uniforms.uSource, dye.read.attach(1));
     gl.uniform1f(advectionProgram.uniforms.dissipation, config.DENSITY_DISSIPATION);
@@ -1440,7 +1512,7 @@ export function initFluidVisualizer(
     return false;
   }
 
-  canvas.addEventListener("mousemove", (e) => {
+  canvas.addEventListener('mousemove', (e) => {
     if (checkLastMove()) {
       let posX = scaleByPixelRatio(e.offsetX);
       let posY = scaleByPixelRatio(e.offsetY);
@@ -1456,11 +1528,11 @@ export function initFluidVisualizer(
     updatePointerMoveData(pointer, posX, posY);
   });
 
-  window.addEventListener("mouseup", () => {
+  window.addEventListener('mouseup', () => {
     updatePointerUpData(pointers[0]);
   });
 
-  canvas.addEventListener("touchstart", (e) => {
+  canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
     const touches = e.targetTouches;
     while (touches.length >= pointers.length) pointers.push(new pointerPrototype());
@@ -1472,7 +1544,7 @@ export function initFluidVisualizer(
   });
 
   canvas.addEventListener(
-    "touchmove",
+    'touchmove',
     (e) => {
       e.preventDefault();
       const touches = e.targetTouches;
@@ -1484,10 +1556,10 @@ export function initFluidVisualizer(
         updatePointerMoveData(pointer, posX, posY);
       }
     },
-    false
+    false,
   );
 
-  window.addEventListener("touchend", (e) => {
+  window.addEventListener('touchend', (e) => {
     const touches = e.changedTouches;
     for (let i = 0; i < touches.length; i++) {
       let pointer = pointers.find((p) => p.id == touches[i].identifier);
@@ -1496,9 +1568,9 @@ export function initFluidVisualizer(
     }
   });
 
-  window.addEventListener("keydown", (e) => {
-    if (e.code === "KeyP") config.PAUSED = !config.PAUSED;
-    if (e.key === " ") splatStack.push(parseInt(Math.random() * 20) + 5);
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'KeyP') config.PAUSED = !config.PAUSED;
+    if (e.key === ' ') splatStack.push(parseInt(Math.random() * 20) + 5);
   });
 
   function updatePointerDownData(pointer, id, posX, posY) {
@@ -1582,10 +1654,14 @@ export function initFluidVisualizer(
         if (x > 1) {
           x -= 1;
         }
-        c = HSVtoRGB(x, Math.random() * (r.s - l.s) + l.s, (Math.random() * (r.v - l.v) + l.v) * 0.15);
+        c = HSVtoRGB(
+          x,
+          Math.random() * (r.s - l.s) + l.s,
+          (Math.random() * (r.v - l.v) + l.v) * 0.15,
+        );
       } catch (error) {
-        console.log("Invalid color config", error);
-        c = hexToRgb("#000000");
+        console.log('Invalid color config', error);
+        c = hexToRgb('#000000');
       }
     }
     return c;
@@ -1601,22 +1677,22 @@ export function initFluidVisualizer(
 
     switch (i % 6) {
       case 0:
-        (r = v), (g = t), (b = p);
+        ((r = v), (g = t), (b = p));
         break;
       case 1:
-        (r = q), (g = v), (b = p);
+        ((r = q), (g = v), (b = p));
         break;
       case 2:
-        (r = p), (g = v), (b = t);
+        ((r = p), (g = v), (b = t));
         break;
       case 3:
-        (r = p), (g = q), (b = v);
+        ((r = p), (g = q), (b = v));
         break;
       case 4:
-        (r = t), (g = p), (b = v);
+        ((r = t), (g = p), (b = v));
         break;
       case 5:
-        (r = v), (g = p), (b = q);
+        ((r = v), (g = p), (b = q));
         break;
     }
 
@@ -1656,15 +1732,15 @@ export function initFluidVisualizer(
         h = 0;
         break;
       case r:
-        h = (g - b) + d * (g < b ? 6 : 0);
+        h = g - b + d * (g < b ? 6 : 0);
         h /= 6 * d;
         break;
       case g:
-        h = (b - r) + d * 2;
+        h = b - r + d * 2;
         h /= 6 * d;
         break;
       case b:
-        h = (r - g) + d * 4;
+        h = r - g + d * 4;
         h /= 6 * d;
         break;
     }
