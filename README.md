@@ -41,3 +41,6 @@ Declared in `typescript/globals.d.ts`.
 - The `flash/` directory contains original Flash source files; they are not used by the site build.
 - `assets/wmp/` contains the Windows Media Player custom element JS, loaded dynamically by `boot.ts`.
 
+## License
+
+This project is open source. Note that the Windows Media Player custom element (`assets/wmp/`) is **not** licensed under this project's license. Windows Media Player assets are the intellectual property of Microsoft Corporation.
