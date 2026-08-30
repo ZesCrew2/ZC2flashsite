@@ -1,6 +1,6 @@
-import { audio } from './audio.js';
-import { ui } from './ui.js';
-import type { Lib, GalleryItem } from '../types.js';
+import { audio } from './audio';
+import { ui } from './ui';
+import type { Lib, GalleryItem } from '@/types';
 
 export interface GalleryPageOptions {
   root: Lib;

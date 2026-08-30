@@ -1,7 +1,7 @@
-import { perf } from './performance-manager.js';
-import { shader } from '../microsite/shader.js';
-import { assets } from './asset-manager.js';
-import type { Lib } from '../types.js';
+import { perf } from './performance-manager';
+import { shader } from '@/microsite/shader';
+import { assets } from './asset-manager';
+import type { Lib } from '@/types';
 
 const FilterBase = createjs.Filter as new () => Lib;
 

@@ -2,7 +2,7 @@ import type {
   PerformanceManager as IPerformanceManager,
   PerformanceSettings,
   Lib,
-} from '../types.js';
+} from '@/types';
 
 export class PerformanceManager implements IPerformanceManager {
   TIER = 1;

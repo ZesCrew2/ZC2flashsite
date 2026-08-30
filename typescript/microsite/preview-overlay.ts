@@ -1,6 +1,6 @@
-import { audio } from './audio.js';
-import { ui } from './ui.js';
-import type { Lib, GalleryItem, PreviewOverlayOptions } from '../types.js';
+import { audio } from './audio';
+import { ui } from './ui';
+import type { Lib, GalleryItem, PreviewOverlayOptions } from '@/types';
 
 export class PreviewOverlay {
   root: Lib;

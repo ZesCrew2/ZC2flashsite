@@ -1,14 +1,14 @@
-import type { Microsite as MicrositeApi } from './types.js';
-import { ticker } from './microsite/ticker.js';
-import { audio } from './microsite/audio.js';
-import { shader } from './microsite/shader.js';
-import { ui } from './microsite/ui.js';
-import { AssetManager, assets } from './core/asset-manager.js';
-import { perf } from './core/performance-manager.js';
-import { engine } from './core/engine-core.js';
-import { boot } from './core/boot.js';
-import { Player } from './features/player.js';
-import { maze } from './features/maze.js';
+import type { Microsite as MicrositeApi } from './types';
+import { ticker } from './microsite/ticker';
+import { audio } from './microsite/audio';
+import { shader } from './microsite/shader';
+import { ui } from './microsite/ui';
+import { AssetManager, assets } from './core/asset-manager';
+import { perf } from './core/performance-manager';
+import { engine } from './core/engine-core';
+import { boot } from './core/boot';
+import { Player } from './features/player';
+import { maze } from './features/maze';
 
 export const Microsite: MicrositeApi = {
   ticker,

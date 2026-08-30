@@ -5,6 +5,6 @@ function updateTitle(): void {
   document.title = titleText;
 }
 
-setInterval(updateTitle, 250);
-
-export {};
+export function init(): void {
+  setInterval(updateTitle, 250);
+}

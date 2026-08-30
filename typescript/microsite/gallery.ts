@@ -1,7 +1,7 @@
-import { audio } from './audio.js';
-import { ticker } from './ticker.js';
-import { ui } from './ui.js';
-import type { Lib, GalleryOptions } from '../types.js';
+import { audio } from './audio';
+import { ticker } from './ticker';
+import { ui } from './ui';
+import type { Lib, GalleryOptions } from '@/types';
 
 export class Gallery {
   cards: Lib[];

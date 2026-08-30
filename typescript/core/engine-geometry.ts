@@ -1,4 +1,4 @@
-import type { Gl } from '../types.js';
+import type { Gl } from '@/types';
 
 export const CUBE_POSITIONS: Float32Array = new Float32Array([
   -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5,

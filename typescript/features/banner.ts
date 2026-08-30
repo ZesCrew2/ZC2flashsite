@@ -1,8 +1,10 @@
-import { assets } from '../core/asset-manager.js';
-import { ticker } from '../microsite/ticker.js';
-import type { Lib } from '../types.js';
+import { assets } from '@/core/asset-manager';
+import { ticker } from '@/microsite/ticker';
+import type { Lib } from '@/types';
 
-document.addEventListener('MicrositeReady', () => initBanner());
+export function init(): void {
+  document.addEventListener('MicrositeReady', () => initBanner());
+}
 
 function initBanner(): void {
   const canvas = document.getElementById('banner-canvas') as HTMLCanvasElement | null;

@@ -1,4 +1,4 @@
-import type { Gl } from '../types.js';
+import type { Gl } from '@/types';
 
 export function loadTexture(gl: Gl, url: string): Promise<WebGLTexture> {
   const tex = gl.createTexture();

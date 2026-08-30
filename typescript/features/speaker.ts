@@ -1,9 +1,10 @@
-import { audio } from '../microsite/audio.js';
-import type { Lib } from '../types.js';
+import { audio } from '@/microsite/audio';
+import type { Lib } from '@/types';
 
-window.siteAudio = { isMuted: true };
+export function init(): void {
+  window.siteAudio = { isMuted: true };
 
-const init = (): void => {
+  const setup = (): void => {
   const speaker = document.getElementById('speaker') as HTMLImageElement | null;
   const musicPlayer = document.getElementById('music-player');
   const restoreBtn = document.getElementById('music-restore');
@@ -136,10 +137,11 @@ const init = (): void => {
       { once: true },
     );
   });
-};
+  };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
 }

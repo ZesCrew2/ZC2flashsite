@@ -1,4 +1,4 @@
-import type { Gl } from '../types.js';
+import type { Gl } from '@/types';
 
 export function createShader(gl: Gl, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);

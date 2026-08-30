@@ -1,7 +1,7 @@
-import { assets as assetManager } from '../core/asset-manager.js';
-import { perf } from '../core/performance-manager.js';
-import { engine } from '../core/engine-core.js';
-import { Player } from './player.js';
+import { assets as assetManager } from '@/core/asset-manager';
+import { perf } from '@/core/performance-manager';
+import { engine } from '@/core/engine-core';
+import { Player } from './player';
 import {
   MOUSE_SENSITIVITY,
   DOOR_SPEED_FACTOR,
@@ -45,7 +45,7 @@ import {
   SOUND_MAZE_SWITCH,
   SOUND_MAZE_END_SFX,
   SOUND_MAZE_MUSIC,
-} from './maze-config.js';
+} from './maze-config';
 import {
   ButtonEntity,
   DoorEntity,
@@ -54,10 +54,10 @@ import {
   createMazeMap,
   createMazeButtons,
   createMazeDoors,
-} from './maze-data.js';
-import { playWebAudioSpatial, startDoorMoveSound } from './maze-audio.js';
-import { renderMaze } from './maze-render.js';
-import type { MazeInstance, EngineInstance, PlayerInstance, Gl, Lib } from '../types.js';
+} from './maze-data';
+import { playWebAudioSpatial, startDoorMoveSound } from './maze-audio';
+import { renderMaze } from './maze-render';
+import type { MazeInstance, EngineInstance, PlayerInstance, Gl, Lib } from '@/types';
 
 function requestPointerLock(el: HTMLElement): void {
   const req = (el as Lib).requestPointerLock({ unadjustedMovement: true });

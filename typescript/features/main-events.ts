@@ -1,8 +1,9 @@
-import { maze } from './maze.js';
-import { assets } from '../core/asset-manager.js';
-import { loadPage } from './pageloader.js';
+import { maze } from './maze';
+import { assets } from '@/core/asset-manager';
+import { loadPage } from './pageloader';
 
-document.addEventListener('DOMContentLoaded', () => {
+export function init(): void {
+  document.addEventListener('DOMContentLoaded', () => {
   const logoIdleWrap = document.getElementById('logo-idle-wrap');
   let logoClickTimeout: number | null = null;
 
@@ -52,3 +53,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+}

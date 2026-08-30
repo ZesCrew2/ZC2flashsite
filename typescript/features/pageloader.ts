@@ -1,5 +1,5 @@
-import { ticker } from '../microsite/ticker.js';
-import type { Lib } from '../types.js';
+import { ticker } from '@/microsite/ticker';
+import type { Lib } from '@/types';
 
 let currentStage: Lib | null = null;
 let currentPage: string | null = null;
@@ -138,8 +138,6 @@ function fitPage(): void {
   cvs.height = Math.round(352 * scale);
 }
 
-window.addEventListener('resize', fitPage);
-
 function scaleSite(): void {
   const site = document.getElementById('site');
   if (!site || site.clientWidth === 0) return;
@@ -155,10 +153,11 @@ function scaleSite(): void {
   }
 }
 
-window.addEventListener('resize', scaleSite);
-scaleSite();
+export function init(): void {
+  window.addEventListener('resize', fitPage);
+  window.addEventListener('resize', scaleSite);
+  scaleSite();
 
-(() => {
   const params = new URLSearchParams(window.location.search);
   const page = params.get('page') || 'orange';
 
@@ -167,6 +166,6 @@ scaleSite();
   } else {
     loadPage(page);
   }
-})();
+}
 
 export { loadPage };

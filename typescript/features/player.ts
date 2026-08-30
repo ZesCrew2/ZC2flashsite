@@ -1,4 +1,4 @@
-import type { PlayerInstance, Lib } from '../types.js';
+import type { PlayerInstance, Lib } from '@/types';
 
 export class Player implements PlayerInstance {
   x = 1.5;

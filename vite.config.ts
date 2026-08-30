@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 
-const autoloaderSource = fileURLToPath(
-  new URL('./typescript/autoloader.ts', import.meta.url),
+const mainSource = fileURLToPath(
+  new URL('./typescript/main.ts', import.meta.url),
 );
 const BUNDLE_SRC = 'assets/ts/microsite.bundle.js';
 
@@ -10,13 +11,18 @@ const devSourcePlugin = {
   name: 'dev-source-rewrite',
   apply: 'serve' as const,
   transformIndexHtml(html: string) {
-    return html.replace(BUNDLE_SRC, `/@fs${autoloaderSource}`);
+    return html.replace(BUNDLE_SRC, `/@fs${mainSource}`);
   },
 };
 
 export default defineConfig(({ mode }) => ({
   root: 'zc2sitelol',
   plugins: [devSourcePlugin],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'typescript'),
+    },
+  },
   server: {
     fs: {
       allow: [fileURLToPath(new URL('.', import.meta.url))],
@@ -30,7 +36,7 @@ export default defineConfig(({ mode }) => ({
     minify: 'esbuild',
     sourcemap: mode === 'development',
     rollupOptions: {
-      input: 'typescript/autoloader.ts',
+      input: 'typescript/main.ts',
       output: {
         format: 'es',
         entryFileNames: 'microsite.bundle.js',

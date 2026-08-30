@@ -1,4 +1,4 @@
-import type { Gl } from '../types.js';
+import type { Gl } from '@/types';
 
 export interface FramebufferTargets {
   fbo: WebGLFramebuffer;

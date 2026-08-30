@@ -1,4 +1,4 @@
-import { perf } from '../core/performance-manager.js';
+import { perf } from '@/core/performance-manager';
 import {
   WORLD_SIZE,
   TILE_CENTER,
@@ -11,7 +11,7 @@ import {
   BUTTON_INSET,
   HUD_OFFSET_PX,
   HUD_MAX_WIDTH_PAD_PX,
-} from './maze-config.js';
+} from './maze-config';
 import {
   TARGET_ASPECT,
   FOG_NEAR,
@@ -24,9 +24,9 @@ import {
   CLEAR_COLOR_DEFAULT,
   PROJECTION_NEAR,
   PROJECTION_FAR,
-} from '../core/engine-config.js';
-import type { Maze } from './maze.js';
-import type { RenderMaterial } from './maze-data.js';
+} from '@/core/engine-config';
+import type { Maze } from './maze';
+import type { RenderMaterial } from './maze-data';
 
 export function renderMaze(maze: Maze, time: number): void {
   const gl = maze.gl;

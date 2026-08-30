@@ -1,6 +1,7 @@
-import { audio } from '../microsite/audio.js';
+import { audio } from '@/microsite/audio';
 
-function init(): void {
+export function init(): void {
+  const setup = (): void => {
   const logo = document.getElementById('logo');
   if (!logo) return;
 
@@ -17,10 +18,11 @@ function init(): void {
       once: true,
     });
   });
-}
+  };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
 }

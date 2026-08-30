@@ -1,4 +1,4 @@
-import type { AudioApi } from '../types.js';
+import type { AudioApi } from '@/types';
 
 export const audio: AudioApi = {
   play(id: string, loop?: number, offset?: number) {

@@ -1,7 +1,7 @@
-import type { PlaylistTrack, Lib } from '../types.js';
-import { initFluidVisualizer } from './fluid.js';
+import type { PlaylistTrack, Lib } from '@/types';
+import { initFluidVisualizer } from './fluid';
 
-window.musicPlaylist = [
+const PLAYLIST = [
   { path: 'assets/music/gleeble.mp3', name: 'Lily (ZesCrew2) - Gleeble' },
   { path: 'assets/music/Virgill - Interference Ending.mp3', name: 'Virgill - Interference Ending' },
   { path: 'assets/music/Mario Paint - Monkey Song.mp3', name: 'Mario Paint - Monkey Song' },
@@ -46,12 +46,14 @@ window.musicPlaylist = [
   },
   {
     path: 'assets/music/seven color generator inst.mp3',
-    name: '渡辺未来 - 七色ジェネレーター (Off-Vocal)',
+    name: '渡辺未来 - 七色ジェネレーター (Off-Vocal)',
   },
 ] as PlaylistTrack[];
 
-(() => {
-  const init = () => {
+export function init(): void {
+  window.musicPlaylist = PLAYLIST;
+
+  const initPlayer = () => {
     const player = document.getElementById('wmp') as Lib | null;
     if (!player) return;
 
@@ -260,10 +262,10 @@ window.musicPlaylist = [
 
   const start = () => {
     if (window.wmplayerReady) {
-      init();
+      initPlayer();
       return;
     }
-    window.addEventListener('wmplayer:ready', init, { once: true });
+    window.addEventListener('wmplayer:ready', initPlayer, { once: true });
   };
 
   if (document.readyState === 'loading') {
@@ -271,4 +273,4 @@ window.musicPlaylist = [
   } else {
     start();
   }
-})();
+}

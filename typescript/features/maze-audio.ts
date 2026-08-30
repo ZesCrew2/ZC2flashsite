@@ -1,4 +1,4 @@
-import type { Lib } from '../types.js';
+import type { Lib } from '@/types';
 import {
   SPATIAL_REF_DISTANCE,
   SPATIAL_MAX_DISTANCE,
@@ -6,7 +6,7 @@ import {
   TILE_CENTER,
   WALL_HEIGHT,
   DOOR_GAIN,
-} from './maze-config.js';
+} from './maze-config';
 
 export function createSpatialPanner(
   audioCtx: AudioContext,

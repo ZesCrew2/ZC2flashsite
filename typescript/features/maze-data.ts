@@ -1,4 +1,4 @@
-import type { Lib } from '../types.js';
+import type { Lib } from '@/types';
 
 export interface ButtonEntity {
   x: number;

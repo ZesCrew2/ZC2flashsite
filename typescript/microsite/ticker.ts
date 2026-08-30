@@ -1,4 +1,4 @@
-import type { Lib, TickerApi } from '../types.js';
+import type { Lib, TickerApi } from '@/types';
 
 const FPS_FLASH = 24;
 

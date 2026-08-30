@@ -1,6 +1,6 @@
-import { assets } from './asset-manager.js';
-import { initBackgroundShader } from './bg-shader.js';
-import type { BootManagerInstance } from '../types.js';
+import { assets } from './asset-manager';
+import { initBackgroundShader } from './bg-shader';
+import type { BootManagerInstance } from '@/types';
 
 export class BootManager implements BootManagerInstance {
   preloader: HTMLElement | null = null;

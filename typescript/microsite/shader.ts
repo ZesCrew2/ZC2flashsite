@@ -1,4 +1,4 @@
-import type { ShaderApi } from '../types.js';
+import type { ShaderApi } from '@/types';
 
 export const shader: ShaderApi = {
   instance: null,

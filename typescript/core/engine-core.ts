@@ -1,15 +1,15 @@
-import * as Shaders from './shaders.js';
-import { perf } from './performance-manager.js';
-import { createCube, createMergedCubes } from './engine-geometry.js';
-import { loadTexture, createTextureFromImage } from './engine-textures.js';
+import * as Shaders from './shaders';
+import { perf } from './performance-manager';
+import { createCube, createMergedCubes } from './engine-geometry';
+import { loadTexture, createTextureFromImage } from './engine-textures';
 import {
   createShader,
   createProgram,
   createUniformTable,
   createPostUniformTable,
-} from './engine-programs.js';
-import { createFramebuffer, setupQuad } from './engine-framebuffer.js';
-import type { EngineInstance, Gl } from '../types.js';
+} from './engine-programs';
+import { createFramebuffer, setupQuad } from './engine-framebuffer';
+import type { EngineInstance, Gl } from '@/types';
 
 export class Engine implements EngineInstance {
   gl: Gl | null = null;

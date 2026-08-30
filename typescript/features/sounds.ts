@@ -1,8 +1,9 @@
-import { AssetManager } from '../core/asset-manager.js';
-import { audio } from '../microsite/audio.js';
-import type { Lib } from '../types.js';
+import { AssetManager } from '@/core/asset-manager';
+import { audio } from '@/microsite/audio';
+import type { Lib } from '@/types';
 
-const init = (): void => {
+export function init(): void {
+  const setup = (): void => {
   if (typeof window.playSound !== 'function') {
     window.playSound = function (id: string, loop?: number, offset?: number) {
       if (window.siteAudio && window.siteAudio.isMuted) return null;
@@ -50,10 +51,11 @@ const init = (): void => {
       audio.play(randomId);
     });
   }
-};
+  };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
 }
