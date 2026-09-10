@@ -1,2 +1,7 @@
 wmp-svg*
 *.zip
+node_modules
+/.opencode
+
+# Compiled TypeScript output
+zc2sitelol/assets/ts/

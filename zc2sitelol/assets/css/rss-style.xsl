@@ -141,8 +141,8 @@
           });
           // ]]>
         </script>
-        <script src="assets/js/rss-bg.js"></script>
-        <script src="assets/js/metro-bg.js"></script>
+        <script src="assets/ts/rss-bg.js"></script>
+        <script src="assets/ts/metro-bg.js"></script>
       </body>
     </html>
   </xsl:template>

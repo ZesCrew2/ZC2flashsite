@@ -1,0 +1,23 @@
+{
+  "name": "zc2flashsite",
+  "version": "0.0.0",
+  "private": true,
+  "description": "ZC2 Microsite — TypeScript sources compiled to zc2sitelol/assets/ts (gitignored).",
+  "scripts": {
+    "build": "vite build && npm run build:rss",
+    "build:rss": "esbuild typescript/features/rss-bg.ts --bundle --format=iife --outfile=zc2sitelol/assets/ts/rss-bg.js --target=es2020 && esbuild typescript/features/metro-bg.ts --bundle --format=iife --outfile=zc2sitelol/assets/ts/metro-bg.js --target=es2020",
+    "dev": "vite --mode development",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p typescript/tsconfig.json --noEmit",
+    "format": "prettier --write \"typescript/**/*.ts\"",
+    "lint": "eslint \"typescript/**/*.ts\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@types/node": "^26.4.0",
+    "eslint": "^9.9.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.0.0",
+    "vite": "^7.3.6"
+  }
+}
