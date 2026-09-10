@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <!-- Created on Wed, 04 Feb 2015 06:16:04 GMT -->
+  <ShortName>Google</ShortName>
+  <Description>Google Search</Description>
+  <Url type="text/html" method="get" template="https://www.google.com/search?hl=en&amp;tbo=1&amp;as_q={searchTerms}&amp;as_epq=&amp;as_oq=&amp;as_eq=&amp;num=100&amp;lr=&amp;as_filetype=&amp;ft=i&amp;as_sitesearch=&amp;as_=&amp;as_occt=any&amp;cqdr=all&amp;as_rightsr=&amp;as_nlo=&amp;as_nhi=&amp;safe=images&amp;channel=suggest"/>
+  <Url type="application/x-suggestions+json" template="https://suggestqueries.google.com/complete/search?output=firefox&amp;client=firefox&amp;hl=en&amp;q={searchTerms}"/>
+  <Image width="16" height="16">https://mycroftproject.com/updateos.php/id0/goog_100.png</Image>
+  <Developer>Anon</Developer>
+  <InputEncoding>UTF-8</InputEncoding>
+  <moz:SearchForm>https://www.google.com/?gws_rd=ssl</moz:SearchForm>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://mycroftproject.com/updateos.php/id0/goog_100.xml"/>
+</OpenSearchDescription>
