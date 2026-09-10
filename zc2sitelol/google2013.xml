@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
                        xmlns:moz="http://www.mozilla.org/2006/browser/search/">
-  <!-- Created on Wed, 04 Feb 2015 06:16:04 GMT -->
+  <!-- Created on Thu, 10 Sep 2026 20:14:12 GMT -->
   <ShortName>Google</ShortName>
   <Description>Google Search</Description>
   <Url type="text/html" method="get" template="https://www.google.com/search?hl=en&amp;tbo=1&amp;as_q={searchTerms}&amp;as_epq=&amp;as_oq=&amp;as_eq=&amp;num=100&amp;lr=&amp;as_filetype=&amp;ft=i&amp;as_sitesearch=&amp;as_=&amp;as_occt=any&amp;cqdr=all&amp;as_rightsr=&amp;as_nlo=&amp;as_nhi=&amp;safe=images&amp;channel=suggest"/>
   <Url type="application/x-suggestions+json" template="https://suggestqueries.google.com/complete/search?output=firefox&amp;client=firefox&amp;hl=en&amp;q={searchTerms}"/>
-  <Image width="16" height="16">https://mycroftproject.com/updateos.php/id0/goog_100.png</Image>
-  <Developer>Anon</Developer>
+  <!-- <Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAfhJREFUOI2Vkz1oU1EUx3/nvXvfS15jqnVwcHHwA4UqdNAWKoomBcGhWNGpk8XFxUEUcRaFqKtTEQyC7urgUBoQtNRNFCsIbSF0qI3WNk1y38d1SJDmQ8S7HDic/4/zP+ceyRfsODAdm+oA//Fcr68CXJF8wa71EtfCVowttQgyGtJK8Nx2iOolXqvDzTFNmAi5QcXeXcL7rxGlzxEvP8Z/ILGpDjid4g0DhYse2oGHbxocv1elXEkQgeJ81NYBQBdgM7Tkj2oWVhJ2eMK+jFAsGU4cUMQ9ZtEFkFYc3u/yy1gcgcWKpR6Bls7qHoCsJ0zPGHLHNOODitWGZXJUc+NpjZ2pboLqTAQaHpcMc99iRg+6fLmc4c7zOnNLMVm/G9DVAUBKCfPLMbdfGwCunvVwXCFKumvlzN1Nuz1RqVkuDWmGD7ksf7cEynJhxCOxcP5BFROCI38BVEO4ntOcPKwYe7RFVgtRYhFXmLkV8Gkp5tqzOv3brLRZqIaWiRGPVx9CAiUEGrK+IAkUZw3pf83Ac2ChnDB52iebgtUty3rDsm4s54Y0T2YNgWqHtFmwFmoJ3J/wOXVEUf5hWfmZECfw4q3h3WJCoDuG2HlM1sKGsdRiUALKaX6utBZ0x85cr6/iAFOt02wSpel7TyDsTgv9vpD1e4uBqd8JecJJIf0F1wAAAABJRU5ErkJggg==</Image> -->
+  <Developer>Lily (ZesCrew2)</Developer>
   <InputEncoding>UTF-8</InputEncoding>
   <moz:SearchForm>https://www.google.com/?gws_rd=ssl</moz:SearchForm>
-  <Url type="application/opensearchdescription+xml" rel="self" template="https://mycroftproject.com/updateos.php/id0/goog_100.xml"/>
+  <!-- <Url type="application/opensearchdescription+xml" rel="self" template="GENERATEDLATER"/> -->
 </OpenSearchDescription>
